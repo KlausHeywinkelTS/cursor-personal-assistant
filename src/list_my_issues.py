@@ -1,4 +1,4 @@
-"""Lists Jira issues assigned to the current user, grouped by status.
+"""Lists Jira issues assigned to the current user or in project KH, grouped by status.
 
 Usage:
     py src/list_my_issues.py --mode all
@@ -34,7 +34,7 @@ REMIND_DATE_FIELD = "customfield_10246"
 
 
 def _jql_for_mode(mode: str) -> str:
-    base = "assignee = currentUser() AND issuetype != Epic"
+    base = "(assignee = currentUser() OR project = KH) AND issuetype != Epic"
     if mode == "all":
         return f'{base} AND status NOT IN ("Done", "Rejected") ORDER BY updated DESC'
     if mode == "active":
