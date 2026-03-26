@@ -27,6 +27,7 @@ Alle Skripte laufen mit `py src/<skript>.py`. Credentials kommen aus Umgebungsva
 | `search_jira_issues.py` | Issues per JQL suchen | `--jql "..." -o cache/results.json` |
 | `read_confluence_page.py` | Confluence-Seite lesen | `-u URL` oder `-p PAGE-ID` |
 | `search_confluence.py` | Confluence per CQL suchen | `--query "..." --limit 5` |
+| `update_daily_journal.py` | Tagesjournal aus Jira-Bewegungen erzeugen/aktualisieren | `--date YYYY-MM-DD --journal-dir journal` |
 
 ---
 
@@ -124,6 +125,22 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
    - Was wartet auf Zuarbeit (von wem)?
    - Was wurde zuletzt abgeschlossen? (JQL: `status changed to Done after "-14d"`)
    - Blockaden / Eskalationsbedarf?
+
+---
+
+## Feature G: Journal-Auswertung (inhaltliche Muster)
+
+**Trigger:** "Journal auswerten", "Was sind Muster im generierten Inhalt?", "Fasse mein Tagesjournal inhaltlich zusammen"
+
+**Wichtig:** Die inhaltliche Musteranalyse wird **vom Agenten erzeugt**, nicht vom Python-Skript.
+
+**Ablauf:**
+1. Tagesjournal mit `py src/update_daily_journal.py --date YYYY-MM-DD` aktualisieren (liefert Rohdaten im Abschnitt `Generierter Inhalt (Jira)`).
+2. Der Agent liest die Journal-Datei.
+3. Der Agent formuliert eine kurze inhaltliche Auswertung (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen.
+4. Der Agent schreibt die Auswertung direkt in dieselbe Datei als Abschnitt `## Auswertung (Agent)` (neu anlegen oder aktualisieren).
+
+**→ Lies und befolge den Skill: `skills/journal-pattern-analysis/SKILL.md`**
 
 ---
 

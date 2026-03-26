@@ -255,6 +255,92 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 ---
 
+### Feature G: Tagesjournal *(Should-have)*
+
+**Zweck:** Der Nutzer kann pro Tag ein Journal führen. Das Journal besteht aus einem optionalen manuellen Abschnitt und einem automatisch generierten Abschnitt auf Basis aller relevanten Jira-Bewegungen des Tages.
+
+**Trigger:** Explizite Anfrage des Nutzers, z.B.:
+
+- "Erstelle heute mein Journal"
+- "Zeig mir mein Journal von heute"
+- "Aktualisiere den Jira-Teil im Journal"
+- "Erstelle mir eine Wochenzusammenfassung"
+- "Erstelle mir eine Monatszusammenfassung"
+
+**Ablage & Dateinamen:**
+
+- Ablageverzeichnis: `journal/`
+- Eine Datei pro Kalendertag
+- Dateinamensschema: `journal-YY-MM-DD.md` (Beispiel: `journal-26-03-26.md`)
+- Wenn die Datei für den Tag bereits existiert, wird sie aktualisiert statt neu angelegt
+
+**Dateistruktur pro Tag:**
+
+```markdown
+# Journal 2026-03-26
+
+## Manueller Inhalt
+<!-- Optional durch Nutzer gepflegt -->
+
+## Generierter Inhalt (Jira)
+### Statuswechsel
+- PROPS-123 - To Do -> In Progress
+
+### Kommentare
+- PROPS-456 - Kommentar von Max: "..."
+
+### Ticket-Änderungen
+- PROPS-789 - Summary/Description aktualisiert
+
+### Neu angelegte Tickets
+- PROPS-999 - Summary
+```
+
+**Regeln:**
+
+- **Manueller Inhalt ist optional**: Der Abschnitt darf leer bleiben.
+- Beim Aktualisieren des Journals darf der Agent nur den Bereich `## Generierter Inhalt (Jira)` neu erzeugen; der manuelle Abschnitt bleibt unverändert.
+- Der generierte Abschnitt enthält alle Jira-Bewegungen des Tages in vier Kategorien:
+  - **Statuswechsel**
+  - **Kommentare**
+  - **Ticket-Änderungen**
+  - **Neu angelegte Tickets**
+- `Epic`-Issues werden ignoriert.
+- Falls es in einer Kategorie keine Einträge gibt, wird dies explizit als "keine Einträge" ausgewiesen.
+
+**Ermittlung der Jira-Bewegungen für den generierten Abschnitt (Tagesbasis):**
+
+- Betrachtungszeitraum ist der konkrete Kalendertag des Journals (`00:00` bis `23:59`).
+- Die vier Kategorien werden getrennt ermittelt:
+  - **Statuswechsel:** Issues mit mindestens einer Transition am Tag.
+  - **Kommentare:** Issues mit mindestens einem neuen Kommentar am Tag.
+  - **Ticket-Änderungen:** Issues, die am Tag aktualisiert wurden (ohne reine Kommentar-Events), z.B. Summary/Description/Assignee/Priority.
+  - **Neu angelegte Tickets:** Issues mit `created` am Tag.
+- JQL-Basis pro Kategorie ist stets auf den Nutzer eingeschränkt: `assignee = currentUser()`.
+- Ausgabe pro Eintrag mindestens: `Key`, `Summary`, Event-Typ; optional zusätzlich Zeitstempel und Link.
+
+**Zusammenfassungen auf Anfrage (Wochen-/Monatsbasis):**
+
+- Der Agent kann aus bestehenden Dateien im Ordner `journal/` eine **Wochenzusammenfassung** oder **Monatszusammenfassung** erstellen.
+- Die Zusammenfassung ist rein lesend/aggregierend und verändert keine Tagesjournal-Dateien.
+- Standardmäßig berücksichtigt die Auswertung:
+  - Bei Woche: die letzten 7 Kalendertage
+  - Bei Monat: den aktuellen Kalendermonat (alternativ auf Anfrage: letzter voller Monat)
+
+**Inhalt einer Zusammenfassung:**
+
+- Kurzer Überblick (Anzahl berücksichtigter Journale, Zeitraum)
+- Wichtigste Punkte aus `Manueller Inhalt` (nur wenn vorhanden)
+- Konsolidierte Sicht auf Jira-Bewegungen der Periode (Statuswechsel, Kommentare, Änderungen, neue Tickets)
+- Optionaler Abschluss: 2-5 Bullet-Points "Was wurde geschafft / was ist aufgefallen"
+
+**Dateiquellen & Dateiformat für Aggregation:**
+
+- Es werden ausschließlich Dateien mit Muster `journal-YY-MM-DD.md` aus `journal/` berücksichtigt.
+- Tagesjournale ohne Inhalt in `Manueller Inhalt` bleiben für den Jira-Teil trotzdem voll gültig.
+
+---
+
 ## 6. Implementierungsarchitektur
 
 ### 6.1 Cursor-Integration
@@ -277,6 +363,8 @@ Für komplexe Flows (z.B. Issue-Refinement-Interview) wird zusätzlich ein **Cur
 | `src/transition_jira_issue.py` | Status-Transition eines Issues ausführen                               |
 | `src/search_confluence.py`     | Confluence per CQL durchsuchen                                         |
 | `src/list_my_issues.py`        | Alle Issues des aktuellen Nutzers mit konfigurierbaren Feldern abrufen |
+| `src/update_daily_journal.py`  | Tages-Journal in `journal/` erstellen/aktualisieren (manuell + Jira)   |
+| `src/summarize_journals.py`    | Wochen- und Monatszusammenfassung aus `journal/` erzeugen               |
 
 
 ### 6.3 ADF-Generierung für Issue-Refinement
@@ -314,7 +402,9 @@ def build_issue_description_adf(blocks: dict[str, str]) -> dict:
 | 3   | **Skill: Issue-Refinement**  | Interview-Flow als Cursor Skill implementieren                                     |
 | 4   | `**update_jira_issue.py`**   | ADF-Generierung + Jira-Write-API implementieren                                    |
 | 5   | `**list_my_issues.py`**      | Vollständige Issue-Liste mit Remind-Date-Feld für Briefing und Remind-Date-Feature |
-| 6   | **Testen mit echten Issues** | End-to-End-Test mit PROPS-Issues im Cursor-Agent                                   |
+| 6   | `**update_daily_journal.py**`| Tagesjournal-Datei erzeugen, Jira-Teil aktualisieren, manuellen Teil erhalten      |
+| 7   | `**summarize_journals.py**`  | Wochen-/Monatsjournal aus Tagesdateien aggregieren                                 |
+| 8   | **Testen mit echten Issues** | End-to-End-Test mit PROPS-Issues im Cursor-Agent                                   |
 
 
 ---
