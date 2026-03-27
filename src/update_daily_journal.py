@@ -61,6 +61,12 @@ class NewTicket:
     summary: str
 
 
+@dataclass
+class InProgressTicket:
+    key: str
+    summary: str
+
+
 def _parse_iso_dt(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -142,6 +148,36 @@ def _collect_new_tickets(day: date, issues_by_key: dict[str, dict[str, str]]) ->
             continue
         out.append(NewTicket(when=dt, key=key, summary=meta.get("summary", "")))
     out.sort(key=lambda x: (x.when, x.key))
+    return out
+
+
+def _collect_in_progress_tickets(day: date) -> list[InProgressTicket]:
+    day_start = day.isoformat()
+    day_end = date.fromordinal(day.toordinal() + 1).isoformat()
+    jql = (
+        "assignee = currentUser() "
+        "AND issuetype != Epic "
+        "AND ( "
+        f'status CHANGED TO "In Progress" DURING ("{day_start} 00:00", "{day_end} 00:00") '
+        "OR "
+        f'status CHANGED FROM "In Progress" DURING ("{day_start} 00:00", "{day_end} 00:00") '
+        "OR "
+        f'(status = "In Progress" AND NOT status CHANGED AFTER "{day_start} 00:00")'
+        " ) "
+        "ORDER BY key ASC"
+    )
+    fields = ["summary", "issuetype"]
+    issues = _jira_search(jql=jql, fields=fields, max_results=2000)
+
+    out: list[InProgressTicket] = []
+    seen: set[str] = set()
+    for issue in issues:
+        key = (issue.get("key") or "").strip()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        summary = ((issue.get("fields") or {}).get("summary") or "").strip()
+        out.append(InProgressTicket(key=key, summary=summary))
     return out
 
 
@@ -271,6 +307,7 @@ def _extract_manual_content(existing_text: str) -> str:
 
 
 def _format_generated_section(
+    in_progress_tickets: list[InProgressTicket],
     status_changes: list[StatusChange],
     comments: list[CommentEvent],
     ticket_changes: list[TicketChange],
@@ -278,7 +315,17 @@ def _format_generated_section(
 ) -> str:
     lines: list[str] = ["## Generierter Inhalt (Jira)", ""]
 
+    lines.append("### In Bearbeitung")
+    lines.append("")
+    if not in_progress_tickets:
+        lines.append("- Keine Einträge.")
+    else:
+        for it in in_progress_tickets:
+            lines.append(f"- [{it.key}]({JIRA_BASE_URL}/browse/{it.key}) - {it.summary}")
+    lines.append("")
+
     lines.append("### Statuswechsel")
+    lines.append("")
     if not status_changes:
         lines.append("- Keine Einträge.")
     else:
@@ -290,6 +337,7 @@ def _format_generated_section(
     lines.append("")
 
     lines.append("### Kommentare")
+    lines.append("")
     if not comments:
         lines.append("- Keine Einträge.")
     else:
@@ -302,6 +350,7 @@ def _format_generated_section(
     lines.append("")
 
     lines.append("### Ticket-Änderungen")
+    lines.append("")
     if not ticket_changes:
         lines.append("- Keine Einträge.")
     else:
@@ -314,6 +363,7 @@ def _format_generated_section(
     lines.append("")
 
     lines.append("### Neu angelegte Tickets")
+    lines.append("")
     if not new_tickets:
         lines.append("- Keine Einträge.")
     else:
@@ -336,12 +386,14 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
 
     manual_content = _extract_manual_content(existing_text)
     issues_by_key = _collect_candidate_issues(day)
+    in_progress_tickets = _collect_in_progress_tickets(day)
     new_tickets = _collect_new_tickets(day, issues_by_key)
     status_changes, comments, ticket_changes = _collect_issue_events(day, issues_by_key)
 
     header = f"# Journal {day.isoformat()}\n\n"
-    manual_section = f"## Manueller Inhalt\n{manual_content.strip()}\n\n"
+    manual_section = f"## Manueller Inhalt\n\n{manual_content.strip()}\n\n"
     generated_section = _format_generated_section(
+        in_progress_tickets=in_progress_tickets,
         status_changes=status_changes,
         comments=comments,
         ticket_changes=ticket_changes,
@@ -355,6 +407,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
     print(f"Journal aktualisiert: {journal_path}")
     print(
         "Events: "
+        f"in_bearbeitung={len(in_progress_tickets)}, "
         f"statuswechsel={len(status_changes)}, "
         f"kommentare={len(comments)}, "
         f"ticket_aenderungen={len(ticket_changes)}, "

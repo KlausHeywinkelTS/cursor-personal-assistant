@@ -150,3 +150,5 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 - Cache-Dateien landen in `cache/` (wird automatisch angelegt)
 - JQL-Abfragen immer mit `assignee = currentUser()` einschränken (nie alle Projekte)
 - Bei unklaren Anfragen: kurz nachfragen, nicht raten
+- Bei erzeugten/editierten Markdown-Dateien immer MD-Linter-konform formatieren.
+- Nach jeder Markdown-Überschrift (`#`, `##`, `###`, ...) folgt genau eine Leerzeile vor dem nächsten Inhalt.
