@@ -27,7 +27,9 @@ Alle Skripte laufen mit `py src/<skript>.py`. Credentials kommen aus Umgebungsva
 | `search_jira_issues.py` | Issues per JQL suchen | `--jql "..." -o cache/results.json` |
 | `read_confluence_page.py` | Confluence-Seite lesen | `-u URL` oder `-p PAGE-ID` |
 | `search_confluence.py` | Confluence per CQL suchen | `--query "..." --limit 5` |
-| `update_daily_journal.py` | Tagesjournal aus Jira-Bewegungen erzeugen/aktualisieren | `--date YYYY-MM-DD --journal-dir journal` |
+| `update_daily_journal.py` | Tagesjournal aus Jira-Bewegungen erzeugen/aktualisieren | `--date YYYY-MM-DD --journal-dir journal`; leere Vorlage ohne Jira: `--stub-only`; idempotent: `--stub-only-if-missing` (z. B. Task beim Ordneröffnen) |
+
+**Chat (Slash):** `/journal-stub` lädt das Skill `.cursor/skills/journal-stub/` – Agent soll `update_daily_journal.py --stub-only` ausführen, nicht die Datei manuell anlegen.
 
 ---
 
@@ -46,7 +48,7 @@ Alle Skripte laufen mit `py src/<skript>.py`. Credentials kommen aus Umgebungsva
 **Ausgeschlossene Issue-Typen:** `Epic` wird in allen Listen, Briefings und Remind-Date-Auswertungen grundsätzlich ignoriert und nicht angezeigt.
 Das Remind-Date ist **nur relevant für Issues im Status Waiting, Blocked, On Hold oder Backlog**. Bei Issues mit Status `In Progress`, `Ongoing`, `Next`, `To Do`, `ToDo` oder `Ready to pull` wird es ignoriert und nicht als überfällig behandelt.
 
-**Issue-Description-Struktur:** 5 ADF-Info-Panels (`background`, `goal`, `acceptance_criteria`, `additional_information`, `stakeholder`) — Details im Skill `skills/issue-refinement/SKILL.md`.
+**Issue-Description-Struktur:** 5 ADF-Info-Panels (`background`, `goal`, `acceptance_criteria`, `additional_information`, `stakeholder`) — Details im Skill `.cursor/skills/issue-refinement/SKILL.md`.
 
 ---
 
@@ -54,7 +56,7 @@ Das Remind-Date ist **nur relevant für Issues im Status Waiting, Blocked, On Ho
 
 **Trigger:** Nutzer nennt Issue-Key ODER fragt nach Refinement ODER möchte neues Issue anlegen.
 
-**→ Lies und befolge den Skill: `skills/issue-refinement/SKILL.md`**
+**→ Lies und befolge den Skill: `.cursor/skills/issue-refinement/SKILL.md`**
 
 ---
 
@@ -140,7 +142,7 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 3. Der Agent formuliert eine kurze inhaltliche Auswertung (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen.
 4. Der Agent schreibt die Auswertung direkt in dieselbe Datei als Abschnitt `## Auswertung (Agent)` (neu anlegen oder aktualisieren).
 
-**→ Lies und befolge den Skill: `skills/journal-pattern-analysis/SKILL.md`**
+**→ Lies und befolge den Skill: `.cursor/skills/journal-pattern-analysis/SKILL.md`**
 
 ---
 

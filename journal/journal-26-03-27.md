@@ -6,8 +6,6 @@
 - Habe meine assistent-Agent optimiert
 - Mal wieder viel am openai-agent gearbeitet und echt Fortschritte gemacht
 
-<!-- Optional durch Nutzer gepflegt -->
-
 ## Generierter Inhalt (Jira)
 
 ### In Bearbeitung

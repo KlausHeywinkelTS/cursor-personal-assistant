@@ -29,17 +29,18 @@ Ziel: Aus dem Abschnitt `## Generierter Inhalt (Jira)` eines Tagesjournals eine 
 4. Auswertung als eigenen Abschnitt in dieselbe Journal-Datei schreiben/aktualisieren:
    - Abschnittstitel: `## Auswertung (Agent)`
    - Falls Abschnitt bereits existiert: Inhalt ersetzen (idempotent).
-   - Falls Abschnitt nicht existiert: am Dateiende anhaengen.
+   - Falls Abschnitt nicht existiert: Oberhalb von '## Manueller Inhalt' ergänzen.
 5. Danach kurze Bestätigung im Chat geben.
 
 ## Ausgabeformat
 
 Verwende diesen Stil:
 
+- **Generell**: <2 Sätze zu einer generellen Bewertung dieses Tages>
 - **Inhaltlicher Fokus:** <1 Satz zum dominanten Thema>
 - **Arbeitsmodus:** <1 Satz zum Arbeitsmuster>
 - **Zusammenarbeit:** <1 Satz zu Abstimmung/Feedback>
-- **Risiko/Offene Kante:** <1 Satz, falls erkennbar; sonst "kein klares Risiko erkennbar">
+- **Risiko/Offene Punkte:** <1 Satz, falls erkennbar; sonst "kein klares Risiko erkennbar">
 - **Naechster sinnvoller Schritt:** <optional, 1 Satz>
 
 ## Schreibregeln fuer die Journal-Datei

@@ -24,12 +24,13 @@ The assistant communicates in German and only acts on explicit request (pull pri
 ```
 cursor-personal-assistant/
 ├── .cursor/
-│   └── rules/
-│       ├── personal-assistant.mdc   # Agent behavior, tools, features, Jira data model
-│       └── siegfried-personality.mdc # Personality layer
-├── skills/
-│   └── issue-refinement/
-│       └── SKILL.md                 # Step-by-step interview flow for issue refinement
+│   ├── rules/
+│   │   ├── personal-assistant.mdc   # Agent behavior, tools, features, Jira data model
+│   │   └── siegfried-personality.mdc # Personality layer
+│   └── skills/                      # Cursor project skills (SKILL.md per folder)
+│       ├── issue-refinement/        # Issue refinement interview
+│       ├── journal-pattern-analysis/ # Journal content pattern analysis
+│       └── journal-stub/            # Empty journal stub (/journal-stub)
 ├── src/
 │   ├── list_my_issues.py            # Fetch issues by mode (active, next, backlog, ...)
 │   ├── read_jira_issue.py           # Read a single issue (ADF → Markdown)

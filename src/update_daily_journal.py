@@ -11,6 +11,10 @@ The journal contains:
 Usage:
     py src/update_daily_journal.py --date 2026-03-23
     py src/update_daily_journal.py --date 2026-03-23 --journal-dir journal
+    py src/update_daily_journal.py --stub-only
+        (nur leere Vorlage, kein Jira; bricht ab, wenn die Datei schon existiert)
+    py src/update_daily_journal.py --stub-only-if-missing
+        (wie --stub-only, aber erfolgreich, wenn die Datei schon existiert – z. B. Auto-Start)
 """
 
 from __future__ import annotations
@@ -416,6 +420,44 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
     return journal_path
 
 
+def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
+    """Schreibt Stub-Datei. Rufer muss sicherstellen, dass der Pfad noch nicht existiert."""
+    journal_path = _journal_path_for_day(day, journal_dir)
+    header = f"# Journal {day.isoformat()}\n\n"
+    manual_section = "## Manueller Inhalt\n\n"
+    generated_section = _format_generated_section(
+        in_progress_tickets=[],
+        status_changes=[],
+        comments=[],
+        ticket_changes=[],
+        new_tickets=[],
+    )
+    content = header + manual_section + generated_section
+
+    with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(content)
+
+    print(f"Journal-Vorlage angelegt: {journal_path}")
+    return journal_path
+
+
+def write_journal_stub(day: date, journal_dir: str) -> str:
+    """Leere Journal-Vorlage (ohne Jira-Abruf). Überschreibt keine bestehende Datei."""
+    journal_path = _journal_path_for_day(day, journal_dir)
+    if os.path.exists(journal_path):
+        raise SystemExit(f"Journal-Datei existiert bereits: {journal_path}")
+    return _write_journal_stub_filesystem(day, journal_dir)
+
+
+def write_journal_stub_if_missing(day: date, journal_dir: str) -> str:
+    """Leere Vorlage nur anlegen, wenn die Datei fehlt; sonst Meldung und kein Fehler."""
+    journal_path = _journal_path_for_day(day, journal_dir)
+    if os.path.exists(journal_path):
+        print(f"Journal-Vorlage unveraendert (existiert): {journal_path}")
+        return journal_path
+    return _write_journal_stub_filesystem(day, journal_dir)
+
+
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         try:
@@ -433,6 +475,17 @@ def main() -> int:
         default="journal",
         help="Directory for journal markdown files (default: journal)",
     )
+    stub_group = parser.add_mutually_exclusive_group()
+    stub_group.add_argument(
+        "--stub-only",
+        action="store_true",
+        help="Nur leere Vorlage schreiben (kein Jira); schlaegt fehl, wenn die Datei existiert",
+    )
+    stub_group.add_argument(
+        "--stub-only-if-missing",
+        action="store_true",
+        help="Wie --stub-only, aber erfolgreich, wenn die Datei schon existiert (idempotent)",
+    )
     args = parser.parse_args()
 
     day = date.today()
@@ -441,6 +494,14 @@ def main() -> int:
             day = date.fromisoformat(args.date)
         except ValueError as exc:
             raise SystemExit(f"Ungueltiges Datum fuer --date: {args.date}") from exc
+
+    if args.stub_only:
+        write_journal_stub(day=day, journal_dir=args.journal_dir)
+        return 0
+
+    if args.stub_only_if_missing:
+        write_journal_stub_if_missing(day=day, journal_dir=args.journal_dir)
+        return 0
 
     update_daily_journal(day=day, journal_dir=args.journal_dir)
     return 0
