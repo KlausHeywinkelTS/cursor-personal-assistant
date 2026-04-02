@@ -139,7 +139,7 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 **Ablauf:**
 1. Tagesjournal mit `py src/update_daily_journal.py --date YYYY-MM-DD` aktualisieren (liefert Rohdaten im Abschnitt `Generierter Inhalt (Jira)`).
 2. Der Agent liest die Journal-Datei.
-3. Der Agent formuliert eine kurze inhaltliche Auswertung (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen.
+3. Der Agent formuliert eine kurze inhaltliche Auswertung aus `## Manueller Inhalt` und `## Generierter Inhalt (Jira)` (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen; bei Kontrast (z. B. viel manuell, Jira leer) kurz einordnen.
 4. Der Agent schreibt die Auswertung direkt in dieselbe Datei als Abschnitt `## Auswertung (Agent)` (neu anlegen oder aktualisieren).
 
 **→ Lies und befolge den Skill: `.cursor/skills/journal-pattern-analysis/SKILL.md`**
