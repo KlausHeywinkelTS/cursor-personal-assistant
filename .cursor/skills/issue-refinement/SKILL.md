@@ -77,6 +77,8 @@ Den zurückgegebenen Issue-Key merken. → Weiter mit Schritt 3.
 
 ## Schritt 3: Interview – Block für Block
 
+**Interview-Regeln (auch in `.cursor/rules/personal-assistant.mdc`):** Pro Agenten-Nachricht höchstens **eine Frage**. Werden Optionen angeboten, mit **A, B, C, …** kennzeichnen.
+
 Die 5 Blöcke **nacheinander** befragen. Für jeden Block:
 - Ist ein Wert bereits vorhanden (aus Schritt 2a/2c): als Vorschlag zeigen, kurz zusammenfassen
 - Nutzer kann bestätigen ("passt so"), ergänzen oder komplett neu formulieren

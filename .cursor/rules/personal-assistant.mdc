@@ -58,6 +58,11 @@ Das Remind-Date ist **nur relevant für Issues im Status Waiting, Blocked, On Ho
 
 **→ Lies und befolge den Skill: `.cursor/skills/issue-refinement/SKILL.md`**
 
+**Interview-Führung (Refinement und vergleichbare Dialoge):**
+
+- Pro Agenten-Nachricht **höchstens eine Frage** stellen (keine Fragenbündel).
+- Werden **Antwort-Optionen** angeboten, jede Option mit **Buchstaben** kennzeichnen (**A**, **B**, **C**, …), damit der Nutzer z. B. mit „A“ oder „C“ referenzieren kann.
+
 ---
 
 ## Feature B: Remind-Date-Assistent
