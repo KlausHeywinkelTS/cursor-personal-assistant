@@ -269,10 +269,11 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 **Ablage & Dateinamen:**
 
-- Ablageverzeichnis: `journal/`
+- Ablageverzeichnis: `journal/<YYYY-MM>/`, ein Unterordner pro Kalendermonat (Beispiel: `journal/2026-04/`)
 - Eine Datei pro Kalendertag
-- Dateinamensschema: `journal-YY-MM-DD.md` (Beispiel: `journal-26-03-26.md`)
+- Dateinamensschema: `journal-YY-MM-DD.md` (Beispiel: `journal/2026-03/journal-26-03-26.md`)
 - Wenn die Datei für den Tag bereits existiert, wird sie aktualisiert statt neu angelegt
+- Wochen-/Monatsrückschauen liegen separat unter `journal/wochen-rueckschau/`, damit Monatsordner reine Tagesjournale bleiben
 
 **Dateistruktur pro Tag:**
 
@@ -321,7 +322,7 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 **Zusammenfassungen auf Anfrage (Wochen-/Monatsbasis):**
 
-- Der Agent kann aus bestehenden Dateien im Ordner `journal/` eine **Wochenzusammenfassung** oder **Monatszusammenfassung** erstellen.
+- Der Agent kann aus bestehenden Dateien unterhalb von `journal/<YYYY-MM>/` eine **Wochenzusammenfassung** oder **Monatszusammenfassung** erstellen.
 - Die Zusammenfassung ist rein lesend/aggregierend und verändert keine Tagesjournal-Dateien.
 - Standardmäßig berücksichtigt die Auswertung:
   - Bei Woche: die letzten 7 Kalendertage
@@ -336,7 +337,7 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 **Dateiquellen & Dateiformat für Aggregation:**
 
-- Es werden ausschließlich Dateien mit Muster `journal-YY-MM-DD.md` aus `journal/` berücksichtigt.
+- Es werden ausschließlich Dateien mit Muster `journal-YY-MM-DD.md` aus den Monatsordnern `journal/<YYYY-MM>/` berücksichtigt (rekursiv über alle Monate). Dateien direkt in `journal/` oder in `journal/wochen-rueckschau/` zählen nicht.
 - Tagesjournale ohne Inhalt in `Manueller Inhalt` bleiben für den Jira-Teil trotzdem voll gültig.
 
 ---
@@ -356,15 +357,15 @@ Für komplexe Flows (z.B. Issue-Refinement-Interview) wird zusätzlich ein **Cur
 ### 6.2 Neue Python-Skripte (zu entwickeln)
 
 
-| Skript                         | Zweck                                                                  |
-| ------------------------------ | ---------------------------------------------------------------------- |
-| `src/update_jira_issue.py`     | Issue-Description (ADF) + Custom Fields updaten                        |
-| `src/add_jira_comment.py`      | Kommentar zu Issue hinzufügen                                          |
-| `src/transition_jira_issue.py` | Status-Transition eines Issues ausführen                               |
-| `src/search_confluence.py`     | Confluence per CQL durchsuchen                                         |
-| `src/list_my_issues.py`        | Alle Issues des aktuellen Nutzers mit konfigurierbaren Feldern abrufen |
-| `src/update_daily_journal.py`  | Tages-Journal in `journal/` erstellen/aktualisieren (manuell + Jira)   |
-| `src/summarize_journals.py`    | Wochen- und Monatszusammenfassung aus `journal/` erzeugen               |
+| Skript                         | Zweck                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| `src/update_jira_issue.py`     | Issue-Description (ADF) + Custom Fields updaten                                |
+| `src/add_jira_comment.py`      | Kommentar zu Issue hinzufügen                                                  |
+| `src/transition_jira_issue.py` | Status-Transition eines Issues ausführen                                       |
+| `src/search_confluence.py`     | Confluence per CQL durchsuchen                                                 |
+| `src/list_my_issues.py`        | Alle Issues des aktuellen Nutzers mit konfigurierbaren Feldern abrufen         |
+| `src/update_daily_journal.py`  | Tages-Journal in `journal/<YYYY-MM>/` erstellen/aktualisieren (manuell + Jira) |
+| `src/summarize_journals.py`    | Wochen- und Monatszusammenfassung aus `journal/<YYYY-MM>/` erzeugen            |
 
 
 ### 6.3 ADF-Generierung für Issue-Refinement

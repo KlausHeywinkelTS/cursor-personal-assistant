@@ -1,6 +1,6 @@
 ---
 name: journal-stub
-description: Leere Tagesjournal-Datei anlegen (Markdown-Vorlage ohne Jira-Abruf). Workspace-Root, Standardordner journal/.
+description: Leere Tagesjournal-Datei anlegen (Markdown-Vorlage ohne Jira-Abruf). Workspace-Root, Ablage in journal/<YYYY-MM>/.
 disable-model-invocation: true
 ---
 
@@ -30,7 +30,7 @@ Der Nutzer will eine neue leere Journal-Datei für einen Tag – schnell, ohne J
 
 3. Wenn die Ausgabe meldet, die Datei existiere bereits: Kurz mitteilen, kein Überschreiben – Nutzer kann Datum ändern oder Datei entfernen.
 
-4. Erfolg: Kurz den ausgegebenen Pfad bestätigen.
+4. Erfolg: Kurz den ausgegebenen Pfad bestätigen (das Skript legt den Monatsordner `journal/<YYYY-MM>/` bei Bedarf selbst an).
 
 ## Kurzreferenz
 

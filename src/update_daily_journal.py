@@ -290,7 +290,8 @@ def _journal_path_for_day(day: date, journal_dir: str) -> str:
     yy = day.strftime("%y")
     mm = day.strftime("%m")
     dd = day.strftime("%d")
-    return os.path.join(journal_dir, f"journal-{yy}-{mm}-{dd}.md")
+    yyyy_mm = day.strftime("%Y-%m")
+    return os.path.join(journal_dir, yyyy_mm, f"journal-{yy}-{mm}-{dd}.md")
 
 
 def _extract_manual_content(existing_text: str) -> str:
@@ -380,8 +381,8 @@ def _format_generated_section(
 
 
 def update_daily_journal(day: date, journal_dir: str) -> str:
-    os.makedirs(journal_dir, exist_ok=True)
     journal_path = _journal_path_for_day(day, journal_dir)
+    os.makedirs(os.path.dirname(journal_path), exist_ok=True)
 
     existing_text = ""
     if os.path.exists(journal_path):
@@ -423,6 +424,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
 def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
     """Schreibt Stub-Datei. Rufer muss sicherstellen, dass der Pfad noch nicht existiert."""
     journal_path = _journal_path_for_day(day, journal_dir)
+    os.makedirs(os.path.dirname(journal_path), exist_ok=True)
     header = f"# Journal {day.isoformat()}\n\n"
     manual_section = "## Manueller Inhalt\n\n"
     generated_section = _format_generated_section(
