@@ -151,6 +151,32 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 
 ---
 
+## Feature H: Wochen-Rückschau
+
+**Trigger:** "Wochenauswertung", "Wochen-Rückschau", "Erzeuge die Wochenauswertung", "Fasse die Woche zusammen"
+
+**Wichtig:** Die Wochen-Rückschau wird vom Agenten aus den Tages-Journals erzeugt und in den Ordner `journal/wochen-rueckschau/` geschrieben.
+
+**Ablauf:**
+
+1. Wochentage bestimmen (Montag–Freitag der betreffenden Woche; falls keine Angabe → aktuelle Woche).
+2. Alle vorhandenen Tages-Journal-Dateien dieser Woche lesen (`journal/YYYY-MM/journal-YY-MM-DD.md`).
+3. Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat: `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und Datei neu lesen.
+4. Aus allen Tages-Journals eine Wochen-Rückschau erzeugen mit folgenden Abschnitten:
+   - `## Auswertung (Agent)` – Bullet-Liste: Generell, Inhaltlicher Fokus, Arbeitsmodus, Zusammenarbeit, Risiko/Offene Punkte, Nächster sinnvoller Schritt
+   - `## Tagesüberblick` – Markdown-Tabelle: Tag | Schwerpunkt | Abgeschlossen | Neu angelegt
+5. Datei speichern unter: `journal/wochen-rueckschau/wochen-rueckschau-YYYY-MM-DD-bis-YYYY-MM-DD.md` (Datumsbereich Montag bis Freitag).
+
+**Dateiname-Beispiel:** `wochen-rueckschau-2026-04-20-bis-2026-04-24.md`
+
+**Schreibregeln:**
+
+- Keine Ticket-Nacherzählung als Kern der Auswertung; Fokus auf Muster, Arbeitsmodus, Beziehungsarbeit und offene Kanten.
+- Tages-Journal-Dateien nicht verändern.
+- Datei ist idempotent: bei erneutem Aufruf wird die bestehende Datei aktualisiert.
+
+---
+
 ## Regeln
 
 - **Immer vor Schreiben bestätigen lassen** (update, create, comment, transition)
