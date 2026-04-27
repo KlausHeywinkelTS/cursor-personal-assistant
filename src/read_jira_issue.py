@@ -465,10 +465,18 @@ def main():
     )
     args = parser.parse_args()
     issue = read_jira_issue(args.issue_key)
-    print(f"Issue key: {args.issue_key}")
-    print(f"Issue summary: {issue['fields']['summary']}")
+    fields = issue.get("fields", {})
 
-    description = issue.get("fields", {}).get("description")
+    print(f"Issue key: {args.issue_key}")
+    print(f"Issue summary: {fields['summary']}")
+
+    parent_field = fields.get("parent") or {}
+    parent_key = parent_field.get("key") or ""
+    parent_summary = (parent_field.get("fields") or {}).get("summary") or ""
+    if parent_key:
+        print(f"Parent: {parent_key} — {parent_summary}")
+
+    description = fields.get("description")
     description_md = _render_adf_or_text(description)
 
     print("Issue description (markdown):")
@@ -477,13 +485,15 @@ def main():
     cache_dir = os.path.join(os.getcwd(), "cache")
     os.makedirs(cache_dir, exist_ok=True)
     output_path = os.path.join(cache_dir, f"{args.issue_key}.md")
-    release_brief_url = issue.get("fields", {}).get("customfield_10131") or ""
+    release_brief_url = fields.get("customfield_10131") or ""
 
     with open(output_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(f"Issue key: {args.issue_key}\n")
+        if parent_key:
+            f.write(f"Parent: {parent_key} — {parent_summary}\n")
         if release_brief_url:
             f.write(f"Release Brief: [{release_brief_url}]({release_brief_url})\n")
-        f.write(f"Issue summary: {issue['fields']['summary']}\n")
+        f.write(f"Issue summary: {fields['summary']}\n")
         f.write("\n")
         f.write(description_md)
         if args.include_children:
