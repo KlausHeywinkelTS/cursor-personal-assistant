@@ -283,7 +283,62 @@ def _collect_issue_events(
     status_changes.sort(key=lambda x: (x.when, x.key))
     comments.sort(key=lambda x: (x.when, x.key))
     ticket_changes.sort(key=lambda x: (x.when, x.key))
+    status_changes = _merge_status_chains(status_changes)
+    ticket_changes = _dedup_ticket_changes(ticket_changes)
     return status_changes, comments, ticket_changes
+
+
+def _merge_status_chains(changes: list[StatusChange]) -> list[StatusChange]:
+    """Merge consecutive status changes for the same key into a single chain entry.
+
+    The full chain (e.g. "On Hold → To Do → In Progress") is stored in to_status;
+    from_status is set to "" to signal that the chain is already fully encoded.
+    """
+    seen: dict[str, StatusChange] = {}
+    for sc in changes:
+        if sc.key in seen:
+            existing = seen[sc.key]
+            # existing.to_status already contains the chain so far
+            chain = existing.to_status + " → " + sc.to_status
+            seen[sc.key] = StatusChange(
+                when=existing.when,
+                key=existing.key,
+                summary=existing.summary,
+                from_status="",
+                to_status=chain,
+            )
+        else:
+            # First occurrence: encode as full chain string right away
+            seen[sc.key] = StatusChange(
+                when=sc.when,
+                key=sc.key,
+                summary=sc.summary,
+                from_status="",
+                to_status=f"{sc.from_status} → {sc.to_status}",
+            )
+    result = list(seen.values())
+    result.sort(key=lambda x: (x.when, x.key))
+    return result
+
+
+def _dedup_ticket_changes(changes: list[TicketChange]) -> list[TicketChange]:
+    """Merge all TicketChange entries for the same key into one, keeping earliest timestamp."""
+    seen: dict[str, TicketChange] = {}
+    for tc in changes:
+        if tc.key in seen:
+            existing = seen[tc.key]
+            merged_fields = list(dict.fromkeys(existing.fields + tc.fields))
+            seen[tc.key] = TicketChange(
+                when=existing.when,
+                key=existing.key,
+                summary=existing.summary,
+                fields=merged_fields,
+            )
+        else:
+            seen[tc.key] = tc
+    result = list(seen.values())
+    result.sort(key=lambda x: (x.when, x.key))
+    return result
 
 
 def _journal_path_for_day(day: date, journal_dir: str) -> str:
@@ -335,9 +390,9 @@ def _format_generated_section(
         lines.append("- Keine Einträge.")
     else:
         for ev in status_changes:
+            transition = ev.to_status if not ev.from_status else f"{ev.from_status} → {ev.to_status}"
             lines.append(
-                f"- {_hhmm(ev.when)} - [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
-                f"{ev.summary} - {ev.from_status} -> {ev.to_status}"
+                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - {transition}"
             )
     lines.append("")
 
@@ -349,7 +404,7 @@ def _format_generated_section(
         for ev in comments:
             snippet = f' "{ev.body_preview}"' if ev.body_preview else ""
             lines.append(
-                f"- {_hhmm(ev.when)} - [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
+                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
                 f'{ev.summary} - {ev.author}:{snippet}'
             )
     lines.append("")
@@ -362,8 +417,7 @@ def _format_generated_section(
         for ev in ticket_changes:
             fields = ", ".join(ev.fields)
             lines.append(
-                f"- {_hhmm(ev.when)} - [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
-                f"{ev.summary} - Geändert: {fields}"
+                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - Geändert: {fields}"
             )
     lines.append("")
 
@@ -374,7 +428,7 @@ def _format_generated_section(
     else:
         for ev in new_tickets:
             lines.append(
-                f"- {_hhmm(ev.when)} - [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary}"
+                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary}"
             )
     lines.append("")
     return "\n".join(lines).rstrip() + "\n"
