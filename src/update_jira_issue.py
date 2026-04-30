@@ -49,24 +49,60 @@ BLOCK_ORDER = ["background", "goal", "acceptance_criteria", "additional_informat
 # ---------------------------------------------------------------------------
 
 def _text_to_adf_paragraphs(text: str) -> list[dict]:
-    """Convert plain text to ADF paragraph nodes. Double newlines = new paragraph."""
-    paragraphs: list[dict] = []
-    for para in text.split("\n\n"):
-        lines = para.strip()
-        if not lines:
-            continue
+    """Convert plain text to ADF nodes.
+
+    Lines starting with '- ' or '* ' are grouped into ADF bulletList nodes.
+    Consecutive non-bullet lines form paragraph nodes with hardBreaks.
+    An empty line flushes the current accumulator and starts a new node.
+    """
+    nodes: list[dict] = []
+    current_bullets: list[str] = []
+    current_para_lines: list[str] = []
+
+    def _flush_bullets() -> None:
+        if not current_bullets:
+            return
+        items = [
+            {
+                "type": "listItem",
+                "content": [
+                    {"type": "paragraph", "content": [{"type": "text", "text": t}]}
+                ],
+            }
+            for t in current_bullets
+        ]
+        nodes.append({"type": "bulletList", "content": items})
+        current_bullets.clear()
+
+    def _flush_para() -> None:
+        if not current_para_lines:
+            return
         inline: list[dict] = []
-        parts = lines.split("\n")
-        for i, line in enumerate(parts):
-            if line:
-                inline.append({"type": "text", "text": line})
-            if i < len(parts) - 1:
+        for i, line in enumerate(current_para_lines):
+            inline.append({"type": "text", "text": line})
+            if i < len(current_para_lines) - 1:
                 inline.append({"type": "hardBreak"})
-        if inline:
-            paragraphs.append({"type": "paragraph", "content": inline})
-    if not paragraphs:
-        paragraphs.append({"type": "paragraph", "content": [{"type": "text", "text": ""}]})
-    return paragraphs
+        nodes.append({"type": "paragraph", "content": inline})
+        current_para_lines.clear()
+
+    for raw_line in text.split("\n"):
+        line = raw_line.strip()
+        if not line:
+            _flush_bullets()
+            _flush_para()
+        elif line.startswith("- ") or line.startswith("* ") or line.startswith("• "):
+            _flush_para()
+            current_bullets.append(line[2:].strip())
+        else:
+            _flush_bullets()
+            current_para_lines.append(line)
+
+    _flush_bullets()
+    _flush_para()
+
+    if not nodes:
+        nodes.append({"type": "paragraph", "content": [{"type": "text", "text": ""}]})
+    return nodes
 
 
 def build_adf_info_panel(title: str, content_text: str) -> dict:
