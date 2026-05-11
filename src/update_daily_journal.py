@@ -139,7 +139,7 @@ def _is_on_day(iso_value: str | None, day: date) -> bool:
 
 
 def _hhmm(dt: datetime) -> str:
-    return dt.strftime("%H:%M")
+    return dt.astimezone().strftime("%H:%M")
 
 
 def _safe_text(value: Any) -> str:
@@ -445,7 +445,7 @@ def _format_generated_section(
         for ev in status_changes:
             transition = ev.to_status if not ev.from_status else f"{ev.from_status} → {ev.to_status}"
             lines.append(
-                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - {transition}"
+                f"- `{_hhmm(ev.when)}` [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - {transition}"
             )
     lines.append("")
 
@@ -457,7 +457,7 @@ def _format_generated_section(
         for ev in comments:
             snippet = f' "{ev.body_preview}"' if ev.body_preview else ""
             lines.append(
-                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
+                f"- `{_hhmm(ev.when)}` [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - "
                 f'{ev.summary} - {ev.author}:{snippet}'
             )
     lines.append("")
@@ -470,7 +470,7 @@ def _format_generated_section(
         for ev in ticket_changes:
             fields = ", ".join(ev.fields)
             lines.append(
-                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - Geändert: {fields}"
+                f"- `{_hhmm(ev.when)}` [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary} - Geändert: {fields}"
             )
     lines.append("")
 
@@ -481,7 +481,7 @@ def _format_generated_section(
     else:
         for ev in new_tickets:
             lines.append(
-                f"- [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary}"
+                f"- `{_hhmm(ev.when)}` [{ev.key}]({JIRA_BASE_URL}/browse/{ev.key}) - {ev.summary}"
             )
     lines.append("")
     return "\n".join(lines).rstrip() + "\n"

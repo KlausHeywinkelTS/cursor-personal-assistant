@@ -26,8 +26,9 @@ Ziel: Aus dem Abschnitt `## Manueller Inhalt` (falls vorhanden und nicht leer) *
    - `### Kommentare`
    - `### Ticket-Änderungen`
    - `### Neu angelegte Tickets`
-   - sowie `### In Bearbeitung` fuer den Kontext „was haengt offen“.
-4. Muster verdichten: manuell + Jira zusammen denken (z. B. „viel passiert, Jira leer“), nicht zwei getrennte Mini-Auswertungen.
+   - sowie `### In Bearbeitung` fuer den Kontext "was haengt offen".
+   - Jeder Eintrag in diesen Abschnitten beginnt mit einer Uhrzeit in Backticks (z. B. `` `09:15` ``). Diese Uhrzeiten nutzen, um den zeitlichen Ablauf des Tages zu rekonstruieren: Wann wurde aktiv gearbeitet? Gibt es erkennbare Schübe oder Unterbrechungen? Konzentrierte Arbeit vs. verteilte Aktivität über den Tag?
+4. Muster verdichten: manuell + Jira zusammen denken (z. B. "viel passiert, Jira leer"), nicht zwei getrennte Mini-Auswertungen. Zeitliche Muster aus den Uhrzeiten in die Arbeitsmodus-Einschätzung einbeziehen.
 5. Auswertung im Ausgabeformat (siehe unten) formulieren und als `## Auswertung (Agent)` in dieselbe Journal-Datei schreiben oder bestehenden Inhalt ersetzen (idempotent); Position: oberhalb von `## Manueller Inhalt`.
 6. Kurze Bestätigung im Chat geben.
 
@@ -37,7 +38,7 @@ Verwende diesen Stil:
 
 - **Generell**: <2 Sätze zu einer generellen Bewertung dieses Tages; manueller und Jira-Teil zusammenfassen wo sinnvoll>
 - **Inhaltlicher Fokus:** <1 Satz zum dominanten Thema>
-- **Arbeitsmodus:** <1 Satz zum Arbeitsmuster>
+- **Arbeitsmodus:** <1 Satz zum Arbeitsmuster, inklusive zeitlicher Verteilung der Aktivität falls erkennbar>
 - **Zusammenarbeit:** <1 Satz zu Abstimmung/Feedback>
 - **Risiko/Offene Punkte:** <1 Satz, falls erkennbar; sonst "kein klares Risiko erkennbar">
 - **Naechster sinnvoller Schritt:** <optional, 1 Satz>
