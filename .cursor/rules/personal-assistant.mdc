@@ -144,8 +144,11 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 **Ablauf:**
 1. Tagesjournal mit `py src/update_daily_journal.py --date YYYY-MM-DD` aktualisieren (liefert Rohdaten im Abschnitt `Generierter Inhalt (Jira)`).
 2. Der Agent liest die Journal-Datei.
-3. Der Agent formuliert eine kurze inhaltliche Auswertung aus `## Manueller Inhalt` und `## Generierter Inhalt (Jira)` (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen; bei Kontrast (z. B. viel manuell, Jira leer) kurz einordnen.
-4. Der Agent schreibt die Auswertung direkt in dieselbe Datei als Abschnitt `## Auswertung (Agent)` (neu anlegen oder aktualisieren).
+3. Reflexions-Interview (jede Frage in eigener Nachricht):
+   - Frage 1: "Was siehst du heute als besonderen Erfolg – oder worauf bist du stolz oder glücklich?"
+   - Frage 2: "Welches positive Feedback hast du heute bekommen?"
+4. Der Agent formuliert eine kurze inhaltliche Auswertung aus `## Manueller Inhalt`, `## Generierter Inhalt (Jira)` und den Reflexionsantworten (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen; bei Kontrast (z. B. viel manuell, Jira leer) kurz einordnen.
+5. Der Agent schreibt drei Sektionen in die Datei (idempotent, oberhalb von `## Manueller Inhalt`): `## Auswertung (Agent)`, `## Erfolg & Stolz`, `## Positives Feedback`. Die Antworten dürfen mit konkreten Jira-Issues oder dem manuellen Inhalt verknüpft werden, sofern der Bezug eindeutig ableitbar ist.
 
 **→ Lies und befolge den Skill: `.cursor/skills/journal-pattern-analysis/SKILL.md`**
 
