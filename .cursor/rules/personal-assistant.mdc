@@ -180,6 +180,36 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 
 ---
 
+## Feature I: Monats-Rückschau
+
+**Trigger:** "Monatsrückschau", "Monatsauswertung", "Erzeuge die Monatsrückschau", "Fasse den Monat zusammen"
+
+**Wichtig:** Die Monats-Rückschau wird vom Agenten aus den Tages-Journals eines Kalendermonats erzeugt und in den Ordner `journal/monats-rueckschau/` geschrieben. Sie fokussiert vor allem auf Erfolge und Wirkung; Verbesserungen werden nur als ein einzelner Fokus-Impuls formuliert.
+
+**Ablauf:**
+
+1. Kalendermonat bestimmen (falls keine Angabe → aktueller Monat).
+2. Alle vorhandenen Tages-Journal-Dateien dieses Monats lesen (`journal/YYYY-MM/journal-YY-MM-DD.md`).
+3. Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat: `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und Datei neu lesen.
+4. Aus allen Tages-Journals eine Monats-Rückschau erzeugen mit folgenden Abschnitten:
+   - `## Auswertung (Agent)` – kurze Einordnung des Monats: Themen, Arbeitsmodus, Zusammenarbeit, offene Kanten
+   - `## Erfolge` – Schwerpunkt der Datei; Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt und Jira-Bewegungen verdichten
+   - `## Wirkung` – 2-4 Punkte, woran Nutzen sichtbar wurde, z. B. abgeschlossene Themen, gelöste Blocker, positive Rückmeldungen oder entstandene Automatisierung
+   - `## Fokus-Impuls` – **genau ein** rückblickender Verbesserungsimpuls für den nächsten Monat
+   - `## Monatsüberblick` – Markdown-Tabelle: Woche | Schwerpunkt | wichtigste Erfolge | offene Punkte
+5. Datei speichern unter: `journal/monats-rueckschau/monats-rueckschau-YYYY-MM.md`.
+
+**Schreibregeln:**
+
+- Erfolge stehen im Vordergrund; Risiken und Verbesserungen werden knapp eingeordnet.
+- Der Fokus-Impuls enthält genau einen Punkt. Nicht zwei, nicht "eigentlich drei". Einer reicht. Das ist der Sinn von Fokus.
+- Keine Ticket-Nacherzählung als Kern der Rückschau; Tickets dienen nur als Belege für Muster, Wirkung und Erfolge.
+- Jeder Bulletpoint in der Monats-Rückschau listet am Ende die relevanten Ticket-Keys im Format `Relevante Tickets: PROPS-123, PROPS-456`. Falls eine Aussage nicht auf konkrete Tickets zurückgeht, als Fließtext formulieren statt als Bulletpoint.
+- Tages-Journal-Dateien nicht verändern, außer wenn der automatische Jira-Teil für ein vorhandenes Tagesjournal fehlt.
+- Datei ist idempotent: bei erneutem Aufruf wird die bestehende Datei aktualisiert.
+
+---
+
 ## Regeln
 
 - **Immer vor Schreiben bestätigen lassen** (update, create, comment, transition)

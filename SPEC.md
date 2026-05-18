@@ -273,7 +273,7 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 - Eine Datei pro Kalendertag
 - Dateinamensschema: `journal-YY-MM-DD.md` (Beispiel: `journal/2026-03/journal-26-03-26.md`)
 - Wenn die Datei für den Tag bereits existiert, wird sie aktualisiert statt neu angelegt
-- Wochen-/Monatsrückschauen liegen separat unter `journal/wochen-rueckschau/`, damit Monatsordner reine Tagesjournale bleiben
+- Wochenrückschauen liegen separat unter `journal/wochen-rueckschau/`, Monatsrückschauen unter `journal/monats-rueckschau/`, damit Monatsordner reine Tagesjournale bleiben
 
 **Dateistruktur pro Tag:**
 
@@ -327,6 +327,31 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 - Standardmäßig berücksichtigt die Auswertung:
   - Bei Woche: die letzten 7 Kalendertage
   - Bei Monat: den aktuellen Kalendermonat (alternativ auf Anfrage: letzter voller Monat)
+
+**Monatsrückschau auf Anfrage:**
+
+- Trigger-Beispiele: "Monatsrückschau", "Monatsauswertung", "Erzeuge die Monatsrückschau", "Fasse den Monat zusammen".
+- Betrachtungszeitraum ist der gewünschte Kalendermonat; falls kein Monat genannt wird, wird der aktuelle Kalendermonat verwendet.
+- Der Agent liest alle vorhandenen Tagesjournale des Monats aus `journal/YYYY-MM/journal-YY-MM-DD.md`.
+- Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat, darf der Agent `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und die Datei danach neu lesen.
+- Die Monatsrückschau wird unter `journal/monats-rueckschau/monats-rueckschau-YYYY-MM.md` gespeichert.
+- Die Monatsrückschau verändert keine Tagesjournal-Dateien außer dem explizit erlaubten Aktualisieren fehlender Jira-Teile.
+
+**Inhalt einer Monatsrückschau:**
+
+- `## Auswertung (Agent)` mit einer kurzen Einordnung des Monats: dominierende Themen, Arbeitsmodus, Zusammenarbeit und offene Kanten.
+- `## Erfolge` als Schwerpunkt der Datei: konkrete Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt und Jira-Bewegungen verdichten; keine reine Ticketliste.
+- `## Wirkung` mit 2-4 Punkten, woran sichtbar wird, dass die Arbeit Nutzen hatte, z. B. abgeschlossene Themen, gelöste Blocker, positive Rückmeldungen oder entstandene Automatisierung.
+- `## Fokus-Impuls` mit **genau einem** rückblickenden Verbesserungsimpuls. Dieser Impuls soll konstruktiv und konkret sein, nicht mehrere Baustellen aufmachen.
+- `## Monatsüberblick` als kurze Tabelle: Woche | Schwerpunkt | wichtigste Erfolge | offene Punkte.
+
+**Schreibregeln für Monatsrückschauen:**
+
+- Erfolge stehen im Vordergrund; Risiken und Verbesserungen werden knapp eingeordnet.
+- Der Fokus-Impuls darf nur einen Punkt enthalten, auch wenn mehrere Verbesserungsmöglichkeiten sichtbar sind.
+- Keine Ticket-Nacherzählung als Kern der Rückschau; Tickets dienen nur als Belege für Muster, Wirkung und Erfolge.
+- Jeder Bulletpoint in der Monatsrückschau listet am Ende die relevanten Ticket-Keys im Format `Relevante Tickets: PROPS-123, PROPS-456`. Falls ein Bulletpoint bewusst nicht auf konkrete Tickets zurückgeht, wird kein Bulletpoint verwendet, sondern Fließtext.
+- Datei ist idempotent: bei erneutem Aufruf wird die bestehende Monatsrückschau aktualisiert.
 
 **Inhalt einer Zusammenfassung:**
 
