@@ -6,6 +6,7 @@
 - Dann habe ich klar-Schiff für meine Jira-Tasks gemacht, damit während meines Urlaubs nichts anbrennt und ich danach einen guten Wiederaufsetzpunkt habe.
 - Zwischendurch ein neues Jira-Board für Judith aufgesetzt für ihre persönliche Organisation.
 - Habe noch angefangen, für das One-Pager Lambda eine HTML-Oberfläche zu bauen.
+- Nach dem Mittagessen hatte ich Probleme, das repo props_scheduled_scripts zu pushen. Keine Ahnung, woran es liegt.
 
 ## Generierter Inhalt (Jira)
 
