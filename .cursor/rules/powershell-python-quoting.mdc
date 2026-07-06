@@ -1,0 +1,45 @@
+---
+description: Avoid PowerShell quoting pitfalls when running Python snippets
+alwaysApply: true
+---
+
+# PowerShell Python Quoting
+
+On this Windows repo, run Python with `py`, not `python`.
+
+PowerShell can silently rewrite or strip quotes when complex Python snippets are
+passed through `py -c`, especially when the snippet contains nested quotes,
+JSON-like literals, raw Windows paths, or multi-line variables. Recent failed
+pattern:
+
+```powershell
+$code = @'
+spec = importlib.util.spec_from_file_location("runner", r".\path\file.py")
+'@
+py -B -c "$code"
+```
+
+If the snippet is more than a trivial one-liner, prefer piping code to Python
+stdin so Python receives the text as-is:
+
+```powershell
+@'
+print("quote-safe")
+'@ | py -B -
+```
+
+For `py -c`, keep it simple:
+
+```powershell
+py -B -c "print('quote test')"
+```
+
+When loading a module by path with `importlib.util.spec_from_file_location`, add
+the module to `sys.modules` before `exec_module` if dataclasses are defined:
+
+```python
+spec = importlib.util.spec_from_file_location("runner", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["runner"] = module
+spec.loader.exec_module(module)
+```
