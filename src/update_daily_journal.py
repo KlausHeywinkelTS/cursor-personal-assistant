@@ -1,6 +1,7 @@
 """Create or update a daily journal markdown file.
 
 The journal contains:
+- Appointments from today's calendar
 - Manual section (preserved on updates)
 - Generated Jira section with day-based activity:
   - Status changes
@@ -27,6 +28,8 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+
+from get_schedule_for_today import get_schedule_for_today
 
 
 def _candidate_jira_helper_dirs() -> list[Path]:
@@ -83,6 +86,13 @@ def _load_jira_helpers() -> tuple[Any, Any]:
 _jira_get, _jira_search = _load_jira_helpers()
 
 JIRA_BASE_URL = "https://trustedshops.atlassian.net"
+EXCLUDED_APPOINTMENT_SUBJECTS = frozenset(
+    {
+        "blocked",
+        "blocker",
+        "meeting free morning",
+    }
+)
 
 
 @dataclass
@@ -124,6 +134,13 @@ class InProgressTicket:
     summary: str
 
 
+@dataclass
+class Appointment:
+    start: datetime
+    end: datetime
+    subject: str
+
+
 def _parse_iso_dt(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -147,6 +164,56 @@ def _safe_text(value: Any) -> str:
         return ""
     text = str(value).replace("\n", " ").strip()
     return " ".join(text.split())
+
+
+def _collect_appointments(day: date) -> tuple[list[Appointment], bool]:
+    """Return appointments for the journal day and whether their retrieval succeeded."""
+    if day != date.today():
+        return [], True
+
+    try:
+        schedule = get_schedule_for_today()
+    except Exception as exc:
+        print(f"Warnung: Termine konnten nicht abgerufen werden: {exc}", file=sys.stderr)
+        return [], False
+
+    appointments: list[Appointment] = []
+    for item in schedule:
+        start = _parse_iso_dt(_safe_text(item.get("start")))
+        end = _parse_iso_dt(_safe_text(item.get("end")))
+        subject = _safe_text(item.get("subject")) or "(ohne Betreff)"
+        if (
+            not start
+            or not end
+            or start.date() != day
+            or subject.casefold() in EXCLUDED_APPOINTMENT_SUBJECTS
+        ):
+            continue
+        appointments.append(
+            Appointment(
+                start=start,
+                end=end,
+                subject=subject,
+            )
+        )
+
+    appointments.sort(key=lambda appointment: (appointment.start, appointment.end, appointment.subject))
+    return appointments, True
+
+
+def _format_appointments_section(appointments: list[Appointment], retrieved: bool) -> str:
+    lines = ["## Termine", ""]
+    if not retrieved:
+        lines.append("- Termine konnten nicht abgerufen werden.")
+    elif not appointments:
+        lines.append("- Keine Termine.")
+    else:
+        for appointment in appointments:
+            lines.append(
+                f"- {appointment.start.strftime('%H:%M')} - "
+                f"{appointment.end.strftime('%H:%M')}: {appointment.subject}"
+            )
+    return "\n".join(lines) + "\n"
 
 
 def _extract_comment_preview(comment_body: Any, max_len: int = 180) -> str:
@@ -497,12 +564,14 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
             existing_text = f.read()
 
     manual_content = _extract_manual_content(existing_text)
+    appointments, appointments_retrieved = _collect_appointments(day)
     issues_by_key = _collect_candidate_issues(day)
     in_progress_tickets = _collect_in_progress_tickets(day)
     new_tickets = _collect_new_tickets(day, issues_by_key)
     status_changes, comments, ticket_changes = _collect_issue_events(day, issues_by_key)
 
     header = f"# Journal {day.isoformat()}\n\n"
+    appointments_section = _format_appointments_section(appointments, appointments_retrieved)
     manual_section = f"## Manueller Inhalt\n\n{manual_content.strip()}\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=in_progress_tickets,
@@ -511,7 +580,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
         ticket_changes=ticket_changes,
         new_tickets=new_tickets,
     )
-    content = header + manual_section + generated_section
+    content = header + appointments_section + "\n" + manual_section + generated_section
 
     with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
@@ -520,6 +589,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
     print(
         "Events: "
         f"in_bearbeitung={len(in_progress_tickets)}, "
+        f"termine={len(appointments)}, "
         f"statuswechsel={len(status_changes)}, "
         f"kommentare={len(comments)}, "
         f"ticket_aenderungen={len(ticket_changes)}, "
@@ -533,6 +603,8 @@ def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
     journal_path = _journal_path_for_day(day, journal_dir)
     os.makedirs(os.path.dirname(journal_path), exist_ok=True)
     header = f"# Journal {day.isoformat()}\n\n"
+    appointments, appointments_retrieved = _collect_appointments(day)
+    appointments_section = _format_appointments_section(appointments, appointments_retrieved)
     manual_section = "## Manueller Inhalt\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=[],
@@ -541,7 +613,7 @@ def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
         ticket_changes=[],
         new_tickets=[],
     )
-    content = header + manual_section + generated_section
+    content = header + appointments_section + "\n" + manual_section + generated_section
 
     with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
