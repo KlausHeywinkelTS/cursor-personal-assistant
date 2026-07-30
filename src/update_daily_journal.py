@@ -25,9 +25,10 @@ import importlib.util
 import os
 import sys
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from get_schedule_for_today import get_schedule_for_today
 
@@ -86,6 +87,7 @@ def _load_jira_helpers() -> tuple[Any, Any]:
 _jira_get, _jira_search = _load_jira_helpers()
 
 JIRA_BASE_URL = "https://trustedshops.atlassian.net"
+SCHEDULE_TIME_ZONE = ZoneInfo("Europe/Berlin")
 EXCLUDED_APPOINTMENT_SUBJECTS = frozenset(
     {
         "blocked",
@@ -159,6 +161,16 @@ def _hhmm(dt: datetime) -> str:
     return dt.astimezone().strftime("%H:%M")
 
 
+def _parse_schedule_dt(value: str | None) -> datetime | None:
+    """Interpret offset-free schedule timestamps as UTC and convert to Berlin time."""
+    dt = _parse_iso_dt(value)
+    if not dt:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(SCHEDULE_TIME_ZONE)
+
+
 def _safe_text(value: Any) -> str:
     if value is None:
         return ""
@@ -179,8 +191,8 @@ def _collect_appointments(day: date) -> tuple[list[Appointment], bool]:
 
     appointments: list[Appointment] = []
     for item in schedule:
-        start = _parse_iso_dt(_safe_text(item.get("start")))
-        end = _parse_iso_dt(_safe_text(item.get("end")))
+        start = _parse_schedule_dt(_safe_text(item.get("start")))
+        end = _parse_schedule_dt(_safe_text(item.get("end")))
         subject = _safe_text(item.get("subject")) or "(ohne Betreff)"
         if (
             not start
