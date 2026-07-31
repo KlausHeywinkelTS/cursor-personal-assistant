@@ -31,6 +31,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from get_schedule_for_today import get_schedule_for_today
+from prioritize_my_jira_issues import get_ranked_issues
 
 
 def _candidate_jira_helper_dirs() -> list[Path]:
@@ -498,6 +499,39 @@ def _extract_manual_content(existing_text: str) -> str:
     return body if body.strip() else "<!-- Optional durch Nutzer gepflegt -->"
 
 
+def _format_top_scored_jira_tasks_section(tasks: list[dict[str, Any]]) -> str:
+    """Format the top-ranked Jira tasks as a readable Markdown journal section."""
+    lines = ["## Top 3 scored Jira Tasks", ""]
+    if not tasks:
+        lines.append("- Keine offenen Jira-Tasks im Ranking gefunden.")
+        return "\n".join(lines) + "\n"
+
+    for position, task in enumerate(tasks[:3], start=1):
+        key = _safe_text(task.get("key")) or "(ohne Key)"
+        summary = _safe_text(task.get("summary")) or "(ohne Summary)"
+        status = _safe_text(task.get("status")) or "(ohne Status)"
+        score = task.get("score", 0)
+        reasons = task.get("reasons") or []
+
+        lines.extend(
+            [
+                f"### {position}. [{key}]({JIRA_BASE_URL}/browse/{key}) — {score} Punkte",
+                "",
+                summary,
+                "",
+                f"**Status:** `{status}`",
+                "",
+            ]
+        )
+        if reasons:
+            lines.extend(f"- {reason}" for reason in reasons)
+        else:
+            lines.append("- Keine Punkte-Regel hat getroffen.")
+        lines.append("")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _format_generated_section(
     in_progress_tickets: list[InProgressTicket],
     status_changes: list[StatusChange],
@@ -577,6 +611,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
 
     manual_content = _extract_manual_content(existing_text)
     appointments, appointments_retrieved = _collect_appointments(day)
+    top_scored_tasks = get_ranked_issues()[:3]
     issues_by_key = _collect_candidate_issues(day)
     in_progress_tickets = _collect_in_progress_tickets(day)
     new_tickets = _collect_new_tickets(day, issues_by_key)
@@ -584,6 +619,7 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
 
     header = f"# Journal {day.isoformat()}\n\n"
     appointments_section = _format_appointments_section(appointments, appointments_retrieved)
+    top_scored_tasks_section = _format_top_scored_jira_tasks_section(top_scored_tasks)
     manual_section = f"## Manueller Inhalt\n\n{manual_content.strip()}\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=in_progress_tickets,
@@ -592,7 +628,15 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
         ticket_changes=ticket_changes,
         new_tickets=new_tickets,
     )
-    content = header + appointments_section + "\n" + manual_section + generated_section
+    content = (
+        header
+        + appointments_section
+        + "\n"
+        + top_scored_tasks_section
+        + "\n"
+        + manual_section
+        + generated_section
+    )
 
     with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
