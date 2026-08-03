@@ -90,6 +90,36 @@ class TopScoredTasksSectionTests(unittest.TestCase):
         )
         self.assertIn("### 1. [PROPS-1]", content)
 
+    def test_writes_top_scored_tasks_when_creating_ranked_stub(self) -> None:
+        ranked_tasks = [
+            {
+                "key": "PROPS-1",
+                "summary": "Wichtigste Aufgabe",
+                "status": "In Progress",
+                "score": 150,
+                "reasons": ["+50 Status In Progress"],
+            }
+        ]
+        with TemporaryDirectory() as temporary_directory:
+            with (
+                patch.object(journal, "_collect_appointments", return_value=([], True)),
+                patch.object(journal, "get_ranked_issues", return_value=ranked_tasks),
+            ):
+                path = journal.write_journal_stub_with_ranking_if_missing(
+                    date(2026, 8, 3),
+                    temporary_directory,
+                )
+
+            content = Path(path).read_text(encoding="utf-8")
+
+        self.assertIn("## Top 3 scored Jira Tasks", content)
+        self.assertIn("### 1. [PROPS-1]", content)
+        self.assertLess(content.index("## Termine"), content.index("## Top 3 scored Jira Tasks"))
+        self.assertLess(
+            content.index("## Top 3 scored Jira Tasks"),
+            content.index("## Manueller Inhalt"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

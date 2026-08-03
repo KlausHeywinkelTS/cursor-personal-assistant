@@ -654,13 +654,22 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
     return journal_path
 
 
-def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
+def _write_journal_stub_filesystem(
+    day: date,
+    journal_dir: str,
+    top_scored_tasks: list[dict[str, Any]] | None = None,
+) -> str:
     """Schreibt Stub-Datei. Rufer muss sicherstellen, dass der Pfad noch nicht existiert."""
     journal_path = _journal_path_for_day(day, journal_dir)
     os.makedirs(os.path.dirname(journal_path), exist_ok=True)
     header = f"# Journal {day.isoformat()}\n\n"
     appointments, appointments_retrieved = _collect_appointments(day)
     appointments_section = _format_appointments_section(appointments, appointments_retrieved)
+    top_scored_tasks_section = (
+        _format_top_scored_jira_tasks_section(top_scored_tasks)
+        if top_scored_tasks is not None
+        else ""
+    )
     manual_section = "## Manueller Inhalt\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=[],
@@ -669,7 +678,10 @@ def _write_journal_stub_filesystem(day: date, journal_dir: str) -> str:
         ticket_changes=[],
         new_tickets=[],
     )
-    content = header + appointments_section + "\n" + manual_section + generated_section
+    content = header + appointments_section + "\n"
+    if top_scored_tasks_section:
+        content += top_scored_tasks_section + "\n"
+    content += manual_section + generated_section
 
     with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
@@ -693,6 +705,19 @@ def write_journal_stub_if_missing(day: date, journal_dir: str) -> str:
         print(f"Journal-Vorlage unveraendert (existiert): {journal_path}")
         return journal_path
     return _write_journal_stub_filesystem(day, journal_dir)
+
+
+def write_journal_stub_with_ranking_if_missing(day: date, journal_dir: str) -> str:
+    """Lege eine Tagesvorlage mit den drei aktuell höchsten Jira-Rankings an."""
+    journal_path = _journal_path_for_day(day, journal_dir)
+    if os.path.exists(journal_path):
+        print(f"Journal-Vorlage unveraendert (existiert): {journal_path}")
+        return journal_path
+    return _write_journal_stub_filesystem(
+        day,
+        journal_dir,
+        top_scored_tasks=get_ranked_issues()[:3],
+    )
 
 
 def main() -> int:
@@ -723,6 +748,11 @@ def main() -> int:
         action="store_true",
         help="Wie --stub-only, aber erfolgreich, wenn die Datei schon existiert (idempotent)",
     )
+    stub_group.add_argument(
+        "--stub-with-ranking-if-missing",
+        action="store_true",
+        help="Wie --stub-only-if-missing, aber mit den drei hoechsten Jira-Rankings",
+    )
     args = parser.parse_args()
 
     day = date.today()
@@ -738,6 +768,10 @@ def main() -> int:
 
     if args.stub_only_if_missing:
         write_journal_stub_if_missing(day=day, journal_dir=args.journal_dir)
+        return 0
+
+    if args.stub_with_ranking_if_missing:
+        write_journal_stub_with_ranking_if_missing(day=day, journal_dir=args.journal_dir)
         return 0
 
     update_daily_journal(day=day, journal_dir=args.journal_dir)
