@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Journal: Stub heute (falls fehlt)",
+      "label": "Journal: Vorlage mit Top 3 heute (falls fehlt)",
       "type": "shell",
-      "command": "py src/update_daily_journal.py --stub-only-if-missing",
+      "command": "py src/update_daily_journal.py --stub-with-ranking-if-missing",
       "options": {
         "cwd": "${workspaceFolder}"
       },
