@@ -10,7 +10,7 @@ import update_daily_journal as journal
 
 
 class TopScoredTasksSectionTests(unittest.TestCase):
-    def test_formats_three_ranked_tasks_with_readable_details(self) -> None:
+    def test_formats_three_ranked_tasks_as_compact_list_items(self) -> None:
         section = journal._format_top_scored_jira_tasks_section(
             [
                 {
@@ -45,11 +45,11 @@ class TopScoredTasksSectionTests(unittest.TestCase):
         )
 
         self.assertIn("## Top 3 scored Jira Tasks\n\n", section)
-        self.assertIn("### 1. [PROPS-1]", section)
-        self.assertIn("### 3. [PROPS-3]", section)
+        self.assertIn("- PROPS-1 - Wichtigste Aufgabe (Wert für das Epic)", section)
+        self.assertIn("- PROPS-3 - Dritte Aufgabe", section)
         self.assertNotIn("PROPS-4", section)
-        self.assertIn("**Status:** `In Progress`", section)
-        self.assertIn("- +100 Priorität Showstopper", section)
+        self.assertNotIn("[PROPS-1]", section)
+        self.assertNotIn("Punkte", section)
 
     def test_formats_empty_ranking(self) -> None:
         section = journal._format_top_scored_jira_tasks_section([])
@@ -88,7 +88,7 @@ class TopScoredTasksSectionTests(unittest.TestCase):
             content.index("## Top 3 scored Jira Tasks"),
             content.index("## Manueller Inhalt"),
         )
-        self.assertIn("### 1. [PROPS-1]", content)
+        self.assertIn("- PROPS-1 - Wichtigste Aufgabe", content)
 
     def test_writes_top_scored_tasks_when_creating_ranked_stub(self) -> None:
         ranked_tasks = [
@@ -113,7 +113,7 @@ class TopScoredTasksSectionTests(unittest.TestCase):
             content = Path(path).read_text(encoding="utf-8")
 
         self.assertIn("## Top 3 scored Jira Tasks", content)
-        self.assertIn("### 1. [PROPS-1]", content)
+        self.assertIn("- PROPS-1 - Wichtigste Aufgabe", content)
         self.assertLess(content.index("## Termine"), content.index("## Top 3 scored Jira Tasks"))
         self.assertLess(
             content.index("## Top 3 scored Jira Tasks"),

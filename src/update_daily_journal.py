@@ -500,36 +500,18 @@ def _extract_manual_content(existing_text: str) -> str:
 
 
 def _format_top_scored_jira_tasks_section(tasks: list[dict[str, Any]]) -> str:
-    """Format the top-ranked Jira tasks as a readable Markdown journal section."""
+    """Format the top-ranked Jira tasks as compact Markdown list items."""
     lines = ["## Top 3 scored Jira Tasks", ""]
     if not tasks:
         lines.append("- Keine offenen Jira-Tasks im Ranking gefunden.")
         return "\n".join(lines) + "\n"
 
-    for position, task in enumerate(tasks[:3], start=1):
+    for task in tasks[:3]:
         key = _safe_text(task.get("key")) or "(ohne Key)"
         summary = _safe_text(task.get("summary")) or "(ohne Summary)"
-        status = _safe_text(task.get("status")) or "(ohne Status)"
-        score = task.get("score", 0)
-        reasons = task.get("reasons") or []
+        lines.append(f"- {key} - {summary}")
 
-        lines.extend(
-            [
-                f"### {position}. [{key}]({JIRA_BASE_URL}/browse/{key}) — {score} Punkte",
-                "",
-                summary,
-                "",
-                f"**Status:** `{status}`",
-                "",
-            ]
-        )
-        if reasons:
-            lines.extend(f"- {reason}" for reason in reasons)
-        else:
-            lines.append("- Keine Punkte-Regel hat getroffen.")
-        lines.append("")
-
-    return "\n".join(lines).rstrip() + "\n"
+    return "\n".join(lines) + "\n"
 
 
 def _format_generated_section(
