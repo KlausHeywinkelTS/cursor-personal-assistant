@@ -5,7 +5,6 @@
 - 14:00 - 14:25: Natalie x PrOps
 - 15:30 - 15:55: PrOps x Raj
 - 16:00 - 16:15: PrOps Daily
-- 18:45 - 19:45: Abf. Oz
 
 ## Top 3 scored Jira Tasks
 
