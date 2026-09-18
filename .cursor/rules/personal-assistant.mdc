@@ -186,6 +186,8 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 
 **Wichtig:** Die Monats-Rückschau wird vom Agenten aus den Tages-Journals eines Kalendermonats erzeugt und in den Ordner `journal/monats-rueckschau/` geschrieben. Sie fokussiert vor allem auf Erfolge und Wirkung; Verbesserungen werden nur als ein einzelner Fokus-Impuls formuliert.
 
+**→ Lies und befolge den Skill: `.cursor/skills/journal-monatsauswertung/SKILL.md`**
+
 **Ablauf:**
 
 1. Kalendermonat bestimmen (falls keine Angabe → aktueller Monat).
