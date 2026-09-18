@@ -32,6 +32,8 @@ DEFAULT_PROJECTS = [
     "TR",
     "TRSTDEXP",
     "CA",
+    "GUARANTEE",
+    "SEO"
 ]
 CUSTOMER_IMPACT_FIELD_NAME = "Has customer impact"
 
