@@ -16,7 +16,7 @@
 ## Manueller Inhalt
 
 - Einige BIS erzeugt für Aleks und dabei eine Verbesserung am Skill vorgenommen
-- Abstimmung mit Engineering Managern zur Einschätzung von Bugs in Bezug auf Customer Impact (PROPS-1158). Danach Umsetzung meiner Themen (neue Felder in Jira - dabei Aufräumen von Field Schemes notwendig, was länger gedauert hat)
+- Abstimmung mit Engineering Managern zur Einschätzung von Bugs in Bezug auf Customer Impact (PROPS-1158). Danach Umsetzung meiner Themen (neue Felder in Jira - dabei Aufräumen von Field Schemes notwendig, was länger gedauert hat). Kommunikation ist durch - QAs können anfangen Bug einzuschätzen.
 - Spontaner Termin von Vincent heute Nachmittag zum Worklog-Tracking
 
 ## Generierter Inhalt (Jira)
