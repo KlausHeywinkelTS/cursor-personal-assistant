@@ -4,7 +4,6 @@
 
 - 09:15 - 09:25: Bug classification
 - 15:30 - 16:20: 1on1 Klaus <> Dennis
- 18:45 - 19:45: Abf OZ
 
 ## Top 3 scored Jira Tasks
 
