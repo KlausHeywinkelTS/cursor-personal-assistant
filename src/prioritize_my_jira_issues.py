@@ -55,6 +55,7 @@ def _candidate_jira_helper_dirs() -> list[Path]:
     home = Path.home()
     candidates.extend(
         [
+            home / ".claude" / "skills" / "jira" / "src",
             home / ".cursor" / "skills" / "jira" / "src",
             home / "Dev" / "props-cursor-plugins" / "skills" / "jira" / "src",
         ]

@@ -1,6 +1,6 @@
 # Cursor Personal Assistant
 
-A personal work assistant running inside Cursor IDE, built for a Process Manager (PrOps). It connects to **Jira** and **Confluence** (Atlassian Cloud) and helps with daily self-organization, issue maintenance, and handling waiting periods — all without leaving the editor.
+A personal work assistant running inside Claude Code (formerly Cursor IDE), built for a Process Manager (PrOps). It connects to **Jira** and **Confluence** (Atlassian Cloud) and helps with daily self-organization, issue maintenance, and handling waiting periods — all without leaving the editor.
 
 The assistant communicates in German and only acts on explicit request (pull principle). It comes with a personality: meet **Siegfried**, a logical, dry-humored nerd in his early thirties who'd rather weigh options than express feelings.
 
@@ -23,14 +23,19 @@ The assistant communicates in German and only acts on explicit request (pull pri
 
 ```
 cursor-personal-assistant/
-├── .cursor/
-│   ├── rules/
-│   │   ├── personal-assistant.mdc   # Agent behavior, tools, features, Jira data model
-│   │   └── siegfried-personality.mdc # Personality layer
-│   └── skills/                      # Cursor project skills (SKILL.md per folder)
-│       ├── issue-refinement/        # Issue refinement interview
+├── CLAUDE.md                        # Agent behavior, tools, features, Jira data model, personality (Claude Code)
+├── AGENTS.md                        # Shared agent instructions (skills pointers, triage labels, domain docs)
+├── .claude/
+│   └── skills/                      # Claude Code project skills (SKILL.md per folder)
+│       ├── journal-monatsauswertung/
 │       ├── journal-pattern-analysis/ # Journal content pattern analysis
-│       └── journal-stub/            # Empty journal stub (/journal-stub)
+│       ├── journal-stub/            # Empty journal stub (/journal-stub)
+│       ├── journal-tagesauswertung/
+│       ├── product-priority-meeting-summary/
+│       ├── team-meeting-topics/
+│       └── teams-chat-transcript-qa/
+├── .cursor/                         # Legacy Cursor config (superseded by CLAUDE.md / .claude/skills)
+│   └── rules/
 ├── src/
 │   ├── list_my_issues.py            # Fetch issues by mode (active, next, backlog, ...)
 │   ├── read_jira_issue.py           # Read a single issue (ADF → Markdown)
@@ -44,7 +49,7 @@ cursor-personal-assistant/
 └── SPEC.md                          # Full feature specification
 ```
 
-The Cursor Rules (`*.mdc`) define what the agent knows and how it behaves. The Python scripts in `src/` are the actual tools the agent runs via the terminal. The agent never writes to Jira without explicit user confirmation.
+`CLAUDE.md` defines what the agent knows and how it behaves. The Python scripts in `src/` are the actual tools the agent runs via the terminal. The agent never writes to Jira without explicit user confirmation.
 
 ---
 
@@ -52,7 +57,7 @@ The Cursor Rules (`*.mdc`) define what the agent knows and how it behaves. The P
 
 ### 1. Prerequisites
 
-- [Cursor IDE](https://www.cursor.com/)
+- [Claude Code](https://claude.com/claude-code)
 - Python 3.x
 - An Atlassian account with API token access to `trustedshops.atlassian.net`
 
@@ -67,15 +72,15 @@ $env:ATLASSIAN_TOKEN = "your-atlassian-api-token"
 
 Generate an API token at: [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
 
-### 3. Open in Cursor
+### 3. Open in Claude Code
 
-Open the repository folder in Cursor. The rules in `.cursor/rules/` are picked up automatically.
+Open the repository folder in Claude Code. `CLAUDE.md` is picked up automatically; project skills live in `.claude/skills/`.
 
 ---
 
 ## Usage
 
-Just talk to the Cursor Agent in natural language (German). Examples:
+Just talk to the agent in natural language (German). Examples:
 
 ```
 Was liegt an?

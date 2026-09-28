@@ -13,15 +13,30 @@ Eigene JQL:
 import argparse
 import os
 import sys
+from pathlib import Path
 
 import requests
 
-PLUGIN_SRC = (
-    r"C:\Users\Kl6713\.cursor\plugins\cache\props-cursor-skills"
-    r"\props-cursor-skills\80d7d7c856311608a487d9d0bb0a227393bb3f6c"
-    r"\skills\jira\src"
-)
-sys.path.insert(0, PLUGIN_SRC)
+_HOME = Path.home()
+_JIRA_SRC_CANDIDATES = [
+    _HOME / ".claude" / "skills" / "jira" / "src",
+    _HOME / ".cursor" / "skills" / "jira" / "src",
+    Path(
+        r"C:\Users\Kl6713\.cursor\plugins\cache\props-cursor-skills"
+        r"\props-cursor-skills\80d7d7c856311608a487d9d0bb0a227393bb3f6c"
+        r"\skills\jira\src"
+    ),
+]
+for _candidate in _JIRA_SRC_CANDIDATES:
+    if (_candidate / "read_jira_issue.py").is_file():
+        sys.path.insert(0, str(_candidate))
+        break
+else:
+    raise ModuleNotFoundError(
+        "Could not find read_jira_issue.py. Install the jira skill or add its "
+        "src directory to sys.path.\nSearched:\n"
+        + "\n".join(f"- {c}" for c in _JIRA_SRC_CANDIDATES)
+    )
 from read_jira_issue import _get_jira_auth, JIRA_BASE_URL  # noqa: E402
 
 DEFAULT_JQL = 'project = ZI AND issuetype = "Test" AND reporter = currentUser()'
