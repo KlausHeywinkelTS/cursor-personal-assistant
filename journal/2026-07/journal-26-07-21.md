@@ -18,7 +18,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI-News lesen
 - Von 9:00 bis 12:00 das letzte live-Modul der Future-Expertship Ausbildung (Building strategic networks)

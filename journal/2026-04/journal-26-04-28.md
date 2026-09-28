@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1047 und PROPS-1048 wurden erst spät am Nachmittag angelegt – für das Donnerstag-Prio-Meeting bleibt wenig Zeit für Ausarbeitung. PROPS-1035 (Blocker-Tracking während Estelles Urlaub) ist jetzt aktiv, was ein laufendes Abhängigkeitsrisiko signalisiert.
 - **Nächster sinnvoller Schritt:** PROPS-1047 und PROPS-1048 vor Donnerstag konkretisieren, damit das Prio-Meeting gut vorbereitet ist.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Von 9:00 bis 10:00 einen Termin zum neuen Prozess für die Software Aktivierung mit Controlling & Accounting. War gut, next steps sind klar.

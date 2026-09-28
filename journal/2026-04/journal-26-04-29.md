@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Zwei offene Punkte für morgen: Tasks aus dem Judith-Call sind noch nicht in Jira, und Juan sowie Natalie haben ihre Epics noch nicht gepflegt – beides potenziell kritisch für das Meeting.
 - **Nächster sinnvoller Schritt:** Judith-Tasks als Jira-Tickets anlegen und Juan/Natalie-Status vor dem Prio-Meeting klären.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Mein Zahnarzttermin hat sich von 13:00 auf 9:00 vorverlegt. Das passt mir sehr gut. Ging auch serh schnell: Nach 45 Minuten war im wieder am Platz.

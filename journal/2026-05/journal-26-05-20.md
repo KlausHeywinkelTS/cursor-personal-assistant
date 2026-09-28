@@ -23,7 +23,7 @@
 - Vivian hat zurückgemeldet, dass sie das Client Tool und die zugrunde liegende Logik versteht. Das spricht dafür, dass Erklärung, Aufbereitung und Dokumentation verständlich waren.
   *Bezug: Demo und Dokumentation zur One-Pager-Mail-Automatisierung aus PROPS-1065.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Am Vormittag qusi keine Jira-Bewegung. Habe fokussiert an der Automatisierten Versendung der One-Page gearbeitet (PROPS-1065) sowie an der Auswertung unserer PrOps-Research ergänzt (in Erweiterung zum bereits abgeschlossenen Task PROPS-1069 - hier hatte ich noch Ideen)
 - Diese beiden Themen haben auch noch den Nachmittag geprägt - keine Termien außer Daily mit Vivian

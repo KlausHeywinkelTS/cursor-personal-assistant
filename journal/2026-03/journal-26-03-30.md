@@ -14,7 +14,7 @@
 
 - **Naechster sinnvoller Schritt:** Termin am 13.04. zu PROPS-982 nutzen; bei weiterhin ausbleibendem Feedback zu 847/949 Eskalation oder Scope-Entscheidung erwägen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe den Vormittag genutzt, um das neuen Wishlist-Lambda in einem neuen Power-Automate-Flow einzubauen und das Lambda auf GPT-5.4-mini umzustellen (PROPS-912). Works like a charm :-) Der alte Weg über die Transfer-Dateien besteht nur noch als Fallback und muss irgendwann entfernt werden.
 - Im Regelmeeting mit den Engineering-Managern das Thema Standards in AI gestützen Entwicklungs-flows adressiert. Wie es der Zufall will, haben die EMs so etwas auch als nächstes auf der Uhr. Wie wollen das jetzt gemeinsam angehen - KickOff nächste Woche.

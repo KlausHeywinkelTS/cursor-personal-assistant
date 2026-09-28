@@ -14,7 +14,7 @@
 
 - **Naechster sinnvoller Schritt:** Trust-Audit-Flow kurz beobachten/testen; bei PROPS-1002 eingehende Kosten- und Kontoinfos konsolidieren, sobald sie da sind.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe morgens die Prozessierung neuer messages im Trust-Audit Channel auf ein Lambda umgestellt (PROPS-912). Muss ich jetzt in den nächsten Tagen mal testen.
 - Habe recherchiert, wie ich die Skills für PrOps am besten im Repo strukturiere, um sie mit dem /add-plugin Kommando von Cursor installieren zu können.

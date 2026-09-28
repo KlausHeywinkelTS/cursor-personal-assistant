@@ -20,7 +20,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - morgens habe ich mir Zeit genommen, in die Videos von Matt Pocock reinzuschauen und etwas dazu zu recherchieren (/grill-me and /grill-me-with-docs).
 - Danach das Troodi Online-Training zu Entrepreneurship gemacht - Nachbereitung eines Kurses im Rahmen des Future Expertship-Programms, der während meines Urlaubs stattgefunden hat.

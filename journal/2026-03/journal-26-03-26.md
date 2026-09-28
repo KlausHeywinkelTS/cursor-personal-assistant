@@ -1,6 +1,6 @@
 # Journal 2026-03-26
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Im PrOps Weekly haben wir besprochen, dass der ganze Produktbereich gerade so busy ist, dass niemand Zeit für unsere Themen hat (Desirée, die PMs)
 - Dir Folge für mich: Vielleicht macht ein weiterer Ausbau der Wishlist gar keinen Sinn für den Moment. Mal schauen.

@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1031 ist bereits auf On Hold gegangen, Remind-Date wurde angepasst – der Business Case hat offenbar eine Zwischenhürde erreicht.
 - **Nächster sinnvoller Schritt:** PROPS-1036 und PROPS-1040 sind jetzt beide aktiv; Momentum nutzen und für beide konkrete nächste Schritte festhalten.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe am Vormittag einige Zeit in AI-News invenstiert - es gabe viele spannende Neuigkeiten
 - Meetings am Vormittag: P&E Weekly sowie Interview mit Tim Heinen

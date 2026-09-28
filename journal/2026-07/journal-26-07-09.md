@@ -21,7 +21,7 @@
 
   *Quelle: Support-Team nach dem Workshop.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - 10:00 - 10:30: P&E Weekly
 - 10:30 - 12:00: Workshop mit 2nd Level Support zum Zusammenarbeitsprozess mit den Produktteams - im Office

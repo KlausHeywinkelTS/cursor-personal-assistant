@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1030 ist noch offen – die Abstimmung mit Desirée dürfte entscheidend sein, ob der Entwurf finalisiert werden kann; PROPS-1036 wurde erst spät gestartet und bleibt unabgeschlossen.
 - **Nächster sinnvoller Schritt:** PROPS-1030 auf Basis des Desirée-Feedbacks abschließen und PROPS-1036 mit konkreten Dashboard-Insights voranbringen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 Der Tag heute wird im Zeichen vieler Meetings stehen:
 

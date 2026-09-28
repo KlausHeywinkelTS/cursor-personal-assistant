@@ -19,7 +19,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: Lesen KI-News
 - Der restliche Tag stand fast ausschließlich im Zeichen von F&E

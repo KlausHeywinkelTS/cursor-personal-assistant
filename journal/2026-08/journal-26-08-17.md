@@ -12,7 +12,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1167 - Create a script that evaluates the criteria for sw-capitalization for each Epic in 2026 (Software Capitalization Process revision 2026)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute krank gemeldet und nicht gearbeitet
 

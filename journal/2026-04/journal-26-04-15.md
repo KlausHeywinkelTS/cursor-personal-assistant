@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-847 und PROPS-1018 warten auf externes Feedback bzw. sind bis zum Prozesstermin am 28.04. geparkt; PROPS-886 stockt wegen Marinas Ausfall.
 - **Nächster sinnvoller Schritt:** Damiens Rückmeldung zu PROPS-847 im Blick behalten; PROPS-1018 erst nach dem 28.04.-Termin wieder aufnehmen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag
   - Am Vormittag habe ich mich vor allem darum gekümmert, die Basis für die Erzeugung von Wishes auf Basis der NPS-Daten zu legen und Sascha für die automatisierte Abfrage zu kontaktieren

@@ -18,7 +18,7 @@
 
 - Es gab ein Dankeschön für die Auswertungen bezüglich der PrOps-Research*.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens erstmal Tickets sortiert, kommentiert und mir einen Überblick verschafft
 - Kurzer Talk mit Estelle - sie ist aus dem Urlaub zurück. Wir haben vereinbart, dass ich die Blocker weiter tracke

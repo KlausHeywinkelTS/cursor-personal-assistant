@@ -12,7 +12,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1241 - Prepare C-Level presentation about P2M for Desirée and Basti (P2M | Maintenance)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Neben drei kleinen Meetings war das Hauptthema heute wieder die Software-Aktivierung. Dieses Mal: LLM gestützte Bewertung der Epics, ob sie alle Business-Case relevanten Informationen enthalten (Metrik; Ziel für die Metrik; Dashboard für diese Metrik).
 - Außerdem noch ein wenig in Jira aufgeräumt.

@@ -11,7 +11,7 @@
 - PROPS-1294 - Build a html-tool that bundles all already existing tools (Software Capitalization Process revision 2026)
 - PROPS-852 - Inspect & Adapt P2M (Q2-Q3 2026) (P2M | Maintenance)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute voller Fokus auf die neue GUI für Software Aktivierung (PROPS-1294), da die meisten Termine ausgefallen sind.
 

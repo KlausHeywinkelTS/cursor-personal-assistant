@@ -19,7 +19,7 @@
 - Vivian und Judith haben die Web-Oberfläche mit "Cool" kommentiert.
   *Bezug: Web-Oberfläche für den Versand der Prio-Mails / `PROPS-1143`. Knappes Feedback, aber klar positiv. Reicht. Mehr Silben hätten den Sachverhalt nicht verbessert.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute kurzer Arbeitstag nur bis 11:00 - dann halber Urlaubstag, um mit Jörg zur Radtour nach Haselünne aufzubrechen
 - Neben kleinere Tasks - vor allem Jira-Support - habe ich das Thema mit dem Webclient für die domain-epic-Versandgeschichte wieder aufgenommen, die ich vor dem Urlaub nicht fehlerfrei hingekriegt habe (PROPS-1143). Habe ich so gerade noch vor dem PrOps Weekly fertig bekommen. Super!

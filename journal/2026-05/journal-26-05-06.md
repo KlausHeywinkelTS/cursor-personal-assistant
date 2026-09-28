@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1051 (P2M mandatory) nach Research direkt auf On Hold gesetzt – ohne klaren nächsten Schritt oder Verantwortlichen deutet das auf ein Risiko hin, dass das Thema liegen bleibt.
 - **Nächster sinnvoller Schritt:** PROPS-1051 mit einem konkreten Folge-Schritt versehen, bevor es im Backlog-Rauschen verschwindet.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Leider viel Zeit in eine mir unklare Anforderung von Daniel versenkt - und er fand das Ergebnis nicht brauchbar.
 - Desirée hat mir noch ein paar kleine Hausaufgaben für das Jira-Board für die Prio-Meetings der Business Domain mitgegeben. Alle direkt erledigt - waren Kleinigkeiten (-> kein Ticket für angelegt)

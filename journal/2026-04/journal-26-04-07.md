@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** `PROPS-1002` ist noch nicht ganz durch, weil weiterhin Input von Phillip fehlt; zudem spricht der Tagesstart dafuer, dass ohne klares Leitthema leicht Suchbewegung entsteht.
 - **Naechster sinnvoller Schritt:** AWS-Kosten mit dem letzten fehlenden Input abschließen und den Schwung aus `PROPS-912` bzw. dem Grafana-Feedback in ein klar priorisiertes Naechsthema fuer die restliche Woche uebersetzen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute wieder Frühstück. Lars, Thomas und Adalbert waren auch da.
 - Ich bin etwas unschlüssig, was ich heute sinnvolles mit meiner Zeit anfangen soll. Ich habe kein konkretes Projekt vor der Brust. Muss mich erstmal sortieren.

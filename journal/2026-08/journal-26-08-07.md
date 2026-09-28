@@ -27,7 +27,7 @@
 
 - Dickes Dankeschön von Radoslav für Ideen und Support-Angebot – passt zum spontanen Call rund um Bug-Kommunikation (Kontext PROPS-1158).
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute noch am Jira-Bot gearbeitet (PROPS-1159). Dazu auch einen Test mit Rovo gemacht - aber Rovo hat sich geweigert, die Jira Tasks zu erstellen ohne den wirklichn Grund zu nennen. Scheint mir eine instabile Lösung zu sein. Aber ich habe es getestet.
 - Dann gabe es noch Feedback vaon Damien zu den BRM-Slides, welches ich umgesetzt habe.

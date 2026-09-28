@@ -15,7 +15,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-852 - Inspect & Adapt P2M (Q2-Q3 2026) (P2M | Maintenance)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute ist self education Friday. Habe trotzdem das BIS-Template für die Abstimmung mit Desirée nächste Woche erstellt und einen kurzen Call mit Nadine wegen Jira-Workflows gemacht.
 - Nachmittags Termin mit Lina, um die Kluft zwischen ihren Erwartungen und Saschas Selbstverständnis als Product Manager zu verkleinern.

@@ -1,6 +1,6 @@
 # Journal 2026-05-13
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - morgens erstmal Zeit genommen, um mich über KI-News der letzten Tage upzudaten. Habe ich bei den vollen letzten beiden Tagen nicht geschafft.
 - Habe mir außerdem 45 Minuten Zeit genommen, jüngste Änderungen an Epics des RM Teams an die Teilnehmer der Prio-Runde heute zu kommunizieren und das Auswertescript zum Listen der Änderungen zu optimieren.

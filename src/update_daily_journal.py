@@ -1,8 +1,11 @@
 """Create or update a daily journal markdown file.
 
-The journal contains:
+The journal contains, in order:
 - Appointments from today's calendar
-- Manual section (preserved on updates)
+- Wochenziele (Montag) / Erreichung Wochenziele (Freitag) (manual, preserved on updates)
+- Top 3 scored Jira Tasks
+- Langlaufende Tasks (automatic: tickets stuck in "In Progress" for >3 days)
+- Reflektion: Mein Tag heute (manual, preserved on updates; interview template as default)
 - Generated Jira section with day-based activity:
   - Status changes
   - Comments
@@ -48,6 +51,7 @@ def _candidate_jira_helper_dirs() -> list[Path]:
     home = Path.home()
     candidates.extend(
         [
+            home / ".claude" / "skills" / "jira" / "src",
             home / ".cursor" / "skills" / "jira" / "src",
             home / "Dev" / "props-cursor-plugins" / "skills" / "jira" / "src",
         ]
@@ -96,6 +100,17 @@ EXCLUDED_APPOINTMENT_SUBJECTS = frozenset(
         "meeting free morning",
     }
 )
+
+REFLECTION_TEMPLATE = (
+    "- Was ich heute gemacht habe:\n"
+    "\t- ...\n"
+    "- So ging es mir energetisch - insbesondere zum Feierabend:\n"
+    "\t- ...\n"
+    "- Das war wichtiger Outcome aus Terminen:\n"
+    "\t- ..."
+)
+
+DEFAULT_MANUAL_PLACEHOLDER = "<!-- Optional durch Nutzer gepflegt -->"
 
 
 @dataclass
@@ -318,6 +333,40 @@ def _collect_in_progress_tickets(day: date) -> list[InProgressTicket]:
     return out
 
 
+def _collect_long_running_tickets() -> list[InProgressTicket]:
+    """Snapshot of own/unassigned-KH tickets stuck in "In Progress" for >3 days."""
+    jql = (
+        "(assignee = currentUser() OR project = KH) "
+        "AND issuetype != Epic "
+        'AND status = "In Progress" '
+        'AND NOT status CHANGED AFTER "-3d" '
+        "ORDER BY key ASC"
+    )
+    fields = ["summary", "issuetype"]
+    issues = _jira_search(jql=jql, fields=fields, max_results=2000)
+
+    out: list[InProgressTicket] = []
+    seen: set[str] = set()
+    for issue in issues:
+        key = (issue.get("key") or "").strip()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        summary = ((issue.get("fields") or {}).get("summary") or "").strip()
+        out.append(InProgressTicket(key=key, summary=summary))
+    return out
+
+
+def _format_long_running_tickets_section(tickets: list[InProgressTicket]) -> str:
+    lines = ["## Langlaufende Tasks", ""]
+    if not tickets:
+        lines.append("- Keine Langläufer.")
+    else:
+        for ticket in tickets:
+            lines.append(f"- [{ticket.key}]({JIRA_BASE_URL}/browse/{ticket.key}) - {ticket.summary}")
+    return "\n".join(lines) + "\n"
+
+
 def _collect_issue_events(
     day: date,
     issues_by_key: dict[str, dict[str, str]],
@@ -482,21 +531,38 @@ def _journal_path_for_day(day: date, journal_dir: str) -> str:
     return os.path.join(journal_dir, yyyy_mm, f"journal-{yy}-{mm}-{dd}.md")
 
 
-def _extract_manual_content(existing_text: str) -> str:
-    manual_header = "## Manueller Inhalt"
-    generated_header = "## Generierter Inhalt (Jira)"
+def _weekday_manual_goal_header(day: date) -> str | None:
+    """Return the manual weekly-goal header for the given day, or None."""
+    if day.weekday() == 0:
+        return "## Wochenziele"
+    if day.weekday() == 4:
+        return "## Erreichung Wochenziele"
+    return None
 
-    start = existing_text.find(manual_header)
+
+def _extract_section_content(
+    existing_text: str,
+    header: str,
+    next_headers: list[str],
+    default: str,
+) -> str:
+    """Return the body between `header` and the nearest following header in `next_headers`.
+
+    Falls back to `default` if the header is missing or its body is empty.
+    """
+    start = existing_text.find(header)
     if start < 0:
-        return "<!-- Optional durch Nutzer gepflegt -->"
-    start = start + len(manual_header)
+        return default
+    start = start + len(header)
 
-    end = existing_text.find(generated_header, start)
-    if end < 0:
-        body = existing_text[start:].strip("\n")
-    else:
-        body = existing_text[start:end].strip("\n")
-    return body if body.strip() else "<!-- Optional durch Nutzer gepflegt -->"
+    end = -1
+    for next_header in next_headers:
+        candidate = existing_text.find(next_header, start)
+        if candidate >= 0 and (end < 0 or candidate < end):
+            end = candidate
+
+    body = existing_text[start:].strip("\n") if end < 0 else existing_text[start:end].strip("\n")
+    return body if body.strip() else default
 
 
 def _format_top_scored_jira_tasks_section(tasks: list[dict[str, Any]]) -> str:
@@ -591,18 +657,37 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
         with open(journal_path, "r", encoding="utf-8") as f:
             existing_text = f.read()
 
-    manual_content = _extract_manual_content(existing_text)
+    goal_header = _weekday_manual_goal_header(day)
+    reflection_content = _extract_section_content(
+        existing_text,
+        "## Reflektion: Mein Tag heute",
+        ["## Generierter Inhalt (Jira)"],
+        default=REFLECTION_TEMPLATE,
+    )
     appointments, appointments_retrieved = _collect_appointments(day)
     top_scored_tasks = get_ranked_issues()[:3]
     issues_by_key = _collect_candidate_issues(day)
     in_progress_tickets = _collect_in_progress_tickets(day)
+    long_running_tickets = _collect_long_running_tickets()
     new_tickets = _collect_new_tickets(day, issues_by_key)
     status_changes, comments, ticket_changes = _collect_issue_events(day, issues_by_key)
 
     header = f"# Journal {day.isoformat()}\n\n"
     appointments_section = _format_appointments_section(appointments, appointments_retrieved)
+
+    goal_section = ""
+    if goal_header is not None:
+        goal_content = _extract_section_content(
+            existing_text,
+            goal_header,
+            ["## Top 3 scored Jira Tasks"],
+            default=DEFAULT_MANUAL_PLACEHOLDER,
+        )
+        goal_section = f"{goal_header}\n\n{goal_content.strip()}\n\n"
+
     top_scored_tasks_section = _format_top_scored_jira_tasks_section(top_scored_tasks)
-    manual_section = f"## Manueller Inhalt\n\n{manual_content.strip()}\n\n"
+    long_running_tickets_section = _format_long_running_tickets_section(long_running_tickets)
+    reflection_section = f"## Reflektion: Mein Tag heute\n\n{reflection_content.strip()}\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=in_progress_tickets,
         status_changes=status_changes,
@@ -614,9 +699,12 @@ def update_daily_journal(day: date, journal_dir: str) -> str:
         header
         + appointments_section
         + "\n"
+        + goal_section
         + top_scored_tasks_section
         + "\n"
-        + manual_section
+        + long_running_tickets_section
+        + "\n"
+        + reflection_section
         + generated_section
     )
 
@@ -652,7 +740,10 @@ def _write_journal_stub_filesystem(
         if top_scored_tasks is not None
         else ""
     )
-    manual_section = "## Manueller Inhalt\n\n"
+    goal_header = _weekday_manual_goal_header(day)
+    goal_section = f"{goal_header}\n\n{DEFAULT_MANUAL_PLACEHOLDER}\n\n" if goal_header is not None else ""
+    long_running_tickets_section = _format_long_running_tickets_section([])
+    reflection_section = f"## Reflektion: Mein Tag heute\n\n{REFLECTION_TEMPLATE}\n\n"
     generated_section = _format_generated_section(
         in_progress_tickets=[],
         status_changes=[],
@@ -660,10 +751,10 @@ def _write_journal_stub_filesystem(
         ticket_changes=[],
         new_tickets=[],
     )
-    content = header + appointments_section + "\n"
+    content = header + appointments_section + "\n" + goal_section
     if top_scored_tasks_section:
         content += top_scored_tasks_section + "\n"
-    content += manual_section + generated_section
+    content += long_running_tickets_section + "\n" + reflection_section + generated_section
 
     with open(journal_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)

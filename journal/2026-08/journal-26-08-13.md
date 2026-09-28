@@ -27,7 +27,7 @@
 
 - Judith hat rückgemeldet, dass es schlau war, den Wayfinder auszuprobieren. Das bezieht sich auf denselben Nachmittagsblock, in dem das SSOT-/Product-Cast-Paket in Jira gelandet ist.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens zunächst mit Sascha und Dominik zu Produkt-Harness ausgetauscht, ein PM-Repo von Sascha quergelesen und einen Termin für morgen mit Jana und Sascha eingeladen.
 - Auch der restliche Tag stand ganz im Fokus der Product-Harness Geschichte und wie wir aus einer SSOT alle anderen benötigten Dokumente ableiten können. Habe mir die Skills von Matt Pocock heruntergeladen und eine Wayfinder-Session auf die Situation losgelassen. Das Ergebnis ist überzeugend und wurde vom Wayfinder direkt in einem neuen Epic mit Tasks dokumentiert. Ich bin begeistert.

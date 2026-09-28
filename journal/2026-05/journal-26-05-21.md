@@ -18,7 +18,7 @@
 
 - Heute gab es kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Vormittag habe ich zwei Arzttermine: Gesundheitschekc (geplant) und Zahnarzt (ungeplant wegen Krone rausgefallen). Habe früher angefangen zu arbeiten, werde aber heute Vormittag kaum was schaffen.
 - Den Rest des Tages mit einem PrOps-Talk, einem interessanten 60 Minuten Plausch mit einem Sales-Kollegen (reiner Zufalle) und Dimpy über das weitere Vorgehen zu Jira-Standardisierung verbracht (daraus sind Tickets gepurzelt)

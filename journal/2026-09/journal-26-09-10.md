@@ -17,7 +17,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1243 - Create a BIS Skill (Ongoing minor adaptions to processes and templates)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute war irgendwie ein diffundierender Tag. Das Meeting mit Basti & Desirée hat gut geklappt (Streamlining P2M und GTM), aber zwischen den Meetings war granularer Kleinkram dran - nichts Zusammenhängendes. Mein PLan, an der Generierung der Business Cases für SW Aktivierung zu arbeiten, hat nicht geklappt.
 

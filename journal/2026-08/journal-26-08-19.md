@@ -30,7 +30,7 @@
 - Vince hat Eloquenz und die Fähigkeit, Dinge auf den Punkt zu bringen, ausdrücklich geschätzt. Vince ist heute über die spontane Job-Description-Anfrage zur Betriebsprüfung und über die HR-News im manuellen Teil präsent; eine eindeutige Ticket-Zuordnung ergibt sich daraus nicht.
 - Über Judith kam Andrés Lob für die Lösung zur Aufwandserfassung. Das gehört zum Themenfeld PROPS-904 / Worklog-Tracking, das den Tag inhaltlich trägt.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Der Tag stand ganz im Zeichen des Worklog-Trackings (PROPS-904) und einer spontanen Anfrage von Vincent zu Job-Descriptions, die für die laufende Betriebsprüfung gebraucht werden.
 - Am Nachmittag hat Vincent mir berichtet, dass HR nun doch eine Aufwandserfassung in Workday einbauen will - noch 2026 (nachdem es bisher immer hieß, dieses Projekt käme nicht so bald). Wenn das so ist, dann war die ganze Arbeit von Vince und mir der letzten Monate für die Tonne. Frustrierend!

@@ -18,7 +18,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens ab 8:00 erstmal Nachrichten und KI-News gelesen und danach gecheckt, was anliegt und Prioritäten sortiert
 - ab 9:00 bin ich in die konkrete Ticket-Bearbeitung eingestiegen. Konkret am Vormittag: PROPS-1147. Habe für dieses Ticket in Summe heute ca. 3 Stunden aufgewendet - letzte Woche schon einmal 2 Stunden. Habe ein Ergebnis, was leider nicht alle Fälle abdeckt und nicht so automatisert ist, wie gewünscht. Muss ich im JF mit Judith drüber sprechen, wie ich da weiter machen soll.

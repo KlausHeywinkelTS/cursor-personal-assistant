@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Offen bleibt vor allem, wie schnell aus den geklaerten naechsten Schritten belastbare Entscheidungen oder sichtbare Ergebnisse werden, insbesondere bei `PROPS-1027` und den neu aufgesetzten Themen. Zusaetzlich spricht das Parken einzelner Themen wie `PROPS-1005` dafuer, dass Priorisierung weiter eng bleiben muss.
 - **Naechster sinnvoller Schritt:** Die begonnenen Abstimmungen jetzt in wenige konkrete Folgeaktionen ueberfuehren, vor allem bei Payment Data / PlatOps, beim Workshop und bei den neu angelegten Koordinationsthemen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - An PROPS-1030 gearbeitet und ein Proposal für die Prio-Meetings erarbeitet. Das hat mich bis nach der Mittagspause beschäftigt.

@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Das auffälligste offene Thema ist `PROPS-1032`, wo die Umsetzung offenbar weit ist, aber noch kein End-to-End-Test vorliegt. Darüber hinaus deutet das Parken mehrerer Themen darauf hin, dass Priorisierung und Kapazität weiter eng geführt werden müssen.
 - **Naechster sinnvoller Schritt:** Den begonnenen Umsetzungsstrang bei `PROPS-1032` absichern, die Basic/Plus-Folgethemen weiter konkretisieren und die Ergebnisse aus Workshop und Abstimmungen in wenige klare nächste Aktionen überführen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Morgens erstmal eine halbe Stunde einen Fehler im public roadmap script gesucht - ausgelöst durch einen Cloudflare Alarm. Der Fehler war nicht zu finden - nach einem Neustart lief der Job sauber durch. Wohl nur ein Schluckauf.

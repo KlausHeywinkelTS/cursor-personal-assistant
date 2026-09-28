@@ -27,7 +27,7 @@
 
 - Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens Jira-Sparring mit Nata gemacht und neue Automatisierungen implementiert. Wäre ein schöner Use-Case für mein in Arbeit befindliches Tool Jira-Service-Bot.
 - Wenn ich nicht in Terminen war, habe ich ansonsten an dem Jira-Service-Bot gearbeitet. Dazwischen gab es noch kleinere Ad-hoc Anfragen, die ich spontan umgesetzt habe (BIS-Template Review; Änderung an der domain-epic-Email für die Prio-Meetings; Jira-Config und Projekt anlegen)

@@ -1,6 +1,6 @@
 # Journal 2026-07-27
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI-News lesen
 - Am Vormittag habe ich mich fokussiert auf die Erstellung meines Vortrags für die Abschlusspräsentation bei der Future Expertship Ausbildung. Lina eingeladen - und sie hat zugesagt :-)

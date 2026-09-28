@@ -19,7 +19,7 @@
 - Es gab kein direkt ausgesprochenes positives Feedback. Im Termin mit Vincent war aber spürbar, dass deine Expertise gehört wird und gewünscht ist.
   *Das steht im Zusammenhang mit dem Workshop zur Zeiterfassungs-Lösung für F&E und der daraus entstandenen möglichen Prototyp-Arbeit.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Am Morgen mir zunächst einen Überblick verschafft, ein Problem mit dem NPS-Fetch-Script gefixt und dann an der Analyse der P2M-Tasks von Core-Contributors gearbeitet. Keine Termine am Vormittag.
 - Am Nachmittag viel Umsetzung zur Vereinheitlichung der Jira-Epic Worflows. Dieses Thema konnte ich beinahe abschließen, fehlt nur noch die Rückmeldung von Dominik.

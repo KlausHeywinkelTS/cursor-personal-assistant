@@ -29,7 +29,7 @@
 
 - Jenny hat sich mehrfach für den Support beim Thema Bug Communication bedankt. Das lässt sich dem Termin 16:30 (Jenny x PrOps Exchange) und der laufenden Arbeit an PROPS-1158 zuordnen; der manuelle Teil nennt genau dieses Ticket als das, womit heute gespielt wurde.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Wenig los und wenig zu tun. Habe etwas rumgsepielt für PROPS-1158. Sonst nur Kleinigkeiten.
 

@@ -29,7 +29,7 @@
 
 - Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens mal wieder ausgiebig KI-News gehört (Everlast-AI Wochen-Video und Update von Mat Pocock)
 - Dann in den Zeiten zwischen den Meetings durchgehend an PROPS-1149 gearbeitet und wieder deutlichen Fortschritt gemacht

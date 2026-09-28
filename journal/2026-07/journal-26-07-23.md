@@ -19,7 +19,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Office-Tag, weil wir den neuen Product-Exchange zum Teil in Präsenz machen
 - Morgenroutine: KI-News lesen

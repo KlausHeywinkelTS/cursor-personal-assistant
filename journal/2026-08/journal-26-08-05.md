@@ -28,7 +28,7 @@
 
 - Lars fand den Input zur GDPR-konformen Verarbeitung anonymisierter Jira-Ticket-Daten in Claude brauchbar – spontaner Call, klarer Nutzen für ihn.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Am Vormittag aus Prdouct Communication fokussiert (PROPS-1073)
 - Nachmittags den Fokus auf Bug Communication Process gelegt und weiter an den Grafana Dashboards gearbeitet. Da wurde ich zwischendurch ausgebremst, weil Taha einen Bug bei der Belieferung der Jira Daten nach Postgres fixt und die Dashboards gerade nicht zur Verfügung stehen.

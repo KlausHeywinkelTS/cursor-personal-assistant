@@ -39,7 +39,7 @@ Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongo
 - +20 Priorität Medium
 - +20 Status To Do/ToDo
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe morgens erstmal eine P2M-Rovo Agenten angelegt, getestet und im Teams-Channel mit allen Core Contributors und PMs geteilt.
 - Heute ist self education Friday. Ich bin etwas unschlüssig, womit ich mich beschäftigen sollte. Habe mich dann entschieden, remotion auszuprobieren. Das war mein Fokusthema für heute. Installation und erste Tests haben funktioniert - damit kann man spannende Sachen machen.

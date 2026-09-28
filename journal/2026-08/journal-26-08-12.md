@@ -30,7 +30,7 @@
 
 - Vincent bedankte sich für den Einsatz beim F&E-Worklog-Tracking. Das lässt sich dem abgeschlossenen technischen Konzept und Prototyp für Worklog-Reports in PROPS-1149 zuordnen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Fokusthema heute außerhalb der Meetings: Product-Cast auf das neue Template umstellen (PROPS-1182)
   - Diesbezüglich hat sich herausgestellt, dass die jetzige Lösung vielleicht nicht zu den neuen Workflows in den Teams passen - und dass die Annahme, eine SST befände sich entweder im Epic oder in Confluence nicht mehr haltbar ist - Teams arbeiten wegen Spec Driven Development verstärkt in git-repos. Das hat deutliche Auswirkungen auf product cast.

@@ -14,7 +14,7 @@
 
 - **Naechster sinnvoller Schritt:** Entweder PROPS-1002 oder den Lambda-Refactoring-Stand kurz in Jira verankern; Rückläufe der PMs zur Epic-Bereinigung abwarten oder eskalieren, je nach Dringlichkeit.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Den Vormittag Zeit in das Refactoring alle Mdoule für Lambdas investiert. Außerdem auf der Confluence-Seite mit den overdue-P2M-Tasks eine weitere Tabelle ergänzt, die offene P2M-Task zu geschlossenen Parent-Epics listest. Das sind viele - habe die PMs angeschrieben und gebeten, ihr Epics aufzuräumen.
 - Außerdem an einer Spec geabveitet, wie man aus Cursor mit einem allgemeinen Skill Nachrichten aus Teams lesen kann. Implementierung nocht nicht gestartet - das Thema muss noch reifen

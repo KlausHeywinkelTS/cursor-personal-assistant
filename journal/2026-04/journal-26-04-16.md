@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Die NPS-Lösung hat eine technische Einschränkung (lokales Skript nötig, kein AWS-VPN zu Metabase); das ist dokumentiert, aber kein endgültiger Zustand. Die Frage zur Frequenz der Platform-Prio-Runde ist offen.
 - **Nächster sinnvoller Schritt:** PROPS-1027 und PROPS-1028 wurden heute neu angelegt – beide brauchen zeitnah Aufmerksamkeit.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag
   - Am automatisierten Import für NPS Daten in die Wishlist gearbeitet. Sascha hat mir hier etwas bereit gestellt (PROPS-1026). Hat sich bis in den Nachmittag gezogen - ist aber jetzt fertig.

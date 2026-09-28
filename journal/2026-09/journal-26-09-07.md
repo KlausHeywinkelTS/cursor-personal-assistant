@@ -25,7 +25,7 @@
 
 - Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittags an Software Aktivierung gearbeitet (automatische Zuweisung von Clustern zu Assets). Kam da dann aber ohne Rücksprache mit Evelin nicht weiter -> weiter am Mittwoch.
 - Desirée hat die Kommunikation zum neuen BIS Template gemacht - Thema endlich durch

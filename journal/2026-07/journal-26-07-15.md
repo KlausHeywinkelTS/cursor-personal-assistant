@@ -18,7 +18,7 @@
 - Beate hat sich vielmals bedankt, weil das Script zum Sammeln von TS-Bewertungen auf verschiedenen Plattformen bei ihr sofort lief und ihr viel manuelle Arbeit spart.
   *Bezug: PROPS-1152 – Implement a local script to extract reputation ratings and review counts.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI-News lesen
 - Dann mit PROPS-1161 beschäftig (Einführung von ACT Coordinators für P2M) und alles soweit angeschoben, wie es jetzt gerade geht.

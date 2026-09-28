@@ -21,7 +21,7 @@
 
   *Bezug zum manuellen Inhalt: Das Feedback passt direkt zur verlängerten KI-Knowledge-Transfer-Session am Nachmittag.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - morgens direkt eine Stunde investiert, um die letzten Vorbereitungen für die knowledge-transfer session in meinem Team zu treffen.
 - Dann habe ich klar-Schiff für meine Jira-Tasks gemacht, damit während meines Urlaubs nichts anbrennt und ich danach einen guten Wiederaufsetzpunkt habe.

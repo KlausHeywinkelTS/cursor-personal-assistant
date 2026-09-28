@@ -37,7 +37,7 @@ Pro Tag folgende Abschnitte auswerten (sofern vorhanden):
 
 | Quelle | Wofür nutzen |
 | --- | --- |
-| `## Manueller Inhalt` | Erfolge, Frust, Themen mit eigener Bewertung des Nutzers |
+| `## Reflektion: Mein Tag heute` | Erfolge, Frust, Themen mit eigener Bewertung des Nutzers |
 | `## Auswertung (Agent)` → "Inhaltlicher Fokus" | Themenstränge der Woche |
 | `## Auswertung (Agent)` → "Risiko/Offene Punkte" | Misserfolge / Blocker |
 | `## Erfolg & Stolz` | direkte Erfolg-Kandidaten |
@@ -60,7 +60,7 @@ Einzelne Hinweise reichen meist nicht – Kombinationen verstärken den Befund:
 
 - Mehrfacher Status-Ping-Pong (z. B. `On Hold → In Progress → On Hold` in einer Woche).
 - Issue, das über die ganze Woche "In Bearbeitung" steht, aber keine Done-Transition erreicht.
-- Manueller Inhalt mit Begriffen wie "kein Fortschritt", "leider", "abgesagt", "verschoben", "nicht geschafft", "frustrierend", "blockiert".
+- Reflektion: Mein Tag heute mit Begriffen wie "kein Fortschritt", "leider", "abgesagt", "verschoben", "nicht geschafft", "frustrierend", "blockiert".
 - Auswertung (Agent) markiert dasselbe Risiko an mehreren Tagen.
 - Kommentar deutet externe Abhängigkeit an ("warte auf X", "noch keine Antwort", "hängt bei …").
 

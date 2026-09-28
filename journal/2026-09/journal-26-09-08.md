@@ -18,7 +18,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1187 - Research: Find a solution how a bug-overview can be implemented that is up-to-date automatically
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Hauptthema heute: Die Abschlussveranstaltung der Future Expership Ausbildung - u.a. mit meiner Präsentation. Waren tolle 3 Stunden - und meine Vorstellung hat auch gut funktioniert
 - Der Nachmittag war angefüllt mit Meetings und Absprachen über die Präsi, die ich und Damien für Desirée und Basti bauen sollen zum Zusammenspiel von P2M und GTM

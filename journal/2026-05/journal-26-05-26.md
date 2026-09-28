@@ -20,7 +20,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Von 10:00 bis 12:00 war Modul 2 der Expertship-Ausbildung. Davor habe ich nur Kleinigkeiten gemacht (anfallendes Tagesgeschäft).
 - Am Nachmittag ebenfalls viele Termien - inkl. einen 1h Workshop mit PrOps über Änderung unserer Ausrichtung. Dazwischen bleib nur Zeit für kleinere ad-hoc Anfragen

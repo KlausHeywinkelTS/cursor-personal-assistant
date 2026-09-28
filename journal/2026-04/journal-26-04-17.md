@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1027 hängt an externer Datenzulieferung (Corinna/Maciej); eigener Fortschritt ist dort blockiert, bis die Zahlen landen.
 - **Nächster sinnvoller Schritt:** Maciej proaktiv anschreiben, damit PROPS-1027 nicht still liegen bleibt.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Habe PROPS-1027 begonnen und Corinna angeschrieben (wie oft kündigen wir Customer-Contract wegen ungültiger Zahlungsmittel)

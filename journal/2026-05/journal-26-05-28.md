@@ -19,7 +19,7 @@
 
 - Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute letzter Tag vor meinem 4-wöchigen Urlaub. Morgens bis 10:00 habe ich noch die Chance, Dinge abzuschließen (Web-Interface für One-Pager Mail). Danach bin ich überwiegend noch in Meetings bis 16:00 Uhr.
 - Meetings:

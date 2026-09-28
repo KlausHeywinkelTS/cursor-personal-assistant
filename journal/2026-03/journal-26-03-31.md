@@ -6,7 +6,7 @@ Der Tag drehte sich um **AI-gestützte Produktivität** (Tech-Talk *Specificatio
 
 Nebenbei: zwei neue Cursor-Skills bei Judith ausgerollt, Kurzabstimmung mit Pete zur MyTS-Retro am 07.04., und ein älteres On-Hold-Thema (PROPS-955) wurde heute auf **Rejected** gesetzt. Die laufende Automatisierung (PROPS-912) bleibt im aktiven Set.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Vormittag AI-basiert den Tech-Talk *Specification-Driven AI* erzeugt. Dazu konnte ich auf dem bereits vorhandenen research-Projekt aufsetzen - sehr geil. Außerdem entdeckt: Mit dem Agenten kann ich PPTX erzeugen lasssen, die ich als Slides in miro reinziehen kann.
 - Inspiriert von der Erfahrung zwei neue Skills als PrOps-Cursor-Skills implementiert und bei Judith eingerichtet: openai-image-generation und pptx-slides.

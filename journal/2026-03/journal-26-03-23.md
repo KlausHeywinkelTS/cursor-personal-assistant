@@ -1,6 +1,6 @@
 # Journal 2026-03-23
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 <!-- Optional durch Nutzer gepflegt -->
 
 ## Generierter Inhalt (Jira)

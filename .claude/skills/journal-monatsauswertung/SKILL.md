@@ -34,7 +34,7 @@ Pro Tag folgende Abschnitte auswerten (sofern vorhanden):
 
 | Quelle | Wofür nutzen |
 | --- | --- |
-| `## Manueller Inhalt` | Themen, Arbeitsmodus, Abstimmungen, Frustrationen, Erfolge in eigener Worte |
+| `## Reflektion: Mein Tag heute` | Themen, Arbeitsmodus, Abstimmungen, Frustrationen, Erfolge in eigener Worte |
 | `## Termine` | Termindichte, Zusammenarbeit, Meeting-lastige vs. Fokus-Tage |
 | `## Auswertung (Agent)` | Tages-Muster: inhaltlicher Fokus, Arbeitsmodus, Risiken |
 | `## Erfolg & Stolz` | direkte Erfolg-Kandidaten |

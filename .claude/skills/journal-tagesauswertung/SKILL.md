@@ -17,7 +17,7 @@ description: Erzeugt für heute den automatischen Jira-Teil des Tagesjournals un
 
 2. Die erzeugte bzw. aktualisierte Journal-Datei `journal/YYYY-MM/journal-YY-MM-DD.md` lesen.
 
-3. Danach den Skill `.cursor/skills/journal-pattern-analysis/SKILL.md` lesen und vollständig befolgen.
+3. Danach den Skill `.claude/skills/journal-pattern-analysis/SKILL.md` lesen und vollständig befolgen.
 
 4. Das Reflexions-Interview starten. Dabei nur die erste Frage stellen und die Antwort abwarten:
 
@@ -28,5 +28,5 @@ description: Erzeugt für heute den automatischen Jira-Teil des Tagesjournals un
 ## Grenzen
 
 - Der automatische Teil wird vor der Auswertung immer aktualisiert.
-- `## Manueller Inhalt` und `## Generierter Inhalt (Jira)` bleiben unverändert.
+- `## Reflektion: Mein Tag heute` und `## Generierter Inhalt (Jira)` bleiben unverändert.
 - Für die Auswertung gelten die Interview- und Schreibregeln des Journal-Pattern-Analysis-Skills.

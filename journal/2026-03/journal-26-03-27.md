@@ -1,6 +1,6 @@
 # Journal 2026-03-27
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute ist Self education Friday :-)
 - Habe meine assistent-Agent optimiert

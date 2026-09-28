@@ -15,7 +15,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1181 - Adapt BIS according to Workshop Outcome with Markus from überproduct (Product Communication | Standardize product change communication for ACTs)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Kriterien zur Software Aktivierung von Evelin in Confluence eingepflegt
 - Einige Epics nach Kommentar von Juan neu bewertet

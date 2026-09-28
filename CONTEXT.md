@@ -60,7 +60,7 @@ Personen oder Teams, deren Beitrag, Entscheidung oder Interesse für ein Arbeits
 
 Die tägliche Dokumentation von Arbeit, Erkenntnissen und Reflexionen.
 
-### Manueller Inhalt
+### Reflektion: Mein Tag heute
 
 Der vom Nutzer gepflegte Teil eines Tagesjournals. Er bleibt bei automatischen Aktualisierungen erhalten.
 

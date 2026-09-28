@@ -18,7 +18,7 @@
 
 - Zwei Dankeschöns fürs Kümmern bekommen. Es waren eher Kleinigkeiten, aber offenbar hilfreiche Kleinigkeiten.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens erstmal einige KI-Newsletter gelesen sowie die Ergebnisse der KI-Research.
 - PrOps-Weekly vorbereitet und teilgenommen

@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1032 (AWS Automation) und PROPS-1046 (TL Training Ownership) sind aktiv auf Hold gesetzt — beide haben Remind-Dates bekommen, sind aber ungeklärt.
 - **Nächster sinnvoller Schritt:** Ergebnis des Meetings mit Sascha und Lina festhalten und klären, ob Folgeaktionen entstehen; Prio-Meeting Donnerstag finalisieren.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag
   - Habe den Vormittag viel darauf verwendet, das Ptio-Meeting der Business Domain für Donnerstag vorzubereiten

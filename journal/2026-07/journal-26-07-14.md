@@ -22,7 +22,7 @@
 
 *Bezug: PROPS-1135 – Plan & conduct a Jira-Basic training for all Field Experts.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenrotine wie immer: KI News checken und lesen
 - Auf den Workshop mit Viv und Judith vorbereiten (Product Cast - ein Tool, um automatisiert Dokuemnet aus Epics zu erstellen)

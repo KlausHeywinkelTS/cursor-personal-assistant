@@ -13,7 +13,7 @@
 - PROPS-1294 - Build a html-tool that bundles all already existing tools (Software Capitalization Process revision 2026)
 - PROPS-1298 - Economic Use füllen (bulk-fähig)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Einige BIS erzeugt für Aleks und dabei eine Verbesserung am Skill vorgenommen
 - Abstimmung mit Engineering Managern zur Einschätzung von Bugs in Bezug auf Customer Impact (PROPS-1158). Danach Umsetzung meiner Themen (neue Felder in Jira - dabei Aufräumen von Field Schemes notwendig, was länger gedauert hat). Kommunikation ist durch - QAs können anfangen Bug einzuschätzen.

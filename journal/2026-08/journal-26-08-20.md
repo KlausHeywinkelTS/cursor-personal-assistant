@@ -13,7 +13,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1189 - Bug Communication | Explore auto-sync of Jira data into a Confluence data table
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe nur bis mittags gearbeitet - dann Fahrradwochenende mit Jörg und den MG in der Pfalz (Gimmeldingen)
 

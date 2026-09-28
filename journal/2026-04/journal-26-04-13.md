@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Kein harter Blocker ist erkennbar, aber mehrere Themen scheinen noch offen weiterzulaufen und sind im Jira-Log nur teilweise sichtbar; fuer spaetere Nachvollziehbarkeit ist das funktional, aber nicht ideal.
 - **Naechster sinnvoller Schritt:** Sinnvoll waere, die heute nur manuell sichtbaren Themen wie Lernreise und Basic/Plus-Systematik in klare naechste Arbeitsschritte zu uebersetzen, damit der Faden fuer morgen nicht neu gesucht werden muss.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittags ...
   - an der interaktiven single-html Tour für neue Trsutees gearbeitet (PROPS-1013)

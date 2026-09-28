@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1032 (Teams→Confluence Automation) zeigt seit 29.04 keinen Fortschritt – Remind date wurde heute verschoben, aber kein Impuls aus dem Kanal; könnte einschlafen. PROPS-1040 liegt jetzt bei den Workshop-Teilnehmern bis 15.05.
 - **Nächster sinnvoller Schritt:** PROPS-1062 im Automation-Log prüfen ob der P2M-Trigger greift, sowie PROPS-1031 weiterverfolgen sobald Rückmeldungen der Field Experts International eintreffen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Habe am Vromittag wegen Arzttermin erst um 9:30 starten können. Habe dann die meiste Zeit für Tracking (PROPS-1035) und Tickets nachverfolgen investiert.
 - Ansonsten nur das kurze Meeting mit den Engineering-Managern am Vormittag

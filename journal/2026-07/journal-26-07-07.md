@@ -19,7 +19,7 @@
 - Das positive Feedback kam im Workshop: Andere Teilnehmer haben deine Impulse als wertvoll eingeordnet und als größtes Learning des Tages benannt.
   *Bezug: Das verstärkt den Workshop als zentralen qualitativen Erfolg des Tages, neben der späteren Jira-Umsetzung.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Office-Day
 - morgens wie immer erst kurz nach KI-News geschaut

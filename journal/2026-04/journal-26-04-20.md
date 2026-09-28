@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1027 ist jetzt formal On Hold und hängt an Sascha/Maciej; das Warten wird damit sichtbar, aber löst sich nicht von allein.
 - **Nächster sinnvoller Schritt:** PROPS-1030 und PROPS-1031 zeitnah einplanen, bevor sie in der "To Do"-Spalte alt werden.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - KI News sichten und langsam einen Überblick über die Woche und den Tag verschafft

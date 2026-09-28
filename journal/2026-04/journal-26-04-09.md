@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Offene Punkte liegen vor allem in der Bündelung der vielen neu angelegten Tickets zu einer klar priorisierten nächsten Sequenz; zusätzlich deutet das manuell notierte Meeting-Thema auf ein mögliches Team- oder Kommunikationsnachspiel hin.
 - **Naechster sinnvoller Schritt:** Sinnvoll wäre als Nächstes, die heute entstandenen Tickets in eine belastbare Reihenfolge zu bringen und für den morgigen Austausch zu Basic/Plus die wichtigsten offenen Produktfragen vorzusortieren.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Bei mir steht heute kaum etwas auf der Agenda - ToDo-Liste so lehr wie schon lange nicht mehr, kaum Termine. Gehe deswegen eine neue Idee an.
 - Neue Idee: Trage in einem Repo ganz viel TS-relevantes Marktwissen zusammen und nutze dieses Wissen, um Releases einzuordnen und z.B. die Frage zu beantworten: Was ist der Kundennutzen dieses Releases? Natürlich alles KI-basiert. Aus dieser Idee wurde PROPS-1005. Habe Marcus davon erzählt - fand er gut. Die meiste Zeit heute habe ich daran gearbeitet

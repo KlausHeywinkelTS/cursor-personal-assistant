@@ -29,7 +29,7 @@
 
 - Die Field Experts empfanden die Jira-Einführung als hilfreich; das passt zur wieder aktivierten Vorbereitung des zweiten Trainings ([PROPS-1151](https://trustedshops.atlassian.net/browse/PROPS-1151)).
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Der Tag war angefüllt von verschiedenen ad-hoc Kleinigkeiten, die sich nicht in Tickets wiederfinden. War aber ok - ich konnte Schritt halten.
 - Wichtig war, die neuen Tasks für Product Communication (PROPS-1073) zu refinen. Das refinen hat sich bin in den Nachmittag gezogen.

@@ -18,7 +18,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI News lesen
 - R&D Projekt Worklog Erfassung: Mich weiter mit dem Build einer eigenen Jira-App mit Forge beschäftig - der lokale Build läuft nicht durch

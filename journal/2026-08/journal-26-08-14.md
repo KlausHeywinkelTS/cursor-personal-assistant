@@ -27,7 +27,7 @@
 
 - Pascal und Evelin haben positiv auf die entwickelte Lösung zur Aufwandserfassung (SW-Capitalization) reagiert. Das gehört zum Termin 11:00–11:30 (Vorstellung der Erfassungslösung) und zum Themenfeld von PROPS-1167.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Bin seit gestern gesundheitlich angeschlagen. Mal sehen, ob ich heute durchhalte.
 - Vormittags die Termine gemacht - aber sonst nicht viel.

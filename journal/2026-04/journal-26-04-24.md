@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Der bevorstehende Call mit Lina & Sascha am Montag wurde explizit als „vermutlich konfliktbehaftet" eingestuft – hier liegt ein sichtbares Risiko für Koordinationsaufwand und mögliche Eskalation.
 - **Nächster sinnvoller Schritt:** Vorbereitung des Montags-Calls mit Lina & Sascha strukturieren, damit der Klärungsbedarf konstruktiv verläuft.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Der Vormittag stand im Zeichen des Nacharbeitens und Struktierens der Inputs aus den Terminen gestern Nachmittag.

@@ -280,7 +280,7 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 ```markdown
 # Journal 2026-03-26
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 <!-- Optional durch Nutzer gepflegt -->
 
 ## Generierter Inhalt (Jira)
@@ -299,7 +299,7 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 **Regeln:**
 
-- **Manueller Inhalt ist optional**: Der Abschnitt darf leer bleiben.
+- **Reflektion: Mein Tag heute ist optional**: Der Abschnitt darf leer bleiben.
 - Beim Aktualisieren des Journals darf der Agent nur den Bereich `## Generierter Inhalt (Jira)` neu erzeugen; der manuelle Abschnitt bleibt unverändert.
 - Der generierte Abschnitt enthält alle Jira-Bewegungen des Tages in vier Kategorien:
   - **Statuswechsel**
@@ -356,14 +356,14 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 **Inhalt einer Zusammenfassung:**
 
 - Kurzer Überblick (Anzahl berücksichtigter Journale, Zeitraum)
-- Wichtigste Punkte aus `Manueller Inhalt` (nur wenn vorhanden)
+- Wichtigste Punkte aus `Reflektion: Mein Tag heute` (nur wenn vorhanden)
 - Konsolidierte Sicht auf Jira-Bewegungen der Periode (Statuswechsel, Kommentare, Änderungen, neue Tickets)
 - Optionaler Abschluss: 2-5 Bullet-Points "Was wurde geschafft / was ist aufgefallen"
 
 **Dateiquellen & Dateiformat für Aggregation:**
 
 - Es werden ausschließlich Dateien mit Muster `journal-YY-MM-DD.md` aus den Monatsordnern `journal/<YYYY-MM>/` berücksichtigt (rekursiv über alle Monate). Dateien direkt in `journal/` oder in `journal/wochen-rueckschau/` zählen nicht.
-- Tagesjournale ohne Inhalt in `Manueller Inhalt` bleiben für den Jira-Teil trotzdem voll gültig.
+- Tagesjournale ohne Inhalt in `Reflektion: Mein Tag heute` bleiben für den Jira-Teil trotzdem voll gültig.
 
 ---
 

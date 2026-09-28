@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1064 endet erneut auf "On Hold" – der mehrfache Status-Reset (In Progress → On Hold → In Progress → On Hold) deutet auf eine externe Abhängigkeit oder wiederkehrende Unterbrechung hin.
 - **Nächster sinnvoller Schritt:** Blocker bei PROPS-1064 explizit dokumentieren oder klären, bevor der nächste Anlauf gestartet wird.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute wieder zwei Interviews + PrOps Weekly + einen Termin mit Dennis zum Thema AI Rollout
 - Zwischen den Terminen Tickets abgearbeitet (oder auch angelegt)

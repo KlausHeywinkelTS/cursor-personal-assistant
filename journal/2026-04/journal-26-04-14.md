@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** PROPS-1011 und PROPS-1020 hängen an externen Rückmeldungen (Desirée, Fabian, CSM-Kandidaten); mehrere Remind-Dates wurden verschoben, was auf ein Cluster von wartenden Abhängigkeiten hindeutet.
 - **Nächster sinnvoller Schritt:** PROPS-1017 (Accounting/Controlling-Meeting) ist in Bewegung – den Ball dort hochhalten und parallel schauen, ob bei PROPS-1020 die ausstehenden Kandidaten-Feedbacks eintreffen.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag
   - Viel Kleinkram und ein Brainstroming mit PrOps, wo ein neues Epic auch mit ToDos für mich bei rasugekommen ist

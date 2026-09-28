@@ -1,6 +1,6 @@
 # Journal 2026-05-14
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 Heute Feiertag
 

@@ -27,7 +27,7 @@
 
 - Judith hat die Lösung gelobt, mit der per Script Use-Cases in Confluence zu allen Epics der SW-Capitalization angelegt werden – zeitlich gut zum JF Klaus & Judith (13:30–14:15) passend.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens erstmal die BRM Slides nach Damiens Feedback angepasst
 - Dann nach Restriktionen in Power Automation mit unserem Free-Plan geschaut (wichtig für die Lösung für das Worklog-Tracking im Rahmen von F&E - PROPS-1149)

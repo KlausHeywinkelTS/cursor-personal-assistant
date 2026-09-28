@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Offene Punkte sind vor allem bei den Themen zu erwarten, die zurück ins Backlog oder auf On Hold gegangen sind; das deutet eher auf Priorisierungs- oder Abhängigkeitsklärung als auf einen harten Blocker hin.
 - **Naechster sinnvoller Schritt:** Sinnvoll waere, das neue Onboarding-Thema `PROPS-1013` weiter zu konkretisieren und parallel zu prüfen, welche der heute verschobenen oder pausierten Themen als Nächstes wieder gezogen werden sollten.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - An Meetings steht heute an:
   - PrOps Weekly

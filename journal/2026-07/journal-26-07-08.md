@@ -21,7 +21,7 @@
 
   *Bezug zum manuellen Inhalt: Prio-Vorbereitungsmail wurde Estelle gezeigt und anschließend für die Platform Domain eingerichtet.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Bin heute wieder im Office wegen Body-Composition im Rahmen des Health-Pass
 - Morgens Estelle die Prio-Vorbereitungsmail gezeigt (weil sie zufällig neben mir saß). Hat ihr sehr gut gefallen - habe ich für die Platform Domain nun eingerichtet

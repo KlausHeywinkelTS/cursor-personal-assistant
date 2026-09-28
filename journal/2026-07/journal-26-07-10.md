@@ -21,7 +21,7 @@
 
 *Bezug: manueller Inhalt "15:00 - 15:15 Estelle das Prio-Board für die Platform-Domain in Jira gezeigt"*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Die ersten 75 Minuten am Morgen mit News-Recherche und Konsumierung dran (20 Min.). Spannend: Atlassain bietet jetzt eine Agentenplatform an, um Jira-Apps.
 - Dann mit Jira Permission-Schemes beschäftigt, das Default Scheme hatte ein paar zu viele Rechte für die addons-Rolle und Daniel hat ohne zu dokumentieren und mit zu vielen Rechten ein neues Permission-Scheme angelegt.

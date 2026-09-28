@@ -19,7 +19,7 @@
 - Nata hat sich nach dem ausgedehnten Coffee-Chat für die Inspiration bedankt.
 - Marcus hat den geplanten Themen zugestimmt, die im Kontext Product-to-Market angegangen werden sollen, mit Ausblick auf `PROPS-1072`.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens einen längere Coffee-Chat im Office mit nata gehabt. Daraus sidn 2 Ideen gepurzelt, die ich mit meinem Team geteilt habe (Newsletter nach Interessengebieten splitten und eine subscription pro Gebiet anbieten; Rovo-SAgent für Stakeholder anbieten, der die Frage beantwortet, welches Team im Falle eines bestimmten Problems/Frage zuständig ist)
 - Dann die Key-Notde von Jean-Marc auf der OMR auf YouTube geschaut. Sehr inspirierend.

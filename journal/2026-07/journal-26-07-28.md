@@ -21,7 +21,7 @@
 - Sascha hat sich im PrOps-Talk vielmals für das Sparring bedankt.
   _Quelle: Sascha, PrOps-Talk._
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Office-Tag
 - Morgens einen ausführlichen Plausch mit Sabrina gehabt - sie ist zufällig heute in Köln

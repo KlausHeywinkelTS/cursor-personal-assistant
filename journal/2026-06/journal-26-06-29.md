@@ -19,7 +19,7 @@
 - Dein Wissen wird für die Beurteilung der Initiativen zur Software-Aktivierung gebraucht.
   *Das ist ein klares Signal, dass dein Kontext nicht nur administrativ nützlich ist, sondern für inhaltliche Bewertung und Priorisierung relevant bleibt.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Erster Arbeitstag nach 4 Wochen Urlaub. Nach 2 Stunden war ich durch mit allen Emails und Teams-Messages.
 - Am Vormittag und Nachmittag mich von Judith auf den aktuellen Stand bringen lassen

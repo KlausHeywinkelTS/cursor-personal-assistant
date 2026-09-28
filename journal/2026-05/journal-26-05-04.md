@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Der reaktive Modus bleibt das zentrale Risiko, weil mehrere aktive Themen parallel offen sind und PROPS-1056 bewusst auf Hold gesetzt wurde.
 - **Nächster sinnvoller Schritt:** Morgen wäre sinnvoll, die offenen aktiven Themen kurz zu priorisieren und gezielt zu entscheiden, was wirklich weitergezogen wird.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Gefühlt bin ich im reaktiven Modus: Ich springe von Problem zu Problem (Fehler im AWS Lambda; Fehler in diesem Repo) und versuche das Wichtigste im Blick zu behalten.
 - Viele Termine - u.a. mit Damien und Sara zu den angefragten Trainings udn Interviews zu unserer PrOps Research

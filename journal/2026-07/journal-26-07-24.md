@@ -21,7 +21,7 @@
 
 *Bezug: vermutlich im Rahmen des Weekly (10:00–10:30) mit Judith und Vivian genannt.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI-News lesen
 - Dann weiter an der Automatisierung für Product Cast gearbeitet. Außer die folgenden Meetings habe ich nichts anderes gemacht.

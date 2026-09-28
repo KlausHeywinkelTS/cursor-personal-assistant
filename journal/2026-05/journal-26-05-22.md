@@ -19,7 +19,7 @@
 - Damien hat sich dafuer bedankt, dass du zum Meeting am Morgen eine Q&A-Section auf Basis des Transcripts und des Meeting-Chats generiert hast.
   *Bezug: Meeting zur Uebergabe von trstd-insights an die ACTs sowie PROPS-907 - Improvement | Collect all questions & answers about a release on the confluence page of this release.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens zunächst ein eLearning für die Expership-Ausbildung in Workday durchgeführt. Außerdem Zeit investiert, um meinen Expert-Elevator Pitch neu zu schreiben und zu üben, ebenfalls für die anstehende Session nächsten Dienstag.
 - Um 11:00 ein Meeting von Damien zur Übergabe von trstd-insights an die ACTs mitgemacht

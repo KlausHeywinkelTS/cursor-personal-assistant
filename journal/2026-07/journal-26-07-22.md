@@ -17,7 +17,7 @@ Heute kein besonderer Punkt.
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI News lesen.
 - Bis auf ein PrOps-Talk und unser PrOps-Weekly habe ich heute nahezu ausschließlich an dem Lambda für product cast gearbeitet (PrOps-1131). Bin weiter egkommen - ist aber auch noch viel zu tun...

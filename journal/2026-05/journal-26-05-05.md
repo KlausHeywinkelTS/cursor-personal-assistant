@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Das zentrale offene Risiko ist, dass der Weekly-Report-Skill bislang ohne Ticket läuft und damit leicht aus der offiziellen Nachverfolgung fällt.
 - **Nächster sinnvoller Schritt:** Für den Weekly-Report-Prototyp sollte ein Jira-Ticket oder zumindest ein klarer Nachverfolgungspunkt angelegt werden, damit das Thema nicht als nützlicher Geist im Maschinenraum verschwindet.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Tracking der Blocker für Basic/Plus gemacht und mit ein paar Leuten geschrieben. Sieht so weit alles gut aus.
 - Am Nachmittag waren wieder einige Interviews für unsere PrOps Research geplant. habe nur an einem davon teilgenommen und die anderen geskippt - zugunsten des Weekly-Reports (s.u.)

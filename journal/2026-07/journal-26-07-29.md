@@ -18,7 +18,7 @@
 
 Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute morgen mal keine Lektüre von KI-News. Dafür in Jira sortieren, was jetzt ansteht.
 - In meiner Jira Developer-Site den Trial für die Timesheet-App beendet (nicht, dass da plötzlich Kosten anfallen...)

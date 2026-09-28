@@ -19,7 +19,7 @@
 - Judith berichtete indirekt, dass André sich sehr positiv über das Engagement beim Tool für die Aufwandserfassung im Rahmen der SW-Aktivierung geäußert hat.
   - *Bezug zum manuellen Termin zur Durchsicht der Epics für die SW-Aktivierung mit Accounting.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgenroutine: KI-News lesen
 - Dann weiter am Entefrenen des Jira-Feldes "Relevan for roadmap" gearbeitet (PROPS-1170)

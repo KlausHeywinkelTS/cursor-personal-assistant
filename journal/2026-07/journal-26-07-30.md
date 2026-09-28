@@ -24,7 +24,7 @@
 
 - Heute kein erinnerbares positives Feedback.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute Home-Office in Opperzau
 - Vor dem P&T Weekly KI-News gelesen sowie die automatische Erstellung meines Journals verbessert: Es wird nun auch ein Kalenderblock ganz oben eingefügt, damit ich beim Tagesstart bereits sehe, was heute anliegt.

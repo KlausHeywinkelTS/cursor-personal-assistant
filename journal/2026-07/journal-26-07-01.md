@@ -19,7 +19,7 @@
 - Aleks hat sich für deine Unterstützung bei der Einrichtung des Jira-Boards für das Prio-Meeting morgen bedankt.
   *Bezug: manueller Inhalt zum Call mit Aleks.*
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Ungeplant mit Daniel eine halbe Stunde zu Jira-FRagen und KI-Themen gequatscht.
 - Morgens habe ich ausführlich die AI-News der letzten 4,5 Wochen aufgearbeitet

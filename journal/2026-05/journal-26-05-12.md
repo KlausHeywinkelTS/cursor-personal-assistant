@@ -8,7 +8,7 @@
 - **Zusammenarbeit:** Klaus Heywinkel hat PROPS-1055 eigenständig auf weitere Projekte ausgerollt – die Automatisierung trägt sich bereits selbst. Parallel mehrere strukturelle Abstimmungen (Experimente-Board, BRM-Chat, Controlling-Prozess).
 - **Risiko/Offene Punkte:** PROPS-1053 (PM Workspace Agenda) zeigt keinen Fortschritt; PROPS-1035 (Blocker-Tracking Estelle-Vertretung) läuft weiter ohne sichtbare Bewegung.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Der Tag heute ist voller Meetings: von 10:00 - 12:00 die erste Session zu Future Expertship und am Nachmittag viele kleine Meetings. Heute werde ich kaum etwas an Tickets schaffen.
   - Termine:

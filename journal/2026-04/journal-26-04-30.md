@@ -9,7 +9,7 @@
 - **Risiko/Offene Punkte:** Der Webhook-Fix (PROPS-1050/1032) ist erst nach der nächsten echten Nachricht real verifiziert – bis dahin offener Verifizierungsschritt; zusätzlich steht das Umsetzen des Prio-Meeting-Feedbacks noch aus.
 - **Nächster sinnvoller Schritt:** Prio-Meeting-Feedback in den frisch angelegten Tickets (PROPS-1051, 1053, 1055) konkretisieren und Webhook-Verifizierung im Auge behalten.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Vormittag:
   - Zunächst habe ich mich darum gekümmert, Input von gestern in Jira-Tickets zu überführen

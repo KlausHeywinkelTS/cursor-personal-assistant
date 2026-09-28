@@ -13,7 +13,7 @@
 - PROPS-1294 - Build a html-tool that bundles all already existing tools (Software Capitalization Process revision 2026)
 - PROPS-1298 - Economic Use füllen (bulk-fähig)
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens war etwas Stress angesagt als ich feststellet, dass das Jira Feld "Task Type" für die neuen Teams der Business Domain zwar mandatory ist - aber nicht auf dem Screen auftaucht. In dem Rahmen erstmal mit Screens und Screen-Schemes aufgeräumt (war notwendig).
 - Rest des Tages außerhalb der Termine an dem Tool für SW-Aktivierung gesessen.

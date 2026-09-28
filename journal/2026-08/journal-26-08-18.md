@@ -29,7 +29,7 @@
 
 - André und Judith haben die Lösung und das Engagement für die Aufwandserfassung positiv zurückgespiegelt. Das gehört zum Themenfeld PROPS-904 und zur Abstimmung 09:30 (Lösung und Kosten); Judith ist zusätzlich im JF 15:30 und als Pre-Pilot-Ansprechpartnerin in PROPS-1206 sichtbar.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Bin wieder fit und am Start :-)
 - Der Vormittag stand im Zeichen des neuen Prozesses zur Aufwandserfassung im Rahmen der SW-Aktivierung (PROPS-904)

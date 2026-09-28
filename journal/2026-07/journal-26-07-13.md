@@ -19,7 +19,7 @@
 
 Heute kein erinnerbares positives Feedback. Stattdessen gab es eine Auseinandersetzung mit Daniel zur abgelehnten Jira-Admin-Rechte-Anfrage; André hat das Verhalten als nicht angemessen zurückgemeldet.
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Morgens eine schnelle KI-Recherche gemacht und eine Anfrage von Daniel offiziell in meiner Rolle als Head of Jira-Governance abgelehnt, in der er Jira-Admin Rechte anfragt.
 - Dann Fokus auf die Recherche nach Worklog-Apps für Jira (PROPS-1157), die unser Datenschutzproblem bei der Erfassung von Zeiten für F&E lösen können. Das ist auch Vorbereitung für den Abstimmunsgtermin mit André diese Woche. Das hat die größte Zeit heute in Anspruch genommen - enebn 1h Call mit Judith.

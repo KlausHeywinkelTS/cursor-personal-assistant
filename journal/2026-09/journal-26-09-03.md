@@ -15,7 +15,7 @@
 - PROPS-1158 - Proactive, filtered bug communication process from Product to CSM/AM/Sales (Ongoing minor adaptions to processes and templates)
 - PROPS-1187 - Research: Find a solution how a bug-overview can be implemented that is up-to-date automatically
 
-## Manueller Inhalt
+## Reflektion: Mein Tag heute
 
 - Heute viele Meetings. Dazwischen Fokustopic: SW-Capitalization - hier die autoamtische Zuordnung von Epics zu Clustern
 
