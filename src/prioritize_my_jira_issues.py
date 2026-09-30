@@ -322,6 +322,14 @@ def score_issue(
     )
 
 
+def is_on_hold_until_future(fields: dict[str, Any], today: date) -> bool:
+    """On Hold issues with a future remind date are not ranked at all."""
+    if normalize_name(field_name(fields, "status")) != "onhold":
+        return False
+    remind_date = parse_jira_date(fields.get("customfield_10246"))
+    return remind_date is not None and remind_date > today
+
+
 def rank_issues(
     raw_issues: list[dict[str, Any]],
     epic_keys: set[str],
@@ -342,6 +350,7 @@ def rank_issues(
         for raw_issue in raw_issues
         if is_open(raw_issue.get("fields") or {})
         and normalize_name(field_name(raw_issue.get("fields") or {}, "issuetype")) != "epic"
+        and not is_on_hold_until_future(raw_issue.get("fields") or {}, ranking_day)
     ]
     return sorted(ranked, key=lambda issue: (-issue.score, issue.key.casefold()))
 

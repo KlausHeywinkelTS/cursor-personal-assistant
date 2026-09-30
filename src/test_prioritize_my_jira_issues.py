@@ -173,6 +173,20 @@ class RankingTests(unittest.TestCase):
         self.assertEqual(["PROPS-1", "PROPS-2"], [item.key for item in ranked])
         self.assertEqual([20, 20], [item.score for item in ranked])
 
+    def test_on_hold_is_excluded_only_while_remind_date_is_in_the_future(self) -> None:
+        raw_issues = [
+            issue("PROPS-1", status="On Hold", remind_date=(self.TODAY + timedelta(days=1)).isoformat()),
+            issue("PROPS-2", status="On Hold", remind_date=self.TODAY.isoformat()),
+            issue("PROPS-3", status="On Hold", remind_date=(self.TODAY - timedelta(days=1)).isoformat()),
+            issue("PROPS-4", status="On Hold"),
+        ]
+
+        ranked = ranking.rank_issues(raw_issues, set(), {}, self.TODAY)
+
+        self.assertEqual(
+            ["PROPS-2", "PROPS-3", "PROPS-4"], [item.key for item in ranked]
+        )
+
     def test_parent_and_classic_epic_link_children_are_combined(self) -> None:
         parent_child = issue("PROPS-1", parent_key="PROPS-EPIC")
         classic_child = issue("PROPS-2", epic_link="PROPS-EPIC")
