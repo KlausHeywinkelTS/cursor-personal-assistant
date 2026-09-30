@@ -8,21 +8,21 @@
 
 ## Wochenziele
 - SW-Capitalization:
-	- Sämtliche Aktionen sind aus der GUI heraus direkt aufrufbar (PROPS-1309)
-	- Alle Epics sind eingeschätzt mit 'can be capitalized = yes|no' mit Begründung
-	- Alle Business Cases, für die wir Daten haben, sind erstellt
-	- Die GUI enthält eine Fortschrittsanzeige:
+	- ✅ Sämtliche Aktionen sind aus der GUI heraus direkt aufrufbar (PROPS-1309)
+	- ✅ Alle Epics sind eingeschätzt mit 'can be capitalized = yes|no' mit Begründung
+	- ✅ Alle Business Cases, für die wir Daten haben, sind erstellt
+	- ✅ Die GUI enthält eine Fortschrittsanzeige:
 		- % an Epics, die klassifiziert sind mit 'can be capitalized = yes|no' im Verhältnis zur Gesamtzahl der Epics
 		- % an Business Cases, die erstellt sind im Verhältnis zur Gesamtzahl der Business Cases
-	- ✅Ein Kostentracking für Bedrock ist im Projekt implementiert (PROPS-1310)
+	- ✅ Ein Kostentracking für Bedrock ist im Projekt implementiert (PROPS-1310)
 - Themen von Desirée:
 	- Alle Themen von Desirée und sich daraus ergebende Aufgaben für PrOps sind geplant und ready-to-pull
-		- ⌛Communication P2M & GTM changes (--> PROPS-1312)
-		- ACT Requirements
+		- ⌛ Communication P2M & GTM changes (--> PROPS-1312)
+		- ❌ ACT Requirements --> Postponed auf nächste Woche wegen Judiths Abwesenheit
 - Research-Ergebnisse im Research-Kontext:
-	- Mögliche Erweiterungen und die next steps sind abgestimmt
+	- ✅ Mögliche Erweiterungen und die next steps sind abgestimmt (--> in a call with Rui and Sascha I presented the options of the existing reserach-context. He liked it and will forward these information to Lisanne and Huia. They will contact me to align on how concrete we can populate the context with other types of information)
 - Competitor Insights:
-	- Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github)
+	- Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github) - PROPS-1293
 
 ## Langlaufende Tasks
 - keine
