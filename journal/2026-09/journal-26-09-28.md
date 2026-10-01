@@ -22,7 +22,7 @@
 - Research-Ergebnisse im Research-Kontext:
 	- ✅ Mögliche Erweiterungen und die next steps sind abgestimmt (--> in a call with Rui and Sascha I presented the options of the existing reserach-context. He liked it and will forward these information to Lisanne and Huia. They will contact me to align on how concrete we can populate the context with other types of information)
 - Competitor Insights:
-	- Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github) - PROPS-1293
+	- ⌛ Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github) - PROPS-1293
 
 ## Langlaufende Tasks
 - keine
