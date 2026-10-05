@@ -36,7 +36,7 @@ Pro Tag folgende Abschnitte auswerten (sofern vorhanden):
 | `## Auswertung (Agent)` | Tages-Muster: inhaltlicher Fokus, Arbeitsmodus, Risiken |
 | `## Erfolg & Stolz` | direkte Erfolg-Kandidaten |
 | `## Positives Feedback` | Wirkung und Zusammenarbeit |
-| `## Stimmungslage` | Belastung, Momentum, Kontrast zu Jira-Bewegung |
+| `## Stimmungslage` | Belastung, Momentum, Kontrast zu Terminlast und Arbeitsmodus |
 | `### Statuswechsel` | Abschlüsse (`Done`, bewusst `Rejected`) |
 | `### Kommentare` | Zusammenarbeit, Blocker, Lob |
 | `### Ticket-Änderungen` | tiefe Arbeit an Issues ohne Statuswechsel |
@@ -46,7 +46,7 @@ Pro Tag folgende Abschnitte auswerten (sofern vorhanden):
 ### Muster über den Monat verdichten
 
 - **Themen:** Cluster aus wiederkehrenden Stichwörtern, Issue-Gruppen oder Tages-Auswertungen (≥ 2 Tage oder mehrere Tickets).
-- **Arbeitsmodus:** Wechsel zwischen Umsetzung, Exploration, Abstimmung, Abschluss; Kontrast „viel Jira-Bewegung vs. viel manuelle/technische Arbeit“.
+- **Arbeitsmodus:** Wechsel zwischen Umsetzung, Exploration, Abstimmung, Abschluss; Kontrast „viele Termine vs. viel Fokus-/technische Arbeit“.
 - **Zusammenarbeit:** Personen, Teams, Workshops, Enablement – aus manuellem Inhalt, Feedback und Kommentaren.
 - **Offene Kanten:** bewusst geparkte Themen, wiederkehrende Blocker, unentschiedene Punkte.
 - **Erfolge:** Abschlüsse, produktiv übergebene Artefakte, gelöste Blocker, positives Feedback – nicht nur „Ticket auf Done“.
@@ -72,7 +72,7 @@ Template (an den Referenzbeispielen orientieren):
 <1–3 Sätze Einordnung des Monats als Fließtext>
 
 - **Themen:** <dominierende Schwerpunkte verdichtet>. Relevante Tickets: PROPS-123, PROPS-456.
-- **Arbeitsmodus:** <wie gearbeitet wurde, inkl. Kontrast Jira vs. manuell/technisch>. Relevante Tickets: PROPS-123.
+- **Arbeitsmodus:** <wie gearbeitet wurde, inkl. Kontrast Termine vs. Fokus-/technische Arbeit>. Relevante Tickets: PROPS-123.
 - **Zusammenarbeit:** <mit wem, welche Formate, Feedback>. Relevante Tickets: PROPS-123.
 - **Offene Kanten:** <was bewusst offen blieb oder hängt>. Relevante Tickets: PROPS-123.
 
@@ -121,7 +121,7 @@ Template (an den Referenzbeispielen orientieren):
 
 - Monat als Geschichte erzählen: Aufbau, Wendepunkte, Abschlusswellen.
 - Wiederkehrende Themen über mehrere Tage zusammenfassen.
-- Kontrast benennen, wenn sichtbar (z. B. „viel technische Arbeit, wenig Jira-Bewegung“).
+- Kontrast benennen, wenn sichtbar (z. B. „viel technische Arbeit, wenig Termine“).
 - Bei dünnem Monat ehrlich bleiben und kürzer schreiben.
 
 ### Don't
