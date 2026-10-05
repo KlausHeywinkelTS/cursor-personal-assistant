@@ -25,7 +25,7 @@
 - Research-Ergebnisse im Research-Kontext:
 	- ✅ Mögliche Erweiterungen und die next steps sind abgestimmt (--> in a call with Rui and Sascha I presented the options of the existing reserach-context. He liked it and will forward these information to Lisanne and Huia. They will contact me to align on how concrete we can populate the context with other types of information)
 - Competitor Insights:
-	- ✅ Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github) - PROPS-1293 --> ein erster Wurd mit Nutzug des lokalen Agenten ist fertig und mit Trustpilot getestet. Müsste ich aber noch umabuen auf Bedrock. --> Nächste Schritte: Anpassung des Scripts für Bedrock und ausführen für alle Competitors.
+	- ✅ Ein erstes Script ist implementiert, welches noch lokal läuft und den Research-Context anreichert (github) - PROPS-1293 --> ein erster Wurf mit Nutzug des lokalen Agenten ist fertig und mit Trustpilot getestet. Müsste ich aber noch umabuen auf Bedrock. --> Nächste Schritte: Anpassung des Scripts für Bedrock und ausführen für alle Competitors.
 
 ## Top 3 scored Jira Tasks
 
