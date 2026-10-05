@@ -27,7 +27,7 @@ Alle Skripte laufen mit `py src/<skript>.py`. Credentials kommen aus Umgebungsva
 | `search_jira_issues.py` | Issues per JQL suchen | `--jql "..." -o cache/results.json` |
 | `read_confluence_page.py` | Confluence-Seite lesen | `-u URL` oder `-p PAGE-ID` |
 | `search_confluence.py` | Confluence per CQL suchen | `--query "..." --limit 5` |
-| `update_daily_journal.py` | Tagesjournal aus Jira-Bewegungen erzeugen/aktualisieren | `--date YYYY-MM-DD --journal-dir journal`; leere Vorlage ohne Jira: `--stub-only`; idempotent: `--stub-only-if-missing` (z. B. Task beim Ordneröffnen) |
+| `update_daily_journal.py` | Tagesjournal (Termine, Top-3-Tasks, Langläufer, Reflexionsvorlage) erzeugen/aktualisieren | `--date YYYY-MM-DD --journal-dir journal`; leere Vorlage ohne Jira: `--stub-only`; idempotent: `--stub-only-if-missing` (z. B. Task beim Ordneröffnen) |
 
 **Chat (Slash):** `/journal-stub` lädt das Skill `.cursor/skills/journal-stub/` – Agent soll `update_daily_journal.py --stub-only` ausführen, nicht die Datei manuell anlegen.
 
@@ -142,12 +142,12 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 **Wichtig:** Die inhaltliche Musteranalyse wird **vom Agenten erzeugt**, nicht vom Python-Skript.
 
 **Ablauf:**
-1. Tagesjournal mit `py src/update_daily_journal.py --date YYYY-MM-DD` aktualisieren (liefert Rohdaten im Abschnitt `Generierter Inhalt (Jira)`).
+1. Tagesjournal mit `py src/update_daily_journal.py --date YYYY-MM-DD` aktualisieren bzw. anlegen (Termine, Top 3 scored Jira Tasks, Langlaufende Tasks).
 2. Der Agent liest die Journal-Datei.
 3. Reflexions-Interview (jede Frage in eigener Nachricht):
    - Frage 1: "Was siehst du heute als besonderen Erfolg – oder worauf bist du stolz oder glücklich?"
    - Frage 2: "Welches positive Feedback hast du heute bekommen?"
-4. Der Agent formuliert eine kurze inhaltliche Auswertung aus `## Manueller Inhalt`, `## Generierter Inhalt (Jira)` und den Reflexionsantworten (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen; bei Kontrast (z. B. viel manuell, Jira leer) kurz einordnen.
+4. Der Agent formuliert eine kurze inhaltliche Auswertung aus `## Termine`, `## Reflektion: Mein Tag heute` und den Reflexionsantworten (Themen, Arbeitsmodus, Zusammenarbeit, Risiken/Blocker) ohne reine Metrik-Listen; bei Kontrast (z. B. viele Termine, wenig Fokuszeit) kurz einordnen.
 5. Der Agent schreibt drei Sektionen in die Datei (idempotent, oberhalb von `## Manueller Inhalt`): `## Auswertung (Agent)`, `## Erfolg & Stolz`, `## Positives Feedback`. Die Antworten dürfen mit konkreten Jira-Issues oder dem manuellen Inhalt verknüpft werden, sofern der Bezug eindeutig ableitbar ist.
 
 **→ Lies und befolge den Skill: `.cursor/skills/journal-pattern-analysis/SKILL.md`**
@@ -164,7 +164,7 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 
 1. Wochentage bestimmen (Montag–Freitag der betreffenden Woche; falls keine Angabe → aktuelle Woche).
 2. Alle vorhandenen Tages-Journal-Dateien dieser Woche lesen (`journal/YYYY-MM/journal-YY-MM-DD.md`).
-3. Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat: `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und Datei neu lesen.
+3. Fehlende Tages-Dateien überspringen (kein Journal erfinden).
 4. Aus allen Tages-Journals eine Wochen-Rückschau erzeugen mit folgenden Abschnitten:
    - `## Auswertung (Agent)` – Bullet-Liste: Generell, Inhaltlicher Fokus, Arbeitsmodus, Zusammenarbeit, Risiko/Offene Punkte, Nächster sinnvoller Schritt
    - `## Tagesüberblick` – Markdown-Tabelle: Tag | Schwerpunkt | Abgeschlossen | Neu angelegt
@@ -192,10 +192,10 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 
 1. Kalendermonat bestimmen (falls keine Angabe → aktueller Monat).
 2. Alle vorhandenen Tages-Journal-Dateien dieses Monats lesen (`journal/YYYY-MM/journal-YY-MM-DD.md`).
-3. Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat: `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und Datei neu lesen.
+3. Fehlende Tages-Dateien überspringen (kein Journal erfinden).
 4. Aus allen Tages-Journals eine Monats-Rückschau erzeugen mit folgenden Abschnitten:
    - `## Auswertung (Agent)` – kurze Einordnung des Monats: Themen, Arbeitsmodus, Zusammenarbeit, offene Kanten
-   - `## Erfolge` – Schwerpunkt der Datei; Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt und Jira-Bewegungen verdichten
+   - `## Erfolge` – Schwerpunkt der Datei; Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt verdichten
    - `## Wirkung` – 2-4 Punkte, woran Nutzen sichtbar wurde, z. B. abgeschlossene Themen, gelöste Blocker, positive Rückmeldungen oder entstandene Automatisierung
    - `## Fokus-Impuls` – **genau ein** rückblickender Verbesserungsimpuls für den nächsten Monat
    - `## Monatsüberblick` – Markdown-Tabelle: Woche | Schwerpunkt | wichtigste Erfolge | offene Punkte
@@ -207,7 +207,7 @@ Abschluss: kurze Empfehlung "Ich würde heute mit [X] starten, weil ..."
 - Der Fokus-Impuls enthält genau einen Punkt. Nicht zwei, nicht "eigentlich drei". Einer reicht. Das ist der Sinn von Fokus.
 - Keine Ticket-Nacherzählung als Kern der Rückschau; Tickets dienen nur als Belege für Muster, Wirkung und Erfolge.
 - Jeder Bulletpoint in der Monats-Rückschau listet am Ende die relevanten Ticket-Keys im Format `Relevante Tickets: PROPS-123, PROPS-456`. Falls eine Aussage nicht auf konkrete Tickets zurückgeht, als Fließtext formulieren statt als Bulletpoint.
-- Tages-Journal-Dateien nicht verändern, außer wenn der automatische Jira-Teil für ein vorhandenes Tagesjournal fehlt.
+- Tages-Journal-Dateien nicht verändern.
 - Datei ist idempotent: bei erneutem Aufruf wird die bestehende Datei aktualisiert.
 
 ---

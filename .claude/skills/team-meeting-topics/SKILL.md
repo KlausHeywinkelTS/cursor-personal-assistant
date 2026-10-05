@@ -26,10 +26,7 @@ Kategorien:
 
 1. Pro Werktag (Mo–Fr) die Datei `journal/<YYYY-MM>/journal-<YY-MM-DD>.md` lesen.
 2. Falls eine Datei fehlt: überspringen und im Output beim entsprechenden Tag "kein Journal" notieren.
-3. Falls eine Datei vorhanden ist, aber `## Generierter Inhalt (Jira)` fehlt oder vollständig leer wirkt:
-   - `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen.
-   - Datei danach neu lesen.
-4. Journal-Dateien werden **nicht** verändert – nur gelesen.
+3. Journal-Dateien werden **nicht** verändert – nur gelesen.
 
 ## Aus dem Journal extrahieren
 

@@ -64,10 +64,6 @@ Die tägliche Dokumentation von Arbeit, Erkenntnissen und Reflexionen.
 
 Der vom Nutzer gepflegte Teil eines Tagesjournals. Er bleibt bei automatischen Aktualisierungen erhalten.
 
-### Generierter Inhalt (Jira)
-
-Der aus Jira-Bewegungen abgeleitete Teil eines Tagesjournals.
-
 ### Stimmungslage
 
 Die kurze persönliche Einordnung von Erfolg, Stolz, Belastung oder anderen prägenden Eindrücken eines Arbeitstags.

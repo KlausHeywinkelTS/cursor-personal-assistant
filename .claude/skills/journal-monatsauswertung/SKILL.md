@@ -23,10 +23,7 @@ Referenzbeispiele im Projekt:
 
 1. Alle vorhandenen Dateien `journal/<YYYY-MM>/journal-<YY-MM-DD>.md` des Zielmonats lesen.
 2. Fehlende Werktage überspringen – kein Journal erfinden.
-3. Falls eine Datei vorhanden ist, aber `## Generierter Inhalt (Jira)` fehlt oder vollständig leer wirkt:
-   - `py src/update_daily_journal.py --date YYYY-MM-DD --journal-dir journal` ausführen.
-   - Datei danach neu lesen.
-4. Tagesjournal-Dateien **nicht** verändern – außer dem explizit erlaubten Aktualisieren fehlender Jira-Teile (Schritt 3).
+3. Tagesjournal-Dateien **nicht** verändern.
 
 ## Aus den Journals extrahieren
 
@@ -129,7 +126,7 @@ Template (an den Referenzbeispielen orientieren):
 
 ### Don't
 
-- Keine Tagesjournal-Dateien ändern (außer fehlender Jira-Teil).
+- Keine Tagesjournal-Dateien ändern.
 - Keine mehrfachen Fokus-Impulse.
 - Keine Bewertung jenseits der Daten („du solltest …“).
 - Keine Rohdaten aus Event-Listen duplizieren.

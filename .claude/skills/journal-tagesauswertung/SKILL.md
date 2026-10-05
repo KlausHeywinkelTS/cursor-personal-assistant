@@ -1,21 +1,21 @@
 ---
 name: journal-tagesauswertung
-description: Erzeugt für heute den automatischen Jira-Teil des Tagesjournals und stößt anschließend die inhaltliche Journal-Zusammenfassung mit Reflexions-Interview an. Verwenden bei „Tagesjournal auswerten“, „Journal für heute zusammenfassen“, „Tagesabschluss“ oder wenn der automatische Journalteil und die Zusammenfassung gemeinsam erstellt werden sollen.
+description: Stellt sicher, dass das heutige Tagesjournal existiert, und stößt anschließend die inhaltliche Journal-Zusammenfassung mit Reflexions-Interview an. Verwenden bei „Tagesjournal auswerten“, „Journal für heute zusammenfassen“, „Tagesabschluss“ oder wenn Journal-Vorlage und Zusammenfassung gemeinsam erstellt werden sollen.
 ---
 
 # Journal-Tagesauswertung
 
 ## Ablauf
 
-1. Den automatischen Jira-Teil des heutigen Journals aktualisieren:
+1. Sicherstellen, dass das heutige Journal existiert (legt nur an, wenn es fehlt):
 
    ```powershell
-   py src/update_daily_journal.py --date YYYY-MM-DD --journal-dir journal
+   py src/update_daily_journal.py --date YYYY-MM-DD --journal-dir journal --stub-only-if-missing
    ```
 
    `YYYY-MM-DD` durch das heutige Datum ersetzen.
 
-2. Die erzeugte bzw. aktualisierte Journal-Datei `journal/YYYY-MM/journal-YY-MM-DD.md` lesen.
+2. Die Journal-Datei `journal/YYYY-MM/journal-YY-MM-DD.md` lesen.
 
 3. Danach den Skill `.claude/skills/journal-pattern-analysis/SKILL.md` lesen und vollständig befolgen.
 
@@ -27,6 +27,6 @@ description: Erzeugt für heute den automatischen Jira-Teil des Tagesjournals un
 
 ## Grenzen
 
-- Der automatische Teil wird vor der Auswertung immer aktualisiert.
-- `## Reflektion: Mein Tag heute` und `## Generierter Inhalt (Jira)` bleiben unverändert.
+- Das Journal wird nur angelegt, wenn es fehlt; bestehende Dateien bleiben unverändert.
+- `## Reflektion: Mein Tag heute` bleibt unverändert.
 - Für die Auswertung gelten die Interview- und Schreibregeln des Journal-Pattern-Analysis-Skills.

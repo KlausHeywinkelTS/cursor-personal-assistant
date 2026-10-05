@@ -257,13 +257,12 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 ### Feature G: Tagesjournal *(Should-have)*
 
-**Zweck:** Der Nutzer kann pro Tag ein Journal führen. Das Journal besteht aus einem optionalen manuellen Abschnitt und einem automatisch generierten Abschnitt auf Basis aller relevanten Jira-Bewegungen des Tages.
+**Zweck:** Der Nutzer kann pro Tag ein Journal führen. Das Journal besteht aus automatisch erzeugten Abschnitten (Termine, Top 3 scored Jira Tasks, Langlaufende Tasks) und einem optionalen manuellen Abschnitt zur Reflexion. Jira-Bewegungen des Tages werden nicht mehr ins Journal geschrieben.
 
 **Trigger:** Explizite Anfrage des Nutzers, z.B.:
 
 - "Erstelle heute mein Journal"
 - "Zeig mir mein Journal von heute"
-- "Aktualisiere den Jira-Teil im Journal"
 - "Erstelle mir eine Wochenzusammenfassung"
 - "Erstelle mir eine Monatszusammenfassung"
 
@@ -280,45 +279,24 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 ```markdown
 # Journal 2026-03-26
 
+## Termine
+- 09:00 - 09:30: Daily
+
+## Top 3 scored Jira Tasks
+- PROPS-123 - Summary
+
+## Langlaufende Tasks
+- [KH-1](https://trustedshops.atlassian.net/browse/KH-1) - Summary
+
 ## Reflektion: Mein Tag heute
 <!-- Optional durch Nutzer gepflegt -->
-
-## Generierter Inhalt (Jira)
-### Statuswechsel
-- PROPS-123 - To Do -> In Progress
-
-### Kommentare
-- PROPS-456 - Kommentar von Max: "..."
-
-### Ticket-Änderungen
-- PROPS-789 - Summary/Description aktualisiert
-
-### Neu angelegte Tickets
-- PROPS-999 - Summary
 ```
 
 **Regeln:**
 
 - **Reflektion: Mein Tag heute ist optional**: Der Abschnitt darf leer bleiben.
-- Beim Aktualisieren des Journals darf der Agent nur den Bereich `## Generierter Inhalt (Jira)` neu erzeugen; der manuelle Abschnitt bleibt unverändert.
-- Der generierte Abschnitt enthält alle Jira-Bewegungen des Tages in vier Kategorien:
-  - **Statuswechsel**
-  - **Kommentare**
-  - **Ticket-Änderungen**
-  - **Neu angelegte Tickets**
+- Beim Aktualisieren des Journals bleiben der manuelle Abschnitt sowie Wochenziele erhalten; ein in älteren Journals vorhandener Abschnitt `## Generierter Inhalt (Jira)` wird verworfen.
 - `Epic`-Issues werden ignoriert.
-- Falls es in einer Kategorie keine Einträge gibt, wird dies explizit als "keine Einträge" ausgewiesen.
-
-**Ermittlung der Jira-Bewegungen für den generierten Abschnitt (Tagesbasis):**
-
-- Betrachtungszeitraum ist der konkrete Kalendertag des Journals (`00:00` bis `23:59`).
-- Die vier Kategorien werden getrennt ermittelt:
-  - **Statuswechsel:** Issues mit mindestens einer Transition am Tag.
-  - **Kommentare:** Issues mit mindestens einem neuen Kommentar am Tag.
-  - **Ticket-Änderungen:** Issues, die am Tag aktualisiert wurden (ohne reine Kommentar-Events), z.B. Summary/Description/Assignee/Priority.
-  - **Neu angelegte Tickets:** Issues mit `created` am Tag.
-- JQL-Basis pro Kategorie ist stets auf den Nutzer eingeschränkt: `assignee = currentUser()`.
-- Ausgabe pro Eintrag mindestens: `Key`, `Summary`, Event-Typ; optional zusätzlich Zeitstempel und Link.
 
 **Zusammenfassungen auf Anfrage (Wochen-/Monatsbasis):**
 
@@ -333,14 +311,14 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 - Trigger-Beispiele: "Monatsrückschau", "Monatsauswertung", "Erzeuge die Monatsrückschau", "Fasse den Monat zusammen".
 - Betrachtungszeitraum ist der gewünschte Kalendermonat; falls kein Monat genannt wird, wird der aktuelle Kalendermonat verwendet.
 - Der Agent liest alle vorhandenen Tagesjournale des Monats aus `journal/YYYY-MM/journal-YY-MM-DD.md`.
-- Falls eine Tages-Datei noch keinen automatischen Jira-Teil hat, darf der Agent `py src/update_daily_journal.py --date YYYY-MM-DD` ausführen und die Datei danach neu lesen.
+- Fehlende Tages-Dateien werden übersprungen.
 - Die Monatsrückschau wird unter `journal/monats-rueckschau/monats-rueckschau-YYYY-MM.md` gespeichert.
-- Die Monatsrückschau verändert keine Tagesjournal-Dateien außer dem explizit erlaubten Aktualisieren fehlender Jira-Teile.
+- Die Monatsrückschau verändert keine Tagesjournal-Dateien.
 
 **Inhalt einer Monatsrückschau:**
 
 - `## Auswertung (Agent)` mit einer kurzen Einordnung des Monats: dominierende Themen, Arbeitsmodus, Zusammenarbeit und offene Kanten.
-- `## Erfolge` als Schwerpunkt der Datei: konkrete Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt und Jira-Bewegungen verdichten; keine reine Ticketliste.
+- `## Erfolge` als Schwerpunkt der Datei: konkrete Erfolge aus `## Erfolg & Stolz`, `## Positives Feedback`, manuellem Inhalt verdichten; keine reine Ticketliste.
 - `## Wirkung` mit 2-4 Punkten, woran sichtbar wird, dass die Arbeit Nutzen hatte, z. B. abgeschlossene Themen, gelöste Blocker, positive Rückmeldungen oder entstandene Automatisierung.
 - `## Fokus-Impuls` mit **genau einem** rückblickenden Verbesserungsimpuls. Dieser Impuls soll konstruktiv und konkret sein, nicht mehrere Baustellen aufmachen.
 - `## Monatsüberblick` als kurze Tabelle: Woche | Schwerpunkt | wichtigste Erfolge | offene Punkte.
@@ -357,13 +335,12 @@ Der Agent zeigt die fertige Description in lesbarem Format (Markdown mit Panel-K
 
 - Kurzer Überblick (Anzahl berücksichtigter Journale, Zeitraum)
 - Wichtigste Punkte aus `Reflektion: Mein Tag heute` (nur wenn vorhanden)
-- Konsolidierte Sicht auf Jira-Bewegungen der Periode (Statuswechsel, Kommentare, Änderungen, neue Tickets)
 - Optionaler Abschluss: 2-5 Bullet-Points "Was wurde geschafft / was ist aufgefallen"
 
 **Dateiquellen & Dateiformat für Aggregation:**
 
 - Es werden ausschließlich Dateien mit Muster `journal-YY-MM-DD.md` aus den Monatsordnern `journal/<YYYY-MM>/` berücksichtigt (rekursiv über alle Monate). Dateien direkt in `journal/` oder in `journal/wochen-rueckschau/` zählen nicht.
-- Tagesjournale ohne Inhalt in `Reflektion: Mein Tag heute` bleiben für den Jira-Teil trotzdem voll gültig.
+- Tagesjournale ohne Inhalt in `Reflektion: Mein Tag heute` bleiben trotzdem gültig (Termine, Top 3, Langläufer).
 
 ---
 
@@ -428,7 +405,7 @@ def build_issue_description_adf(blocks: dict[str, str]) -> dict:
 | 3   | **Skill: Issue-Refinement**  | Interview-Flow als Cursor Skill implementieren                                     |
 | 4   | `**update_jira_issue.py`**   | ADF-Generierung + Jira-Write-API implementieren                                    |
 | 5   | `**list_my_issues.py`**      | Vollständige Issue-Liste mit Remind-Date-Feld für Briefing und Remind-Date-Feature |
-| 6   | `**update_daily_journal.py**`| Tagesjournal-Datei erzeugen, Jira-Teil aktualisieren, manuellen Teil erhalten      |
+| 6   | `**update_daily_journal.py**`| Tagesjournal-Datei erzeugen (Termine, Top 3, Langläufer), manuellen Teil erhalten      |
 | 7   | `**summarize_journals.py**`  | Wochen-/Monatsjournal aus Tagesdateien aggregieren                                 |
 | 8   | **Testen mit echten Issues** | End-to-End-Test mit PROPS-Issues im Cursor-Agent                                   |
 

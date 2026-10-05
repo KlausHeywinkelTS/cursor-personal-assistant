@@ -74,11 +74,7 @@ class TopScoredTasksSectionTests(unittest.TestCase):
             with (
                 patch.object(journal, "_collect_appointments", return_value=([], True)),
                 patch.object(journal, "get_ranked_issues", return_value=ranked_tasks),
-                patch.object(journal, "_collect_candidate_issues", return_value={}),
-                patch.object(journal, "_collect_in_progress_tickets", return_value=[]),
                 patch.object(journal, "_collect_long_running_tickets", return_value=[]),
-                patch.object(journal, "_collect_new_tickets", return_value=[]),
-                patch.object(journal, "_collect_issue_events", return_value=([], [], [])),
             ):
                 path = journal.update_daily_journal(date(2026, 7, 31), temporary_directory)
 
@@ -177,11 +173,7 @@ class SectionOrderAndReflectionTests(unittest.TestCase):
             with (
                 patch.object(journal, "_collect_appointments", return_value=([], True)),
                 patch.object(journal, "get_ranked_issues", return_value=ranked_tasks),
-                patch.object(journal, "_collect_candidate_issues", return_value={}),
-                patch.object(journal, "_collect_in_progress_tickets", return_value=[]),
                 patch.object(journal, "_collect_long_running_tickets", return_value=long_running),
-                patch.object(journal, "_collect_new_tickets", return_value=[]),
-                patch.object(journal, "_collect_issue_events", return_value=([], [], [])),
             ):
                 # 2026-08-05 is a Wednesday: no weekly-goal section expected.
                 path = journal.update_daily_journal(date(2026, 8, 5), temporary_directory)
@@ -198,10 +190,7 @@ class SectionOrderAndReflectionTests(unittest.TestCase):
             content.index("## Langlaufende Tasks"),
             content.index("## Reflektion: Mein Tag heute"),
         )
-        self.assertLess(
-            content.index("## Reflektion: Mein Tag heute"),
-            content.index("## Generierter Inhalt (Jira)"),
-        )
+        self.assertNotIn("## Generierter Inhalt (Jira)", content)
         self.assertIn(f"- [KH-1]({journal.JIRA_BASE_URL}/browse/KH-1) - Langläufer", content)
         self.assertIn("Was ich heute gemacht habe", content)
 
@@ -210,11 +199,7 @@ class SectionOrderAndReflectionTests(unittest.TestCase):
             with (
                 patch.object(journal, "_collect_appointments", return_value=([], True)),
                 patch.object(journal, "get_ranked_issues", return_value=[]),
-                patch.object(journal, "_collect_candidate_issues", return_value={}),
-                patch.object(journal, "_collect_in_progress_tickets", return_value=[]),
                 patch.object(journal, "_collect_long_running_tickets", return_value=[]),
-                patch.object(journal, "_collect_new_tickets", return_value=[]),
-                patch.object(journal, "_collect_issue_events", return_value=([], [], [])),
             ):
                 return journal.update_daily_journal(day, temporary_directory)
 

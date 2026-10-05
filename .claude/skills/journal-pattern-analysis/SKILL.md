@@ -1,11 +1,11 @@
 ---
 name: journal-pattern-analysis
-description: Erstellt eine kurze inhaltliche Auswertung der Journal-Abschnitte "Generierter Inhalt (Jira)" + "Reflektion: Mein Tag heute", erhebt vorher per Interview zwei Reflexionsfragen (Erfolg/Stolz, positives Feedback) und schreibt alles als eigene Sektionen in dieselbe Journal-Datei.
+description: Erstellt eine kurze inhaltliche Auswertung der Journal-Abschnitte "Termine" + "Reflektion: Mein Tag heute", erhebt vorher per Interview zwei Reflexionsfragen (Erfolg/Stolz, positives Feedback) und schreibt alles als eigene Sektionen in dieselbe Journal-Datei.
 ---
 
 # Skill: Journal Pattern Analysis
 
-Ziel: Aus den Abschnitten  `## Termine`, `## Reflektion: Mein Tag heute` (falls vorhanden und nicht leer) **und** `## Generierter Inhalt (Jira)` eine gemeinsame, knappe Interpretation erzeugen und direkt in derselben Journal-Datei dokumentieren. Wo manueller und Jira-Teil auseinanderlaufen (z. B. viel Tätigkeit nur im Manuellen, Jira still), das explizit einordnen. Wenn besonders viele oder besonders wenig Termine, das berücksichtigen. Zusammenhang der Termine mit sonstiger Tätigkeit berücksichtigen, wenn ersichtlich.
+Ziel: Aus den Abschnitten  `## Termine`, `## Reflektion: Mein Tag heute` (falls vorhanden und nicht leer) eine gemeinsame, knappe Interpretation erzeugen und direkt in derselben Journal-Datei dokumentieren. Wenn besonders viele oder besonders wenig Termine, das berücksichtigen. Zusammenhang der Termine mit sonstiger Tätigkeit berücksichtigen, wenn ersichtlich.
 
 Zusätzlich werden vor der Auswertung zwei Reflexionsfragen gestellt und ihre Antworten als eigene Journal-Sektionen verschriftlicht.
 
@@ -13,7 +13,7 @@ Zusätzlich werden vor der Auswertung zwei Reflexionsfragen gestellt und ihre An
 
 - Keine reine Kennzahlenliste.
 - Keine Wiederholung einzelner Tickets als Hauptinhalt.
-- Fokus auf Bedeutung der Bewegungen:
+- Fokus auf Bedeutung der Tätigkeiten:
   - thematische Schwerpunkte
   - Arbeitsmodus (Umsetzung, Feinschliff, Rueckschleifen, Exploration)
   - Stimmungslage (wenn ersichtlich)
@@ -30,14 +30,8 @@ Zusätzlich werden vor der Auswertung zwei Reflexionsfragen gestellt und ihre An
    - Falls eine Sektion bereits in der Datei existiert: kurz nachfragen, ob ergänzt oder ersetzt werden soll.
 3. `## Termine` auswerte: Dauer, Anzahl, was Besonderes oder eher Regeltermin, Zusammenhang mit anderen Aktivitäten falls ersichtlich.
 4. `## Reflektion: Mein Tag heute` auswerten: Themen, Arbeitsmodus, Abstimmungen, Frustrationen/Blocker, nur soweit dort beschrieben.
-5. Vier Unterabschnitte unter `## Generierter Inhalt (Jira)` auswerten:
-   - `### Statuswechsel`
-   - `### Kommentare`
-   - `### Ticket-Änderungen`
-   - `### Neu angelegte Tickets`
-   - sowie `### In Bearbeitung` fuer den Kontext "was haengt offen".
-   - Jeder Eintrag in diesen Abschnitten beginnt mit einer Uhrzeit in Backticks (z. B. `` `09:15` ``). Diese Uhrzeiten nutzen, um den zeitlichen Ablauf des Tages zu rekonstruieren: Wann wurde aktiv gearbeitet? Gibt es erkennbare Schübe oder Unterbrechungen? Konzentrierte Arbeit vs. verteilte Aktivität über den Tag?
-6. Muster verdichten: Termine + manuell + Jira + Reflexionsantworten zusammen denken (z. B. "viel passiert, Jira leer"; "Erfolg passt zu konzentrierter Arbeit am Vormittag"), nicht mehrere getrennte Mini-Auswertungen. Zeitliche Muster aus den Uhrzeiten in die Arbeitsmodus-Einschätzung einbeziehen.
+5. Optional `## Top 3 scored Jira Tasks` und `## Langlaufende Tasks` als Kontext ("was hängt offen") heranziehen.
+6. Muster verdichten: Termine + manuell + Reflexionsantworten zusammen denken (z. B. "viele Termine, wenig Fokuszeit"), nicht mehrere getrennte Mini-Auswertungen. Zeitliche Muster aus den Termin-Uhrzeiten in die Arbeitsmodus-Einschätzung einbeziehen.
 7. Reflexionsantworten anreichern: Wo es sich aus den Daten ergibt, die Antworten mit konkreten Jira-Issues (Key + Summary), Terminen oder Hinweisen aus dem manuellen Inhalt verknüpfen. Verknüpfung nur, wenn der Bezug eindeutig aus den vorhandenen Journaldaten ableitbar ist – nicht raten.
 8. Zwei Sektionen in dieselbe Journal-Datei schreiben (idempotent, neu anlegen oder bestehenden Inhalt ersetzen) in folgender Reihenfolge oberhalb von `## Reflektion: Mein Tag heute`:
    1. `## Auswertung (Agent)`
@@ -51,7 +45,7 @@ Zusätzlich werden vor der Auswertung zwei Reflexionsfragen gestellt und ihre An
 
 Verwende diesen Stil:
 
-- **Generell**: <2 Sätze zu einer generellen Bewertung dieses Tages; manueller und Jira-Teil zusammenfassen wo sinnvoll>
+- **Generell**: <2 Sätze zu einer generellen Bewertung dieses Tages; Termine und manuellen Inhalt zusammenfassen wo sinnvoll>
 - **Inhaltlicher Fokus:** <1 Satz zum dominanten Thema>
 - **Arbeitsmodus:** <1 Satz zum Arbeitsmuster, inklusive zeitlicher Verteilung der Aktivität falls erkennbar>
 
@@ -65,11 +59,11 @@ Verwende diesen Stil:
 
 ## Schreibregeln fuer die Journal-Datei
 
-- Die vorhandenen Abschnitte `## Reflektion: Mein Tag heute` und `## Generierter Inhalt (Jira)` nicht veraendern.
+- Den vorhandenen Abschnitt `## Reflektion: Mein Tag heute` nicht veraendern.
 - Ausschliesslich `## Auswertung (Agent)`, `## Stimmungslage` und `## Positives Feedback` neu anlegen oder aktualisieren.
-- Reihenfolge der Sektionen oben in der Datei: `## Auswertung (Agent)` → `## Stimmungslage` → `## Positives Feedback` → `## Reflektion: Mein Tag heute` → `## Generierter Inhalt (Jira)`.
-- Keine Rohdaten aus den Event-Listen duplizieren; Fokus bleibt Interpretation.
-- Manuellen Inhalt nicht wörtlich abschreiben; nur für Muster und Einordnung nutzen (Kohärenz/Kontrast zu Jira).
+- Reihenfolge der Sektionen oben in der Datei: `## Auswertung (Agent)` → `## Stimmungslage` → `## Positives Feedback` → `## Reflektion: Mein Tag heute`.
+- Keine Rohdaten duplizieren; Fokus bleibt Interpretation.
+- Manuellen Inhalt nicht wörtlich abschreiben; nur für Muster und Einordnung nutzen.
 - Markdown-Linter-konform: nach jeder Überschrift genau eine Leerzeile.
 
 ## Do / Don't
