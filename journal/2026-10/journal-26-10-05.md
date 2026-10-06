@@ -12,9 +12,10 @@
 
 - ✅ Competitor Analysis wurde vollständig auf Bedrock umgestellt - keine Nutzung meines lokalen Claude-Kontingents mehr (PROPS-1293)
 	- ✅ Ein Skill zur Auswertung der Competitor-Records ist im Projekt props-skills angelegt, veröffentlicht und kommuniziert
+	- Die Generierung einer Confluence-Seite mit den Erkenntnissen für Sales ist implementiert
 - Kommunikation der Änderungen von P2M/GTM (PROPS-1312):
-	- Die wichtigen Stakeholder GPM und Product Marketing sind abgeholt (Termine dafür sind bereits vereinbart)
-	- Alle Termine mit den übrigen Stakeholdern sind aufgesetzt
+	- ⌛ Die wichtigen Stakeholder GPM und Product Marketing sind abgeholt (Termine dafür sind bereits vereinbart)
+	- ✅ Alle Termine mit den übrigen Stakeholdern sind aufgesetzt
 - Software Aktivierung:
 	- Business Cases lassen sich als PDF exportieren (PROPS-1317)
 	- Es gibt einen eigenen PROPS-Kontext, der alle Informationen für Software-Aktivierung enthält (PROPS-1257)
