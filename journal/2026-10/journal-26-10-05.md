@@ -12,17 +12,17 @@
 
 - ✅ Competitor Analysis wurde vollständig auf Bedrock umgestellt - keine Nutzung meines lokalen Claude-Kontingents mehr (PROPS-1293)
 	- ✅ Ein Skill zur Auswertung der Competitor-Records ist im Projekt props-skills angelegt, veröffentlicht und kommuniziert
-	- Die Generierung einer Confluence-Seite mit den Erkenntnissen für Sales ist implementiert
+	- ✅ Die Generierung einer Confluence-Seite mit den Erkenntnissen für Sales ist implementiert
 - Kommunikation der Änderungen von P2M/GTM (PROPS-1312):
 	- ⌛ Die wichtigen Stakeholder GPM und Product Marketing sind abgeholt (Termine dafür sind bereits vereinbart)
 	- ✅ Alle Termine mit den übrigen Stakeholdern sind aufgesetzt
 - Software Aktivierung:
-	- Business Cases lassen sich als PDF exportieren (PROPS-1317)
-	- Es gibt einen eigenen PROPS-Kontext, der alle Informationen für Software-Aktivierung enthält (PROPS-1257)
-	- ⌛ Ongoing: Epics klassifizieren und Informationen für Business Cases einholen und einpflegen
-- Das Weitere Vorgehen zum Aufsetzen eines Feature-Lifecyle-Management ist abgestimmt und die nächsten Schritte sind geplant (Termin dazu mit Thomas am 06.10.)
-- Der Skill 'bis-from-template-with-grilling' ist implementiert und einsatzbereit. (PROPS-1314)
-- Der Channel mit legal-Customer Feedback wurde in die Wishlist-Verarbeitung aufgenommen (PROPS-1316)
+	- ✅ Business Cases lassen sich als PDF exportieren (PROPS-1317)
+	- ✅ Es gibt einen eigenen PROPS-Kontext, der alle Informationen für Software-Aktivierung enthält (PROPS-1257)
+	- ⌛ Ongoing: Epics klassifizieren und Informationen für Business Cases einholen und einpflegen. Dazugekommen: Clusterbeschreibungen aktualisieren.
+- ✅ Das Weitere Vorgehen zum Aufsetzen eines Feature-Lifecyle-Management ist abgestimmt und die nächsten Schritte sind geplant (Termin dazu mit Thomas am 06.10.)
+- ✅ Der Skill 'bis-from-template-with-grilling' ist implementiert und einsatzbereit. (PROPS-1314)
+- ✅ Der Channel mit legal-Customer Feedback wurde in die Wishlist-Verarbeitung aufgenommen (PROPS-1316)
 - ✅ Vincent hat von mir Feedback zu seinem Vorschlag zur Bewertung der beiden Lösungen für Aufwandserfassung erhalten.
 
 ## Top 3 scored Jira Tasks
