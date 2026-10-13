@@ -69,17 +69,22 @@ JIRA_BASE_URL: str = _client.JIRA_BASE_URL
 search = _client.search
 
 
+def get_jira_auth() -> tuple[str, str]:
+    """Return (user, token) for scripts that call Jira REST endpoints directly."""
+    return importlib.import_module("atlassian_core").get_auth()
+
+
 def jira_get_metadata(path: str, params: dict[str, Any] | None = None) -> Any:
-    """GET a Jira REST path that carries no personal data (e.g. ``/rest/api/3/field``).
+    """GET a Jira REST path that the skill's client has no rule for (e.g. ``/rest/api/3/field``).
 
     The skill's client only supports endpoints with a pseudonymization rule, so
-    this goes around it. Use it for schema and configuration endpoints only,
-    never for issues, comments or user data.
+    this goes around it and returns the raw, NOT pseudonymized response. Use it
+    for read-only schema, configuration and admin endpoints, never for issues,
+    comments or user data.
     """
     import requests
 
-    atlassian_core = importlib.import_module("atlassian_core")
-    user, token = atlassian_core.get_auth()
+    user, token = get_jira_auth()
     response = requests.get(
         f"{JIRA_BASE_URL}{path}",
         headers={"Accept": "application/json"},
