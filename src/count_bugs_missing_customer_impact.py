@@ -12,11 +12,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import importlib.util
-import os
 import sys
 from pathlib import Path
-from typing import Any
+
+from jira_skill import jira_get_metadata as _jira_get
+from jira_skill import search as _jira_search
 
 DEFAULT_PROJECTS = [
     "REVIN",
@@ -36,58 +36,6 @@ DEFAULT_PROJECTS = [
     "SEO"
 ]
 CUSTOMER_IMPACT_FIELD_NAME = "Has customer impact"
-
-
-def _candidate_jira_helper_dirs() -> list[Path]:
-    candidates: list[Path] = [Path(__file__).resolve().parent]
-
-    for env_name in ("CURSOR_JIRA_SKILL_SRC", "JIRA_SKILL_SRC"):
-        configured = os.getenv(env_name)
-        if configured:
-            candidates.append(Path(configured).expanduser())
-
-    home = Path.home()
-    candidates.extend(
-        [
-            home / ".claude" / "skills" / "jira" / "src",
-            home / ".cursor" / "skills" / "jira" / "src",
-            home / "Dev" / "props-cursor-plugins" / "skills" / "jira" / "src",
-        ]
-    )
-
-    plugin_cache = home / ".cursor" / "plugins" / "cache"
-    if plugin_cache.exists():
-        candidates.extend(plugin_cache.glob("**/skills/jira/src"))
-
-    return candidates
-
-
-def _find_jira_helper_file() -> Path:
-    for candidate in _candidate_jira_helper_dirs():
-        helper_file = candidate / "read_jira_issue.py"
-        if helper_file.is_file():
-            return helper_file
-
-    searched = "\n".join(f"- {path}" for path in _candidate_jira_helper_dirs())
-    raise ModuleNotFoundError(
-        "Could not find read_jira_issue.py. Install the jira user skill or set "
-        f"CURSOR_JIRA_SKILL_SRC to its src directory.\nSearched:\n{searched}"
-    )
-
-
-def _load_jira_helpers() -> tuple[Any, Any]:
-    helper_file = _find_jira_helper_file()
-    spec = importlib.util.spec_from_file_location("cursor_jira_read_issue", helper_file)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load Jira helper module from {helper_file}")
-
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return getattr(module, "_jira_get"), getattr(module, "_jira_search")
-
-
-_jira_get, _jira_search = _load_jira_helpers()
 
 
 def find_custom_field_by_name(field_name: str) -> tuple[str, str]:

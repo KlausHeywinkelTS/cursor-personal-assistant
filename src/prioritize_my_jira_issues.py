@@ -10,16 +10,15 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
-import os
 import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime
-from pathlib import Path
 from typing import Any
+
+from jira_skill import search as _jira_search
 
 
 DONE_STATUSES = frozenset({"done", "rejected"})
@@ -41,59 +40,6 @@ class RankedIssue:
     status: str
     score: int
     reasons: tuple[str, ...]
-
-
-def _candidate_jira_helper_dirs() -> list[Path]:
-    """Return likely locations for the shared Jira skill helper script."""
-    candidates: list[Path] = [Path(__file__).resolve().parent]
-
-    for env_name in ("CURSOR_JIRA_SKILL_SRC", "JIRA_SKILL_SRC"):
-        configured = os.getenv(env_name)
-        if configured:
-            candidates.append(Path(configured).expanduser())
-
-    home = Path.home()
-    candidates.extend(
-        [
-            home / ".claude" / "skills" / "jira" / "src",
-            home / ".cursor" / "skills" / "jira" / "src",
-            home / "Dev" / "props-cursor-plugins" / "skills" / "jira" / "src",
-        ]
-    )
-
-    plugin_cache = home / ".cursor" / "plugins" / "cache"
-    if plugin_cache.exists():
-        candidates.extend(plugin_cache.glob("**/skills/jira/src"))
-
-    return candidates
-
-
-def _find_jira_helper_file() -> Path:
-    for candidate in _candidate_jira_helper_dirs():
-        helper_file = candidate / "read_jira_issue.py"
-        if helper_file.is_file():
-            return helper_file
-
-    searched = "\n".join(f"- {path}" for path in _candidate_jira_helper_dirs())
-    raise ModuleNotFoundError(
-        "Could not find read_jira_issue.py. Install the Jira user skill or set "
-        f"CURSOR_JIRA_SKILL_SRC to its src directory.\nSearched:\n{searched}"
-    )
-
-
-def _load_jira_search() -> Any:
-    helper_file = _find_jira_helper_file()
-    spec = importlib.util.spec_from_file_location("cursor_jira_read_issue", helper_file)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load Jira helper module from {helper_file}")
-
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return getattr(module, "_jira_search")
-
-
-_jira_search = _load_jira_search()
 
 
 def normalize_name(value: Any) -> str:
