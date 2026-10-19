@@ -15,10 +15,10 @@
 - PROPS-1318: ⌛ Zusammenfassung der letzten 3 Monate im Customer Voice Uncensored gepostet mit Survey
 - Dauerthema SW-Aktivierung:
 	- Script erstellt, welches für 2026 (ein Jahr ohne Aufwandserfassung) eine mögliche Zuordnung von Devs zu Epics vornimmt
-	- Eine erste Zusammenstellung der vorhandenen Business Cases an Accounting & Controlling gesendet
-	- Script erstellt, welches für alle nicht aktivierbaren Epics PDFs in ein weiteres Unterverzeichnis generiert
-	- Bewertung von Epics: Wieder up-to-date sein (alles, was bewertet werden kann, ist bewertet). Offene Fragen an PMs adressiert.
-- PROPS-1321: Meetings zwischen Sales-Teamleads + Product aufsetzen
+	- ✅ Eine erste Zusammenstellung der vorhandenen Business Cases an Accounting & Controlling gesendet
+	- ✅ Script erstellt, welches für alle nicht aktivierbaren Epics PDFs in ein weiteres Unterverzeichnis generiert
+	- ⌛ Bewertung von Epics: Wieder up-to-date sein (alles, was bewertet werden kann, ist bewertet). Offene Fragen an PMs adressiert.
+- PROPS-1321: ⌛Meetings zwischen Sales-Teamleads + Product aufsetzen (Kontakt aufgenommen - aber Feedback bekomme ich erst Mitte nächster Woche)
 
 ## Top 3 scored Jira Tasks
 
@@ -34,9 +34,10 @@
 ## Reflektion: Mein Tag heute
 
 - Was ich heute gemacht habe:
-	- ...
+	- Neben den termine habe ich nur Business-Cases für die Software-Aktivierung "gejagt" (PMs angetriggert)
 - So ging es mir energetisch - insbesondere zum Feierabend:
-	- ...
+	- Morgens: Energetisch ok - aber etwas lustlos. Da sind keine Themen in der Pipeline, die mich vom Stuhl reißen.
+	- Nachmittags ok - habe ein wenig ebgebaut. Gefühlt viele Termine am Nachmittag - auch ein spontaner Call mit Marc zu einer Jira-Frage
 - Das war wichtiger Outcome aus Terminen:
-	- ...
+	- nix
 
