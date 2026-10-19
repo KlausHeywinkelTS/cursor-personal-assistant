@@ -101,6 +101,7 @@ class TopScoredTasksSectionTests(unittest.TestCase):
             with (
                 patch.object(journal, "_collect_appointments", return_value=([], True)),
                 patch.object(journal, "get_ranked_issues", return_value=ranked_tasks),
+                patch.object(journal, "_collect_long_running_tickets", return_value=[]),
             ):
                 path = journal.write_journal_stub_with_ranking_if_missing(
                     date(2026, 8, 3),
@@ -116,6 +117,65 @@ class TopScoredTasksSectionTests(unittest.TestCase):
             content.index("## Top 3 scored Jira Tasks"),
             content.index("## Reflektion: Mein Tag heute"),
         )
+
+    def test_writes_long_running_tickets_when_creating_ranked_stub(self) -> None:
+        long_running = [journal.InProgressTicket(key="PROPS-1312", summary="Langläufer")]
+        with TemporaryDirectory() as temporary_directory:
+            with (
+                patch.object(journal, "_collect_appointments", return_value=([], True)),
+                patch.object(journal, "get_ranked_issues", return_value=[]),
+                patch.object(journal, "_collect_long_running_tickets", return_value=long_running),
+            ):
+                path = journal.write_journal_stub_with_ranking_if_missing(
+                    date(2026, 8, 5),
+                    temporary_directory,
+                )
+
+            content = Path(path).read_text(encoding="utf-8")
+
+        self.assertIn(
+            f"- [PROPS-1312]({journal.JIRA_BASE_URL}/browse/PROPS-1312) - Langläufer",
+            content,
+        )
+        self.assertNotIn("Keine Langläufer.", content)
+        self.assertLess(
+            content.index("## Top 3 scored Jira Tasks"),
+            content.index("## Langlaufende Tasks"),
+        )
+        self.assertLess(
+            content.index("## Langlaufende Tasks"),
+            content.index("## Reflektion: Mein Tag heute"),
+        )
+
+    def test_marks_long_running_tickets_as_unavailable_when_jira_fails_in_ranked_stub(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            with (
+                patch.object(journal, "_collect_appointments", return_value=([], True)),
+                patch.object(journal, "get_ranked_issues", return_value=[]),
+                patch.object(
+                    journal,
+                    "_collect_long_running_tickets",
+                    side_effect=RuntimeError("Jira nicht erreichbar"),
+                ),
+            ):
+                path = journal.write_journal_stub_with_ranking_if_missing(
+                    date(2026, 8, 5),
+                    temporary_directory,
+                )
+
+            content = Path(path).read_text(encoding="utf-8")
+
+        self.assertIn("- Langläufer konnten nicht abgerufen werden.", content)
+        self.assertNotIn("Keine Langläufer.", content)
+
+    def test_plain_stub_still_has_empty_long_running_section(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            with patch.object(journal, "_collect_appointments", return_value=([], True)):
+                path = journal.write_journal_stub(date(2026, 8, 5), temporary_directory)
+
+            content = Path(path).read_text(encoding="utf-8")
+
+        self.assertIn("- Keine Langläufer.", content)
 
 
 class WeekdayManualGoalHeaderTests(unittest.TestCase):
@@ -155,6 +215,14 @@ class LongRunningTicketsSectionTests(unittest.TestCase):
         self.assertIn("## Langlaufende Tasks\n\n", section)
         self.assertIn(f"- [KH-1]({journal.JIRA_BASE_URL}/browse/KH-1) - Langläufer eins", section)
         self.assertIn(f"- [KH-2]({journal.JIRA_BASE_URL}/browse/KH-2) - Langläufer zwei", section)
+
+    def test_formats_unavailable_marker_when_not_retrieved(self) -> None:
+        section = journal._format_long_running_tickets_section([], retrieved=False)
+
+        self.assertEqual(
+            "## Langlaufende Tasks\n\n- Langläufer konnten nicht abgerufen werden.\n",
+            section,
+        )
 
 
 class SectionOrderAndReflectionTests(unittest.TestCase):

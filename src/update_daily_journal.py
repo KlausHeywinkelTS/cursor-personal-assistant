@@ -166,9 +166,14 @@ def _collect_long_running_tickets() -> list[InProgressTicket]:
     return out
 
 
-def _format_long_running_tickets_section(tickets: list[InProgressTicket]) -> str:
+def _format_long_running_tickets_section(
+    tickets: list[InProgressTicket],
+    retrieved: bool = True,
+) -> str:
     lines = ["## Langlaufende Tasks", ""]
-    if not tickets:
+    if not retrieved:
+        lines.append("- Langläufer konnten nicht abgerufen werden.")
+    elif not tickets:
         lines.append("- Keine Langläufer.")
     else:
         for ticket in tickets:
@@ -293,8 +298,14 @@ def _write_journal_stub_filesystem(
     day: date,
     journal_dir: str,
     top_scored_tasks: list[dict[str, Any]] | None = None,
+    long_running_tickets: list[InProgressTicket] | None = None,
+    long_running_retrieved: bool = True,
 ) -> str:
-    """Schreibt Stub-Datei. Rufer muss sicherstellen, dass der Pfad noch nicht existiert."""
+    """Schreibt Stub-Datei. Rufer muss sicherstellen, dass der Pfad noch nicht existiert.
+
+    `long_running_tickets=None` bedeutet "nicht abgefragt" (Stub ohne Jira, leere Section);
+    nur wenn eine Liste uebergeben wird, wird sie eingetragen.
+    """
     journal_path = _journal_path_for_day(day, journal_dir)
     os.makedirs(os.path.dirname(journal_path), exist_ok=True)
     header = f"# Journal {day.isoformat()}\n\n"
@@ -307,7 +318,10 @@ def _write_journal_stub_filesystem(
     )
     goal_header = _weekday_manual_goal_header(day)
     goal_section = f"{goal_header}\n\n{DEFAULT_MANUAL_PLACEHOLDER}\n\n" if goal_header is not None else ""
-    long_running_tickets_section = _format_long_running_tickets_section([])
+    long_running_tickets_section = _format_long_running_tickets_section(
+        long_running_tickets or [],
+        retrieved=long_running_retrieved,
+    )
     reflection_section = f"## Reflektion: Mein Tag heute\n\n{REFLECTION_TEMPLATE}\n\n"
     content = header + appointments_section + "\n" + goal_section
     if top_scored_tasks_section:
@@ -339,15 +353,25 @@ def write_journal_stub_if_missing(day: date, journal_dir: str) -> str:
 
 
 def write_journal_stub_with_ranking_if_missing(day: date, journal_dir: str) -> str:
-    """Lege eine Tagesvorlage mit den drei aktuell höchsten Jira-Rankings an."""
+    """Lege eine Tagesvorlage mit den drei höchsten Jira-Rankings und den Langläufern an."""
     journal_path = _journal_path_for_day(day, journal_dir)
     if os.path.exists(journal_path):
         print(f"Journal-Vorlage unveraendert (existiert): {journal_path}")
         return journal_path
+    top_scored_tasks = get_ranked_issues()[:3]
+    try:
+        long_running_tickets = _collect_long_running_tickets()
+        long_running_retrieved = True
+    except Exception as exc:
+        print(f"Warnung: Langlaeufer konnten nicht abgerufen werden: {exc}", file=sys.stderr)
+        long_running_tickets = []
+        long_running_retrieved = False
     return _write_journal_stub_filesystem(
         day,
         journal_dir,
-        top_scored_tasks=get_ranked_issues()[:3],
+        top_scored_tasks=top_scored_tasks,
+        long_running_tickets=long_running_tickets,
+        long_running_retrieved=long_running_retrieved,
     )
 
 
