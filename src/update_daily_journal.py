@@ -26,6 +26,8 @@ from datetime import UTC, date, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import requests
+
 from get_schedule_for_today import get_schedule_for_today
 from jira_skill import search as _jira_search
 from prioritize_my_jira_issues import get_ranked_issues
@@ -417,19 +419,30 @@ def main() -> int:
         except ValueError as exc:
             raise SystemExit(f"Ungueltiges Datum fuer --date: {args.date}") from exc
 
-    if args.stub_only:
-        write_journal_stub(day=day, journal_dir=args.journal_dir)
-        return 0
-
-    if args.stub_only_if_missing:
-        write_journal_stub_if_missing(day=day, journal_dir=args.journal_dir)
-        return 0
-
-    if args.stub_with_ranking_if_missing:
-        write_journal_stub_with_ranking_if_missing(day=day, journal_dir=args.journal_dir)
-        return 0
-
-    update_daily_journal(day=day, journal_dir=args.journal_dir)
+    try:
+        if args.stub_only:
+            write_journal_stub(day=day, journal_dir=args.journal_dir)
+        elif args.stub_only_if_missing:
+            write_journal_stub_if_missing(day=day, journal_dir=args.journal_dir)
+        elif args.stub_with_ranking_if_missing:
+            write_journal_stub_with_ranking_if_missing(day=day, journal_dir=args.journal_dir)
+        else:
+            update_daily_journal(day=day, journal_dir=args.journal_dir)
+    except requests.exceptions.Timeout:
+        print(
+            "Fehler: Jira hat nicht rechtzeitig geantwortet (Timeout). "
+            "Bitte Netzwerk/VPN pruefen und den Task erneut starten.",
+            file=sys.stderr,
+        )
+        return 1
+    except requests.exceptions.ConnectionError:
+        print(
+            "Fehler: Jira (trustedshops.atlassian.net) ist nicht erreichbar. "
+            "Bitte Netzwerkverbindung bzw. VPN pruefen und den Task erneut starten. "
+            "Ohne Jira geht eine leere Vorlage mit: py src/update_daily_journal.py --stub-only-if-missing",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 
