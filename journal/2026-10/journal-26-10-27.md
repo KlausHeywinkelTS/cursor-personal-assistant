@@ -5,7 +5,6 @@
 - 01:00 - 01:00: Office-Day
 - 13:30 - 13:55: [R&D Documentation ab 2026] Übergangslösung
 - 15:00 - 15:45: Align on assets for recent initiatives
-- 18:00 - 21:00: Besuch von Jörg und Nicole in Köln
 
 ## Top 3 scored Jira Tasks
 
