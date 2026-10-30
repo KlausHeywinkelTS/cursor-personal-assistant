@@ -18,8 +18,8 @@
 		- ✅Ich habe mir eine Agenda überlegt
 	- ✅ Erstelle einen Statusreport als PDF für das Product-Management
 	- Workbench-Tool:
-		- Alle Daten, die bisher lokal in md-Dateien liegen, sind nach Jira transferiert
-		- Die Workbench ist so umgebaut, dass sie als AWS-gehostetes Tool funktioniert
+		- ✅Alle Daten, die bisher lokal in md-Dateien liegen, sind nach Jira transferiert
+		- ✅Die Workbench ist so umgebaut, dass sie als AWS-gehostetes Tool funktioniert
 
 ## Top 3 scored Jira Tasks
 
@@ -34,7 +34,7 @@
 ## Reflektion: Mein Tag heute
 
 - Was ich heute gemacht habe:
-	- Am Vormittag nehazu ausschließlich an dem Status-Report für Software-Aktivierung gearbeitet. Der ist auch fertig geworden und wurde an die GMPs verschickt.
+	- Am Vormittag nehazu ausschließlich an dem Status-Report für Software-Aktivierung gearbeitet. Der ist auch fertig geworden und wurde an die GPMs verschickt.
 	- Am Nachmittag im Wesentlichen Termine - dazwischen nur noch Kleinigkeiten gemacht.
 - So ging es mir energetisch - insbesondere zum Feierabend:
 	- Morgens: Ok, nahe 100%
