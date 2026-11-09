@@ -2,7 +2,7 @@
 
 Manuelle Abnahme in VS Code (Windows). Die Spalte „Automatisch“ nennt den Test, der denselben Ablauf ohne VS Code absichert. Das ersetzt die manuelle Abnahme nicht.
 
-**Vorbereitung:** Installation laut [README](../README.md), Dienst läuft, zwei VS-Code-Fenster mit zwei verschiedenen Projekten (Fenster A und B) neu geladen, Cockpit unter <http://127.0.0.1:8765> in einem Browserfenster.
+**Vorbereitung:** Installation laut [README](../README.md), Dienst läuft, zwei VS-Code-Fenster mit zwei verschiedenen Projekten (Fenster A und B) neu geladen, Cockpit unter <http://127.0.0.1:48765> in einem Browserfenster.
 
 | Datum | Getestet von | Version |
 |---|---|---|

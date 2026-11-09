@@ -29,7 +29,19 @@ def test_template_is_valid_and_fully_rendered():
 
 def test_agent_gate_is_a_command_hook_with_exec_form():
     gate = next(h for e in rendered()["PreToolUse"] if e.get("matcher") == "Agent" for h in e["hooks"])
-    assert gate["type"] == "command" and gate["command"] == "C:/py/python.exe" and gate["args"] == ["-m", "team_manager.agent_gate"]
+    assert gate["type"] == "command" and gate["command"] == "C:/py/python.exe"
+    # Das Gate bekommt denselben Port wie die HTTP-Hooks, sonst redet es bei einem eigenen Port ins Leere.
+    assert gate["args"] == ["-m", "team_manager.agent_gate", "--port", "8765"]
+    assert install.is_ours({"hooks": [gate]})
+
+
+def test_installer_default_port_matches_service_default():
+    import re
+
+    from team_manager.config import DEFAULT_PORT
+
+    source = (ROOT / "scripts" / "install.py").read_text(encoding="utf-8")
+    assert re.search(rf'"--port", type=int, default={DEFAULT_PORT}\b', source)
 
 
 def test_merge_keeps_foreign_hooks_and_settings():

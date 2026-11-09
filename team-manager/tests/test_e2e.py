@@ -276,3 +276,18 @@ def test_gate_main_keeps_umlauts_despite_windows_locale_streams(monkeypatch):
     monkeypatch.setattr(agent_gate, "run", lambda raw: raw)
     agent_gate.main()
     assert stdout.buffer.getvalue().decode("utf-8") == text
+
+
+def test_gate_main_takes_port_from_argument(monkeypatch):
+    """Der Installer übergibt den Port als --port; er hat Vorrang vor der Umgebungsvariable."""
+    import io
+    import os
+    import sys
+
+    monkeypatch.setenv("TEAM_MANAGER_PORT", "1")
+    monkeypatch.setattr(sys, "argv", ["agent_gate", "--port", "48999"])
+    monkeypatch.setattr(agent_gate, "run", lambda raw: "")
+    monkeypatch.setattr(sys, "stdin", io.TextIOWrapper(io.BytesIO(b"{}")))
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(io.BytesIO()))
+    agent_gate.main()
+    assert os.environ["TEAM_MANAGER_PORT"] == "48999"

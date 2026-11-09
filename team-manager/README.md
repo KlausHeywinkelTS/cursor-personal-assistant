@@ -19,7 +19,7 @@ Die technische Grundlage (was Claude Code tatsächlich liefert und was nicht) st
         |  Hooks (HTTP) + MCP (HTTP)  |
         v                             v
    +------------------------------------------+
-   |  Team-Manager  127.0.0.1:8765            |
+   |  Team-Manager  127.0.0.1:48765            |
    |  FastAPI  |  MCP /mcp  |  SQLite (WAL)   |
    +------------------------------------------+
         |                    |
@@ -70,7 +70,7 @@ team-manager\.venv\Scripts\python -m team_manager
 
 Aus VS Code: Dieses Repo bringt den Task **Team-Manager: Dienst starten** mit ([.vscode/tasks.json](../.vscode/tasks.json)). Er startet beim Öffnen des Ordners automatisch (`task.allowAutomaticTasks` steht in [.vscode/settings.json](../.vscode/settings.json) auf `on`) und lässt sich über *Terminal > Task ausführen* auch von Hand starten. Läuft der Dienst schon (Autostart, anderes Fenster), beendet sich der Task mit einer Meldung, statt einen Portfehler zu werfen (`--skip-if-running`). Beim echten Start öffnet er außerdem das Cockpit im Standardbrowser (`--open-browser`); beim Autostart über die Anmeldung geschieht das bewusst nicht.
 
-Cockpit: <http://127.0.0.1:8765>. Danach die VS-Code-Fenster neu laden, denn Claude Code liest Hooks, Agenten und MCP beim Sitzungsstart.
+Cockpit: <http://127.0.0.1:48765>. Danach die VS-Code-Fenster neu laden, denn Claude Code liest Hooks, Agenten und MCP beim Sitzungsstart.
 
 **Wichtig:** Der Dienst muss laufen. Wenn nicht, wird der Start eines Team-Agenten bewusst abgelehnt (siehe unten), und alle anderen Hooks melden nicht blockierende Fehler.
 
@@ -103,7 +103,7 @@ Ist Karla beschäftigt, sagt dir die Hauptsession, woran sie arbeitet. Sie soll 
 - **Agenten:** Status, aktueller Auftrag, Projekt, Beginn, letzte Aktualisierung
 - **Wartet auf dich:** offene Reviews und Blocker, mit direkten Aktionen
 - **Aufträge:** Filter Alle, In Arbeit, Review erforderlich, Blockiert, Abgeschlossen, Fehlgeschlagen (inklusive Abgebrochen)
-- **Detail:** Zusammenfassung, Ergebnisverweis, vollständiges Ereignisprotokoll. Direktlink: `http://127.0.0.1:8765/#task-12`
+- **Detail:** Zusammenfassung, Ergebnisverweis, vollständiges Ereignisprotokoll. Direktlink: `http://127.0.0.1:48765/#task-12`
 
 Aktionen: *Als erledigt markieren* (nur bei `REVIEW_REQUIRED`), *Fehlgeschlagen*, *Blocker gelöst*, *Abbrechen*. Der Wechsel auf `DONE` ist ausschließlich hier möglich. Reviews von Unteraufträgen, die Klaus delegiert hat, werden mit Klaus' Auftrag abgenommen (siehe [Klaus, der Manager](#klaus-der-manager)).
 
@@ -203,7 +203,7 @@ Umgebungsvariablen (alle optional):
 | Variable | Standard | Bedeutung |
 |---|---|---|
 | `TEAM_MANAGER_HOME` | `~/.team-manager` | Datenbank, Token, Log |
-| `TEAM_MANAGER_PORT` | `8765` | HTTP-Port (der Dienst bindet immer nur an 127.0.0.1) |
+| `TEAM_MANAGER_PORT` | `48765` | HTTP-Port (der Dienst bindet immer nur an 127.0.0.1) |
 | `TEAM_MANAGER_AGENTS_DIR` | `~/.claude/agents` | Ort der Agentenprofile |
 | `TEAM_MANAGER_REGISTERED_TIMEOUT_S` | `120` | Frist bis zum bestätigten Start, sonst `FAILED` |
 | `TEAM_MANAGER_ORPHAN_TIMEOUT_S` | `900` | Ohne Aktivität so lange: „möglicherweise verwaist“ |

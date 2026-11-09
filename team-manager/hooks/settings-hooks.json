@@ -11,7 +11,7 @@
     {
       "matcher": "Agent",
       "hooks": [
-        { "type": "command", "command": "{{PYTHON}}", "args": ["-m", "team_manager.agent_gate"], "timeout": 8 }
+        { "type": "command", "command": "{{PYTHON}}", "args": ["-m", "team_manager.agent_gate", "--port", "{{PORT}}"], "timeout": 8 }
       ]
     },
     {

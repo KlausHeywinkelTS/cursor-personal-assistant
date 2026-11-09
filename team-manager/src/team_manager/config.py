@@ -8,6 +8,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+# Einzige Quelle für den Standard-Port. scripts/install.py hat denselben Wert (ein Test prüft die Gleichheit).
+# Bewusst abseits der üblichen Entwicklerports (8000, 8080, 8765, ...) und unter dem Ephemeral-Bereich ab 49152.
+DEFAULT_PORT = 48765
+
+
 def _default_home() -> Path:
     return Path(os.environ.get("TEAM_MANAGER_HOME", Path.home() / ".team-manager"))
 
@@ -24,7 +29,7 @@ def _env_int(name: str, default: int) -> int:
 class Settings:
     home: Path = field(default_factory=_default_home)
     host: str = "127.0.0.1"
-    port: int = field(default_factory=lambda: _env_int("TEAM_MANAGER_PORT", 8765))
+    port: int = field(default_factory=lambda: _env_int("TEAM_MANAGER_PORT", DEFAULT_PORT))
     # Verzeichnis mit den Claude-Code-Agentenprofilen (Quelle der Agentendefinitionen).
     agents_dir: Path = field(default_factory=_default_agents_dir)
     # Ein REGISTERED-Auftrag ohne bestätigten Start wird nach dieser Zeit FAILED.

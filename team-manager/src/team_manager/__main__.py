@@ -1,4 +1,4 @@
-"""Start: py -m team_manager   (Standard: http://127.0.0.1:8765)"""
+"""Start: py -m team_manager   (Standard: http://127.0.0.1:48765)"""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from pathlib import Path
 import uvicorn
 
 from .app import create_app
-from .config import Settings
+from .config import DEFAULT_PORT, Settings
 from .logs import configure_logging
 
 
@@ -41,7 +41,7 @@ def open_browser_when_ready(port: int, timeout_s: float = 15.0) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="team_manager", description="Team-Manager für Claude-Code-Agenten")
-    parser.add_argument("--port", type=int, help="Port (Standard 8765)")
+    parser.add_argument("--port", type=int, help=f"Port (Standard {DEFAULT_PORT})")
     parser.add_argument("--home", type=Path, help="Datenverzeichnis (Standard ~/.team-manager)")
     parser.add_argument("--agents-dir", type=Path, help="Verzeichnis der Agentenprofile (Standard ~/.claude/agents)")
     parser.add_argument("--skip-if-running", action="store_true",

@@ -259,7 +259,9 @@ class Installer:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Team-Manager installieren")
-    parser.add_argument("--port", type=int, default=8765)
+    # Muss DEFAULT_PORT aus src/team_manager/config.py entsprechen (tests/test_install.py prüft das).
+    # Hier fest, weil das Skript mit dem System-Python läuft und das Paket nicht importieren kann.
+    parser.add_argument("--port", type=int, default=48765)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--uninstall", action="store_true")
     parser.add_argument("--rotate-token", action="store_true", help="neues Token erzeugen (Hooks und MCP werden neu geschrieben)")

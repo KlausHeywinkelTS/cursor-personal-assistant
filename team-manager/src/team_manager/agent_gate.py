@@ -10,12 +10,15 @@ Läuft als eigener Prozess (nur Standardbibliothek, schneller Start):
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+from .config import DEFAULT_PORT  # nur Standardbibliothek, der Import bleibt schnell
 
 TIMEOUT_S = 5
 
@@ -54,7 +57,7 @@ def run(raw: str) -> str:
     subagent = str((payload.get("tool_input") or {}).get("subagent_type") or "").strip().lower()
     if names is None or subagent not in names:
         return ""
-    url = f"http://127.0.0.1:{os.environ.get('TEAM_MANAGER_PORT', '8765')}/hooks"
+    url = f"http://127.0.0.1:{os.environ.get('TEAM_MANAGER_PORT', DEFAULT_PORT)}/hooks"
     try:
         request = urllib.request.Request(
             url,
@@ -74,6 +77,13 @@ def run(raw: str) -> str:
 
 
 def main() -> None:
+    # Der Installer übergibt den Port per --port (derselbe wie in den HTTP-Hooks). Vorrang vor der Umgebungsvariable.
+    # parse_known_args: unbekannte Argumente (zum Beispiel unter pytest) dürfen den Hook nie zum Absturz bringen.
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    parser.add_argument("--port", type=int)
+    args, _ = parser.parse_known_args()
+    if args.port:
+        os.environ["TEAM_MANAGER_PORT"] = str(args.port)
     # Hook-Ein- und Ausgabe sind UTF-8. Die Textstreams nutzen unter Windows die Locale (cp1252),
     # was Umlaute in Auftragstiteln zu "Ã¤" verfälscht. Deshalb direkt über die Byte-Streams.
     raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
