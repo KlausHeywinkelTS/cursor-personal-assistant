@@ -261,3 +261,18 @@ def test_gate_fails_open_for_foreign_subagent_when_service_is_down(gate_env, mon
 def test_gate_without_cache_does_not_block(tmp_path, monkeypatch):
     monkeypatch.setenv("TEAM_MANAGER_HOME", str(tmp_path / "leer"))
     assert agent_gate.run(agent_payload("karla")) == ""
+
+
+def test_gate_main_keeps_umlauts_despite_windows_locale_streams(monkeypatch):
+    """Hook-Streams sind UTF-8, die Textstreams unter Windows aber cp1252 (sonst wird aus "ä" ein "Ã¤")."""
+    import io
+    import sys
+
+    text = '{"title": "Aufwand-Einschätzung für Größe → ✓"}'
+    stdin = io.TextIOWrapper(io.BytesIO(text.encode("utf-8")), encoding="cp1252")
+    stdout = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
+    monkeypatch.setattr(sys, "stdin", stdin)
+    monkeypatch.setattr(sys, "stdout", stdout)
+    monkeypatch.setattr(agent_gate, "run", lambda raw: raw)
+    agent_gate.main()
+    assert stdout.buffer.getvalue().decode("utf-8") == text

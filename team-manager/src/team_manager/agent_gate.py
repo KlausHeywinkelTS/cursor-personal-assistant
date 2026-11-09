@@ -74,7 +74,11 @@ def run(raw: str) -> str:
 
 
 def main() -> None:
-    sys.stdout.write(run(sys.stdin.read()))
+    # Hook-Ein- und Ausgabe sind UTF-8. Die Textstreams nutzen unter Windows die Locale (cp1252),
+    # was Umlaute in Auftragstiteln zu "Ã¤" verfälscht. Deshalb direkt über die Byte-Streams.
+    raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
+    sys.stdout.buffer.write(run(raw).encode("utf-8"))
+    sys.stdout.buffer.flush()
 
 
 if __name__ == "__main__":
