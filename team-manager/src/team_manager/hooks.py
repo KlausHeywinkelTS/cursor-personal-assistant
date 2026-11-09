@@ -16,6 +16,11 @@ log = logging.getLogger("team_manager.hooks")
 
 MCP_PREFIX = "mcp__team__"
 
+# Hooks, deren Eintreffen eine laufende Session belegt (SessionEnd beendet sie, SessionStart kommt nicht an).
+_SESSION_EVENTS = {
+    "UserPromptSubmit", "PreToolUse", "PostToolUse", "PostToolUseFailure", "SubagentStart", "SubagentStop",
+}
+
 
 def _deny(reason: str) -> dict:
     return {
@@ -41,6 +46,7 @@ class HookHandler:
 
     def handle(self, payload: dict) -> dict:
         event = payload.get("hook_event_name")
+        self._track_session(event, payload)
         try:
             match event:
                 case "UserPromptSubmit":
@@ -57,10 +63,26 @@ class HookHandler:
                     self._on_subagent_stop(payload)
                 case "SessionEnd":
                     if payload.get("session_id"):
-                        self.service.session_ended(payload["session_id"])
+                        self.service.session_ended(payload["session_id"], payload.get("reason"))
         except Exception:
             log.exception("hook_failed", extra={"event": event})
         return {}
+
+    def _track_session(self, event: str | None, payload: dict) -> None:
+        """Jeder Hook einer Session meldet sie an. Der erste einer unbekannten session_id gilt als Start.
+
+        Subagent-Hooks tragen die session_id der Hauptsession. Ein Fehler hier darf keinen Hook-Aufruf verhindern.
+        """
+        session_id = payload.get("session_id")
+        if not session_id or event not in _SESSION_EVENTS:
+            return
+        try:
+            is_prompt = event == "UserPromptSubmit"
+            self.service.session_seen(
+                session_id, payload.get("cwd"), reopen=is_prompt, prompt=payload.get("prompt") if is_prompt else None
+            )
+        except Exception:
+            log.exception("session_tracking_failed", extra={"event": event})
 
     def _touch(self, payload: dict) -> None:
         if payload.get("agent_id"):

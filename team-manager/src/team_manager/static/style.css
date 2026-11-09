@@ -48,7 +48,20 @@ h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: 
 .pill.REGISTERED, .pill.IN_PROGRESS, .pill.busy { background: var(--info-bg); color: var(--info); }
 .pill.BLOCKED, .pill.FAILED { background: var(--bad-bg); color: var(--bad); }
 .pill.REVIEW_REQUIRED { background: var(--review-bg); color: var(--review); }
-.pill.DONE, .pill.available { background: var(--ok-bg); color: var(--ok); }
+.pill.DONE, .pill.available, .pill.live { background: var(--ok-bg); color: var(--ok); }
+.pill.ended { background: var(--idle-bg); color: var(--muted); }
+/* Projekt, Status, Start und Zuletzt bleiben einzeilig, der Auftrag bekommt den Rest der Breite. */
+.sessions-table td:nth-child(-n+4), .sessions-table th:nth-child(-n+4) { white-space: nowrap; }
+.sessions-table tbody tr { cursor: default; }
+.sessions-table tbody tr:hover { background: transparent; }
+.sessions-table tr.ended td { color: var(--muted); }
+.session-tasks .prompt { overflow-wrap: anywhere; }
+.session-tasks .prompt + ul { margin-top: .4rem; }
+.session-tasks ul { list-style: none; margin: 0; padding: 0; }
+.session-tasks li + li { margin-top: .3rem; }
+.session-tasks a { color: inherit; overflow-wrap: anywhere; }
+h2 .count { font-weight: 400; letter-spacing: 0; text-transform: none; }
+.mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 .pill .sym { margin-right: .3rem; }
 .flag { color: var(--warn); font-size: .82rem; font-weight: 600; margin-top: .3rem; }
 .ag-klaus { --ag-c: var(--klaus-c); --ag-t: var(--klaus-t); }
@@ -97,7 +110,7 @@ dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; white-space
 .events .t { color: var(--muted); margin-right: .5rem; font-variant-numeric: tabular-nums; }
 .error { color: var(--bad); font-weight: 600; }
 .banner { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; font-weight: 600; }
-@media (max-width: 600px) { .top, main { padding-inline: 1rem; } th:nth-child(4), td:nth-child(4) { display: none; } }
+@media (max-width: 600px) { .top, main { padding-inline: 1rem; } .tasks-table th:nth-child(4), .tasks-table td:nth-child(4) { display: none; } }
 @media (prefers-reduced-motion: no-preference) {
   .card, .pill { transition: background-color .2s; }
   html { scroll-behavior: smooth; }

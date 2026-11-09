@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sqlite3
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -55,6 +56,13 @@ FILTERS: dict[str, tuple[str, ...] | None] = {
 }
 USER_ACTIONS = {"done": "DONE", "cancel": "CANCELLED", "fail": "FAILED", "unblock": "IN_PROGRESS"}
 _MAX_TITLE, _MAX_TEXT = 200, 20_000
+# So selten wird last_seen_at einer laufenden Session fortgeschrieben (Hooks kommen bei jedem Tool-Aufruf).
+_SESSION_TOUCH_S = 30
+# Länge des gespeicherten ersten Prompts einer Session (Anzeige im Cockpit, kein Volltext).
+_MAX_SESSION_PROMPT = 300
+# Die IDE-Erweiterung stellt dem Prompt Kontextblöcke voran (geöffnete Datei, Auswahl, Systemhinweise).
+# Sie gehören nicht zum Auftrag und würden bei der Kürzung den eigentlichen Text verdrängen.
+_PROMPT_CONTEXT_BLOCK = re.compile(r"<(ide_[a-z_]+|system-reminder)>.*?</\1>", re.DOTALL | re.IGNORECASE)
 
 
 class _Op:
@@ -68,6 +76,12 @@ class _Op:
 
 def _norm_path(path: str | None) -> str | None:
     return os.path.normcase(os.path.normpath(path)) if path else None
+
+
+def _session_job(prompt: str | None) -> str | None:
+    """Der Auftrag einer Session: der Prompt ohne IDE-Kontextblöcke, Leerraum zusammengezogen und gekürzt."""
+    text = " ".join(_PROMPT_CONTEXT_BLOCK.sub(" ", prompt or "").split())
+    return text[:_MAX_SESSION_PROMPT] or None
 
 
 def _clip(text: str | None, limit: int) -> str:
@@ -516,10 +530,18 @@ class TaskService:
 
         self._write(run)
 
-    def session_ended(self, session_id: str) -> int:
-        """SessionEnd: aktive Aufträge der Session werden als möglicherweise verwaist gekennzeichnet (nie als erfolgreich)."""
+    def session_ended(self, session_id: str, reason: str | None = None) -> int:
+        """SessionEnd: aktive Aufträge der Session werden als möglicherweise verwaist gekennzeichnet (nie als erfolgreich).
+
+        Vermerkt außerdem das Ende der Session selbst. Eine nie gesehene Session wird nicht angelegt: ihr Start ist
+        unbekannt (etwa vor einem Neustart des Dienstes), ein Eintrag ohne Start wäre irreführend.
+        """
 
         def run(conn: sqlite3.Connection, op: _Op) -> int:
+            ended = conn.execute(
+                "UPDATE session SET ended_at = ?, end_reason = ? WHERE session_id = ? AND ended_at IS NULL",
+                (self._ts(), reason or None, session_id),
+            ).rowcount
             rows = conn.execute(
                 f"SELECT id FROM task WHERE session_id = ? AND status IN {_ACTIVE_SQL} AND session_ended_at IS NULL",
                 (session_id,),
@@ -530,10 +552,99 @@ class TaskService:
                     (self._ts(), self._ts(), row["id"]),
                 )
                 self._event(conn, row["id"], "SESSION_ENDED", "Claude-Code-Session beendet, Auftrag möglicherweise verwaist", "hook")
-            op.changed = bool(rows)
+            op.changed = bool(rows) or bool(ended)
             return len(rows)
 
         return self._write(run)
+
+    # ------------------------------------------------------------------ Sessions
+
+    def session_seen(
+        self, session_id: str, cwd: str | None = None, *, reopen: bool = False, prompt: str | None = None
+    ) -> None:
+        """Ein Hook mit dieser session_id ist eingetroffen: die Session anlegen oder ihre Aktivität vermerken.
+
+        Mit prompt (nur UserPromptSubmit) wird der erste Prompt der Session als ihr Auftrag festgehalten.
+
+        Der erste Hook einer unbekannten session_id gilt als Start. Eine beendete Session wird nur wieder geöffnet,
+        wenn der Benutzer in ihr etwas eingibt (reopen, z. B. bei --resume). Nachzügler-Hooks nach SessionEnd
+        lassen sie beendet. Ohne Änderung wird nicht geschrieben, denn PostToolUse feuert für jeden Tool-Aufruf.
+        """
+        sid = (session_id or "").strip()
+        if not sid:
+            return
+        cwd = (cwd or "").strip() or None
+        prompt = _session_job(prompt)
+        now = self._clock()
+        with self.db.read() as conn:
+            row = conn.execute(
+                "SELECT cwd, first_prompt, last_seen_at, ended_at FROM session WHERE session_id = ?", (sid,)
+            ).fetchone()
+        if row is not None:
+            if row["ended_at"] and not reopen:
+                return
+            fresh = now - datetime.fromisoformat(row["last_seen_at"]) < timedelta(seconds=_SESSION_TOUCH_S)
+            if fresh and not row["ended_at"] and not (cwd and not row["cwd"]) and not (prompt and not row["first_prompt"]):
+                return
+
+        def run(conn: sqlite3.Connection, op: _Op) -> None:
+            stamp = self._ts()
+            current = conn.execute(
+                "SELECT cwd, first_prompt, ended_at FROM session WHERE session_id = ?", (sid,)
+            ).fetchone()
+            if current is None:
+                conn.execute(
+                    "INSERT INTO session (session_id, cwd, first_prompt, first_seen_at, last_seen_at) VALUES (?, ?, ?, ?, ?)",
+                    (sid, cwd, prompt, stamp, stamp),
+                )
+                op.changed = True
+                return
+            if current["ended_at"] and not reopen:
+                return
+            conn.execute(
+                "UPDATE session SET last_seen_at = ?, cwd = COALESCE(cwd, ?), first_prompt = COALESCE(first_prompt, ?), "
+                "ended_at = NULL, end_reason = NULL WHERE session_id = ?",
+                (stamp, cwd, prompt, sid),
+            )
+            # sonst nur last_seen_at: kein Bus-Ereignis
+            op.changed = bool(current["ended_at"]) or bool(cwd and not current["cwd"]) or bool(prompt and not current["first_prompt"])
+
+        self._write(run)
+
+    def list_sessions(self, limit: int = 50) -> list[dict]:
+        """Laufende Sessions zuerst (zuletzt aktive oben), danach die beendeten (zuletzt beendete oben).
+
+        Jede Session trägt ihre Aufträge (auch Unteraufträge) in der Reihenfolge der Auftragsnummern.
+        """
+        with self.db.read() as conn:
+            rows = conn.execute(
+                "SELECT * FROM session "
+                "ORDER BY ended_at IS NOT NULL, CASE WHEN ended_at IS NULL THEN last_seen_at ELSE ended_at END DESC "
+                "LIMIT ?",
+                (limit,),
+            ).fetchall()
+            ids = [r["session_id"] for r in rows]
+            by_session: dict[str, list[dict]] = {sid: [] for sid in ids}
+            if ids:
+                marks = ",".join("?" for _ in ids)
+                for t in conn.execute(
+                    "SELECT t.id, t.title, t.status, t.parent_task_id, t.session_id, "
+                    "a.name AS agent_name, a.display_name AS agent_display_name "
+                    f"FROM task t JOIN agent a ON a.id = t.agent_id WHERE t.session_id IN ({marks}) ORDER BY t.id",
+                    ids,
+                ):
+                    by_session[t["session_id"]].append({k: t[k] for k in t.keys() if k != "session_id"})
+        sessions = []
+        for r in rows:
+            tasks = by_session[r["session_id"]]
+            sessions.append({
+                **dict(r),
+                "active": r["ended_at"] is None,
+                "tasks": tasks,
+                "task_count": len(tasks),
+                "active_task_count": sum(1 for t in tasks if t["status"] in ACTIVE_STATUSES),
+            })
+        return sessions
 
     # ------------------------------------------------------------------ Agenten-Werkzeuge (MCP)
 
@@ -802,6 +913,7 @@ class TaskService:
             "server_time": self._ts(),
             "agents": self.list_agents(),
             "tasks": tasks,
+            "sessions": self.list_sessions(),
             "attention": {
                 # Nur Reviews, die beim Benutzer liegen. Abgelieferte Unteraufträge laufen über ihren Elternauftrag.
                 "review": sum(1 for t in tasks if t["status"] == "REVIEW_REQUIRED" and not t["review_covered"]),

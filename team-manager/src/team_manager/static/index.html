@@ -30,7 +30,7 @@
       <h2 id="h-tasks">Aufträge</h2>
       <nav class="tabs" id="tabs" role="tablist" aria-label="Filter"></nav>
       <div class="table-wrap">
-        <table>
+        <table class="tasks-table">
           <thead>
             <tr><th>#</th><th>Agent</th><th>Auftrag</th><th>Projekt</th><th>Status</th><th>Aktualisiert</th></tr>
           </thead>
@@ -38,6 +38,19 @@
         </table>
       </div>
       <p class="empty" id="tasks-empty" hidden>Keine Aufträge in dieser Ansicht.</p>
+    </section>
+
+    <section aria-labelledby="h-sessions">
+      <h2 id="h-sessions">Sessions <span class="count" id="sessions-count"></span></h2>
+      <div class="table-wrap">
+        <table class="sessions-table">
+          <thead>
+            <tr><th>Projekt</th><th>Status</th><th>Gestartet</th><th>Zuletzt</th><th>Auftrag</th></tr>
+          </thead>
+          <tbody id="sessions"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="sessions-empty" hidden>Noch keine Session gesehen. Eine Session erscheint mit ihrem ersten Prompt oder Tool-Aufruf.</p>
     </section>
   </main>
 

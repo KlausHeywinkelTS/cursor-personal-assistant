@@ -111,6 +111,10 @@ def create_app(settings: Settings | None = None, *, notifier: Notifier | None = 
     def state() -> JSONResponse:
         return JSONResponse(service.snapshot(), headers={"Cache-Control": "no-store"})
 
+    @app.get("/api/sessions")
+    def sessions() -> JSONResponse:
+        return JSONResponse(service.list_sessions(), headers={"Cache-Control": "no-store"})
+
     @app.get("/api/tasks")
     def tasks(filter: str = "all") -> list[dict]:
         return service.list_tasks(filter)

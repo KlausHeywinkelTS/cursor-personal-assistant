@@ -104,6 +104,9 @@ Ist Karla beschäftigt, sagt dir die Hauptsession, woran sie arbeitet. Sie soll 
 - **Wartet auf dich:** offene Reviews und Blocker, mit direkten Aktionen
 - **Aufträge:** Filter Alle, In Arbeit, Review erforderlich, Blockiert, Abgeschlossen, Fehlgeschlagen (inklusive Abgebrochen)
 - **Detail:** Zusammenfassung, Ergebnisverweis, vollständiges Ereignisprotokoll. Direktlink: `http://127.0.0.1:48765/#task-12`
+- **Sessions:** alle Claude-Code-Sessions, auch solche ohne Teamagent. Projekt, Status (läuft/beendet), Start, letzte Aktivität bzw. Ende und der Auftrag der Session. Das ist ihr erster Prompt (auf 300 Zeichen gekürzt, lokal in der Datenbank gespeichert), darunter die Teamagenten-Aufträge, die in ihr vergeben wurden (anklickbar, bis zu fünf, der Rest steht unter „Aufträge“). Eine Session, die schon lief, bevor der Dienst sie sah, bekommt ihren Auftrag mit dem nächsten Prompt. Dieselben Daten liefert `GET /api/sessions`
+
+**Wie Start und Ende einer Session erkannt werden:** `SessionStart` kommt über den HTTP-Hook nicht an. Als Start gilt deshalb der erste Hook mit einer unbekannten `session_id` (Prompt, Tool-Aufruf oder Subagent). Ein frisch geöffnetes Fenster erscheint also erst mit seinem ersten Prompt. Das Ende kommt über `SessionEnd`. Danach ignoriert der Dienst Nachzügler-Hooks. Nur ein neuer Prompt in derselben Session (`--resume`) öffnet sie wieder. Eine Session, deren Ende ausbleibt (Absturz), bleibt als „läuft“ stehen. Eine Session, die schon vor dem Dienststart lief, erscheint mit ihrem nächsten Hook.
 
 Aktionen: *Als erledigt markieren* (nur bei `REVIEW_REQUIRED`), *Fehlgeschlagen*, *Blocker gelöst*, *Abbrechen*. Der Wechsel auf `DONE` ist ausschließlich hier möglich. Reviews von Unteraufträgen, die Klaus delegiert hat, werden mit Klaus' Auftrag abgenommen (siehe [Klaus, der Manager](#klaus-der-manager)).
 

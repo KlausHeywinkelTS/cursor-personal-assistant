@@ -12,12 +12,14 @@ const ACTIVE = ["REGISTERED", "IN_PROGRESS", "BLOCKED"];
 // Symbole sind reine Dekoration (aria-hidden): der Status steckt weiterhin im Text.
 const STATUS_SYMBOL = {
   REGISTERED: "○", IN_PROGRESS: "▸", REVIEW_REQUIRED: "◐", BLOCKED: "■", DONE: "✓", FAILED: "✕", CANCELLED: "⊘",
-  busy: "▸", available: "○", idle: "○",
+  busy: "▸", available: "○", idle: "○", live: "●", ended: "○",
 };
 // Agentenfarbe nach agent.name (nicht display_name); Farben stehen in style.css (.ag-*)
 const AGENT_CLASS = { klaus: "ag-klaus", karla: "ag-karla", yasmin: "ag-yasmin", lotta: "ag-lotta" };
 const agentClass = (name) => AGENT_CLASS[name] || "ag-other";
 const PULSE_MS = 2400; // = Dauer von @keyframes orb-pulse
+const SESSION_PROMPT_SHOWN = 140; // Länge des ersten Prompts in der Session-Zeile, der volle Text steht im Tooltip
+const SESSION_TASKS_SHOWN = 5; // so viele Aufträge zeigt eine Session-Zeile, der Rest steht unter "Aufträge"
 
 let state = null, filter = "all", openTaskId = null, csrf = null, refreshTimer = null;
 
@@ -144,6 +146,35 @@ function render() {
   const rows = state.tasks.filter((t) => inTab(filter, statuses, t));
   $("tasks").replaceChildren(...rows.map(taskRow));
   $("tasks-empty").hidden = rows.length > 0;
+
+  const sessions = state.sessions || [];
+  const running = sessions.filter((s) => s.active).length;
+  $("sessions-count").textContent = sessions.length ? `(${running} laufend)` : "";
+  $("sessions").replaceChildren(...sessions.map(sessionRow));
+  $("sessions-empty").hidden = sessions.length > 0;
+}
+// Start = erster Hook mit dieser Session (SessionStart kommt nicht an); Ende = SessionEnd.
+function sessionRow(s) {
+  const endText = s.end_reason ? `Beendet (${s.end_reason}): ${abs(s.ended_at)}` : `Beendet: ${abs(s.ended_at)}`;
+  return h("tr", { class: s.active ? "live" : "ended" },
+    h("td", { title: s.cwd || "" }, h("div", null, base(s.cwd)), h("div", { class: "meta mono", title: s.session_id }, s.session_id.slice(0, 8))),
+    h("td", null, s.active ? pill("live", "Läuft") : h("span", { title: endText }, pill("ended", "Beendet"))),
+    h("td", null, time(s.first_seen_at)),
+    h("td", null, time(s.active ? s.last_seen_at : s.ended_at)),
+    h("td", { class: "session-tasks" }, sessionJob(s)));
+}
+// Auftrag der Session = ihr erster Prompt; darunter die Teamagenten-Aufträge, die in ihr vergeben wurden.
+function sessionJob(s) {
+  const parts = [];
+  if (s.first_prompt) parts.push(h("div", { class: "prompt", title: s.first_prompt }, clip(s.first_prompt, SESSION_PROMPT_SHOWN)));
+  if (s.tasks.length) {
+    parts.push(h("ul", null, s.tasks.slice(0, SESSION_TASKS_SHOWN).map((t) => h("li", null,
+      agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status)), " ",
+      h("a", { href: `#task-${t.id}`, onclick: (e) => { e.preventDefault(); showDetail(t.id); } }, `#${t.id} ${clip(t.title, 60)}`),
+      " ", pill(t.status, STATUS_LABEL[t.status])))));
+    if (s.tasks.length > SESSION_TASKS_SHOWN) parts.push(h("div", { class: "meta" }, `+ ${s.tasks.length - SESSION_TASKS_SHOWN} weitere (siehe Aufträge)`));
+  }
+  return parts.length ? parts : "–";
 }
 function agentCard(a) {
   const t = a.current_task;

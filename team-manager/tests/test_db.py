@@ -19,7 +19,7 @@ def _task(conn, agent_id, status="IN_PROGRESS"):
 
 def test_migrate_is_idempotent(tmp_path):
     database = Database(tmp_path / "x.db")
-    assert database.migrate() == [1, 2]
+    assert database.migrate() == [1, 2, 3, 4]
     assert database.migrate() == []
 
 
