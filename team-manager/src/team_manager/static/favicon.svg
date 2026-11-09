@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a5285"/>
+      <stop offset="1" stop-color="#111a2e"/>
+    </linearGradient>
+    <radialGradient id="gold" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#fff6c2"/>
+      <stop offset="0.4" stop-color="#ffcc4d"/>
+      <stop offset="1" stop-color="#b8650f"/>
+    </radialGradient>
+    <radialGradient id="coral" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#ffd3c4"/>
+      <stop offset="0.4" stop-color="#ff6f4f"/>
+      <stop offset="1" stop-color="#9e2c14"/>
+    </radialGradient>
+    <radialGradient id="mint" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#d4ffee"/>
+      <stop offset="0.4" stop-color="#33d4a0"/>
+      <stop offset="1" stop-color="#0b6e50"/>
+    </radialGradient>
+    <radialGradient id="violet" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#ebdcff"/>
+      <stop offset="0.4" stop-color="#9b6bff"/>
+      <stop offset="1" stop-color="#3f1d99"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="1.4" stdDeviation="1.2" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <!-- Verbindungen Manager -> Team -->
+  <g stroke="#a9bce8" stroke-width="2" stroke-linecap="round" opacity="0.6">
+    <line x1="32" y1="30" x2="13" y2="44"/>
+    <line x1="32" y1="30" x2="32" y2="44"/>
+    <line x1="32" y1="30" x2="51" y2="44"/>
+  </g>
+
+  <!-- Team: Karla, Yasmin, Lotta -->
+  <g filter="url(#shadow)">
+    <circle cx="13" cy="44" r="7.5" fill="url(#coral)"/>
+    <circle cx="32" cy="44" r="7.5" fill="url(#mint)"/>
+    <circle cx="51" cy="44" r="7.5" fill="url(#violet)"/>
+  </g>
+  <g fill="#fff" opacity="0.8">
+    <ellipse cx="10.4" cy="41" rx="2.4" ry="1.4" transform="rotate(-28 10.4 41)"/>
+    <ellipse cx="29.4" cy="41" rx="2.4" ry="1.4" transform="rotate(-28 29.4 41)"/>
+    <ellipse cx="48.4" cy="41" rx="2.4" ry="1.4" transform="rotate(-28 48.4 41)"/>
+  </g>
+
+  <!-- Manager -->
+  <circle cx="32" cy="20" r="11" fill="url(#gold)" filter="url(#shadow)"/>
+  <ellipse cx="28" cy="15.5" rx="3.8" ry="2.2" fill="#fff" opacity="0.85" transform="rotate(-28 28 15.5)"/>
+</svg>
