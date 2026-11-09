@@ -45,6 +45,11 @@ function ago(iso) {
 const abs = (iso) => (iso ? new Date(iso).toLocaleString("de-DE") : "");
 const time = (iso) => h("span", { title: abs(iso) }, ago(iso));
 const base = (p) => (p ? p.replace(/[\\/]+$/, "").split(/[\\/]/).pop() : "–");
+// Abgelieferte Unteraufträge warten nicht auf dich, sondern werden mit ihrem Elternauftrag abgenommen.
+const statusLabel = (t) => (t.review_covered ? `Abgeliefert, Review über #${t.parent_task_id}` : STATUS_LABEL[t.status]);
+const needsUser = (t) => t.status === "REVIEW_REQUIRED" && !t.review_covered;
+const coveredChildren = (t) => (state ? state.tasks.filter((c) => c.parent_task_id === t.id && c.review_covered) : []);
+const clip = (s, n) => (s && s.length > n ? `${s.slice(0, n)} …` : s);
 const pill = (cls, text) => h("span", { class: `pill ${cls}` }, h("span", { class: "sym", "aria-hidden": "true" }, STATUS_SYMBOL[cls] || "•"), text);
 // Kugel-Avatar. Die Pulsphase kommt aus der Uhrzeit, damit ein Neuaufbau durch render() den Puls nicht von vorn startet.
 const orb = (busy) => h("span", { class: `orb ${busy ? "busy" : "idle"}`, "aria-hidden": "true", style: busy ? `--pulse-delay: -${Date.now() % PULSE_MS}ms` : null });
@@ -94,7 +99,11 @@ async function act(taskId, action, button) {
 }
 function actionButtons(t) {
   const btn = (cls, label, action) => h("button", { type: "button", class: cls, onclick: (ev) => { ev.stopPropagation(); act(t.id, action, ev.currentTarget); } }, label);
-  if (t.status === "REVIEW_REQUIRED") return [btn("primary", "Als erledigt markieren", "done"), btn("danger", "Fehlgeschlagen", "fail")];
+  if (t.status === "REVIEW_REQUIRED") {
+    const n = coveredChildren(t).length;
+    const label = n ? `Als erledigt markieren (inkl. ${n} ${n === 1 ? "Unterauftrag" : "Unteraufträge"})` : "Als erledigt markieren";
+    return [btn("primary", label, "done"), btn("danger", "Fehlgeschlagen", "fail")];
+  }
   if (t.status === "BLOCKED") return [t.agent_stopped_at ? null : btn("primary", "Blocker gelöst", "unblock"), btn("danger", "Abbrechen", "cancel")].filter(Boolean);
   if (ACTIVE.includes(t.status)) return [btn("danger", "Abbrechen", "cancel")];
   return [];
@@ -120,17 +129,19 @@ function render() {
   $("agents").replaceChildren(...state.agents.map(agentCard));
   if (!state.agents.length) $("agents").replaceChildren(h("p", { class: "empty" }, "Keine Agenten konfiguriert (Profile mit team_member: true fehlen)."));
 
-  const attn = state.tasks.filter((t) => t.status === "REVIEW_REQUIRED" || t.status === "BLOCKED").reverse();
+  const attn = state.tasks.filter((t) => needsUser(t) || t.status === "BLOCKED").reverse();
   $("attention-empty").hidden = attn.length > 0;
   $("attention-list").replaceChildren(...attn.map(attentionCard));
 
+  // Der Tab "Review erforderlich" zeigt nur, was bei dir liegt; abgelieferte Unteraufträge stehen unter "Alle".
+  const inTab = (key, statuses, t) => (!statuses || statuses.includes(t.status)) && (key !== "review" || needsUser(t));
   $("tabs").replaceChildren(...TABS.map(([key, label, statuses]) => {
-    const n = statuses ? state.tasks.filter((t) => statuses.includes(t.status)).length : state.tasks.length;
+    const n = state.tasks.filter((t) => inTab(key, statuses, t)).length;
     return h("button", { type: "button", role: "tab", "aria-selected": String(key === filter), onclick: () => { filter = key; render(); } },
       label, h("span", { class: "count" }, `(${n})`));
   }));
-  const statuses = TABS.find((x) => x[0] === filter)[2];
-  const rows = state.tasks.filter((t) => !statuses || statuses.includes(t.status));
+  const [, , statuses] = TABS.find((x) => x[0] === filter);
+  const rows = state.tasks.filter((t) => inTab(filter, statuses, t));
   $("tasks").replaceChildren(...rows.map(taskRow));
   $("tasks-empty").hidden = rows.length > 0;
 }
@@ -155,6 +166,9 @@ function attentionCard(t) {
     h("h3", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status)), pill(t.status, STATUS_LABEL[t.status])),
     h("div", { class: "task-title" }, `#${t.id} ${t.title}`),
     h("div", { class: "meta" }, t.status === "BLOCKED" ? "Blocker: " : "Ergebnis: ", (t.status === "BLOCKED" ? lastBlocker(t) : t.summary) || "–"),
+    coveredChildren(t).length
+      ? h("div", { class: "meta" }, "Wird mit abgenommen: ", coveredChildren(t).map((c) => `${c.agent_display_name} (#${c.id})`).join(", "))
+      : null,
     flags(t),
     h("div", { class: "actions" }, actionButtons(t)),
   );
@@ -165,7 +179,7 @@ function taskRow(t) {
     h("td", null, t.id), h("td", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status))),
     h("td", { class: "title" }, t.title, t.parent_task_id ? h("span", { class: "meta" }, ` (Unterauftrag von #${t.parent_task_id})`) : null, flags(t)),
     h("td", { title: t.project_path || "" }, base(t.project_path)),
-    h("td", null, pill(t.status, STATUS_LABEL[t.status])),
+    h("td", null, pill(t.status, statusLabel(t))),
     h("td", null, time(t.updated_at)));
 }
 
@@ -180,13 +194,15 @@ async function showDetail(id, silent) {
     const refEl = /^https?:\/\//.test(ref) ? h("a", { href: ref, target: "_blank", rel: "noopener noreferrer" }, ref) : ref || "–";
     const blocker = [...t.events].reverse().find((e) => e.event_type === "STATUS_BLOCKED" || e.event_type === "BLOCKER_UPDATED");
     $("d-body").replaceChildren(h("div", null,
-      h("div", null, pill(t.status, STATUS_LABEL[t.status])),
+      h("div", null, pill(t.status, statusLabel(t))),
       flags(t).map((f) => h("div", { class: "banner" }, f.textContent)),
       h("dl", null,
         h("dt", null, "Agent"), h("dd", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status))),
         t.parent ? [h("dt", null, "Beauftragt von"), h("dd", null, taskLink(t.parent.id, `${t.parent.agent_display_name}: ${t.parent.title}`))] : null,
         t.children && t.children.length ? [h("dt", null, "Unteraufträge"), h("dd", null, h("ul", { class: "events" },
-          t.children.map((c) => h("li", null, taskLink(c.id, `${c.agent_display_name}: ${c.title}`), " ", pill(c.status, STATUS_LABEL[c.status])))))] : null,
+          t.children.map((c) => h("li", null, taskLink(c.id, `${c.agent_display_name}: ${c.title}`), " ", pill(c.status, STATUS_LABEL[c.status]),
+            c.completion_incomplete ? h("div", { class: "flag" }, "Abschluss erkannt, Ergebnis unvollständig: braucht eigenes Feedback") : null,
+            c.summary ? h("div", { class: "meta" }, "Ergebnis: ", clip(c.summary, 600)) : null))))] : null,
         h("dt", null, "Projekt"), h("dd", null, t.project_path || "–"),
         h("dt", null, "Beschreibung"), h("dd", null, t.description || "–"),
         t.status === "BLOCKED" && blocker ? [h("dt", null, "Blocker"), h("dd", null, blocker.message)] : null,

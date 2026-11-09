@@ -123,6 +123,79 @@ def test_manager_stop_with_running_child_does_not_touch_child(hooks, svc):
     assert task_of(svc, "karla")["status"] == "IN_PROGRESS"
 
 
+# --------------------------------------------------------------------------- Review gebündelt über den Manager
+
+
+def klaus_with_two_children(hooks, svc):
+    """Klaus hat Karla und Lotta beauftragt, beide liefern ab, Klaus meldet sein Ergebnis."""
+    klaus_running(hooks)
+    delegate(hooks, "karla", tool_use_id="toolu_D1")
+    hooks.handle(sub_start("a2", "karla"))
+    delegate(hooks, "lotta", tool_use_id="toolu_D2")
+    hooks.handle(sub_start("a3", "lotta"))
+    svc.agent_complete("a2", task_of(svc, "karla")["id"], "Karlas Ergebnis", None)
+    svc.agent_complete("a3", task_of(svc, "lotta")["id"], "Lottas Ergebnis", None)
+    svc.agent_complete("k1", task_of(svc, "klaus")["id"], "Alles zusammengeführt", None)
+    return task_of(svc, "klaus"), task_of(svc, "karla"), task_of(svc, "lotta")
+
+
+def test_delivered_child_needs_no_own_feedback(hooks, svc, notifier):
+    klaus, karla, lotta = klaus_with_two_children(hooks, svc)
+    assert karla["status"] == lotta["status"] == "REVIEW_REQUIRED"
+    assert karla["review_covered"] and lotta["review_covered"] and not klaus["review_covered"]
+    assert svc.snapshot()["attention"]["review"] == 1  # nur Klaus
+    assert {a["name"]: a["open_reviews"] for a in svc.list_agents()} == {"karla": 0, "yasmin": 0, "lotta": 0, "klaus": 1}
+    titles = [title for title, _ in notifier.sent]
+    assert titles == ["Klaus: Review erforderlich"]  # keine Pings für die Unteraufträge
+
+
+def test_marking_manager_done_accepts_delivered_children(hooks, svc):
+    klaus, karla, lotta = klaus_with_two_children(hooks, svc)
+    assert svc.user_action(klaus["id"], "done")["status"] == "DONE"
+    assert task_of(svc, "karla")["status"] == task_of(svc, "lotta")["status"] == "DONE"
+    assert svc.snapshot()["attention"]["review"] == 0
+    assert "CHILDREN_ACCEPTED" in [e["event_type"] for e in svc.get_task(klaus["id"])["events"]]
+    child_events = svc.get_task(karla["id"])["events"]
+    assert any(e["event_type"] == "STATUS_DONE" and e["actor"] == "user" for e in child_events)
+
+
+def test_directly_assigned_task_still_needs_own_feedback(hooks, svc):
+    hooks.handle(agent_call("karla", tool_use_id="toolu_U"))
+    hooks.handle(sub_start("a1", "karla"))
+    karla = task_of(svc, "karla")
+    svc.agent_complete("a1", karla["id"], "Fertig", None)
+    karla = task_of(svc, "karla")
+    assert karla["parent_task_id"] is None and not karla["review_covered"]
+    assert svc.snapshot()["attention"]["review"] == 1
+
+
+def test_incomplete_child_stays_with_user_and_is_not_accepted_by_cascade(hooks, svc, notifier):
+    klaus_running(hooks)
+    delegate(hooks)
+    hooks.handle(sub_start("a2", "karla"))
+    hooks.handle(sub_stop("a2", "karla"))  # Karla endet ohne complete_task
+    karla = task_of(svc, "karla")
+    assert karla["status"] == "REVIEW_REQUIRED" and karla["completion_incomplete"] and not karla["review_covered"]
+    assert any(title == "Karla: Review erforderlich" for title, _ in notifier.sent)
+    svc.agent_complete("k1", task_of(svc, "klaus")["id"], "fertig", None)
+    assert svc.snapshot()["attention"]["review"] == 2  # Klaus und die unvollständige Karla
+    svc.user_action(task_of(svc, "klaus")["id"], "done")
+    assert task_of(svc, "karla")["status"] == "REVIEW_REQUIRED"
+
+
+def test_child_review_becomes_visible_again_when_manager_fails(hooks, svc):
+    klaus, karla, _ = klaus_with_two_children(hooks, svc)
+    svc.user_action(klaus["id"], "fail")
+    assert not task_of(svc, "karla")["review_covered"]
+    assert svc.snapshot()["attention"]["review"] == 2  # Karla und Lotta warten jetzt einzeln auf dich
+
+
+def test_manager_task_detail_lists_child_results(hooks, svc):
+    klaus, karla, _ = klaus_with_two_children(hooks, svc)
+    child = next(c for c in svc.get_task(klaus["id"])["children"] if c["id"] == karla["id"])
+    assert child["summary"] == "Karlas Ergebnis" and child["completion_incomplete"] is False
+
+
 def test_mention_of_manager_delegates_to_klaus(hooks):
     reply = hooks.handle({"hook_event_name": "UserPromptSubmit", "prompt": "@agent-klaus plane das"})
     assert 'subagent_type "klaus"' in reply["hookSpecificOutput"]["additionalContext"]

@@ -34,10 +34,16 @@ from .profiles import AgentProfile
 log = logging.getLogger("team_manager.service")
 
 _TASK_SELECT = (
-    "SELECT t.*, a.name AS agent_name, a.display_name AS agent_display_name, a.can_delegate AS agent_can_delegate "
-    "FROM task t JOIN agent a ON a.id = t.agent_id"
+    "SELECT t.*, a.name AS agent_name, a.display_name AS agent_display_name, a.can_delegate AS agent_can_delegate, "
+    "p.status AS parent_status "
+    "FROM task t JOIN agent a ON a.id = t.agent_id LEFT JOIN task p ON p.id = t.parent_task_id"
 )
 _ACTIVE_SQL = "(" + ", ".join(f"'{s}'" for s in ACTIVE_STATUSES) + ")"
+
+# Ein abgelieferter Unterauftrag braucht kein eigenes Feedback, solange sein Elternauftrag noch abgenommen wird.
+# Endet der Elternauftrag als FAILED/CANCELLED, wird die Abdeckung hinfällig und der Review wieder sichtbar.
+_COVERING_PARENT_STATUSES = (*ACTIVE_STATUSES, "REVIEW_REQUIRED")
+_COVERING_SQL = "(" + ", ".join(f"'{s}'" for s in _COVERING_PARENT_STATUSES) + ")"
 
 FILTERS: dict[str, tuple[str, ...] | None] = {
     "all": None,
@@ -68,6 +74,17 @@ def _clip(text: str | None, limit: int) -> str:
     return (text or "").strip()[:limit]
 
 
+def _covered_by_parent(task: dict, *, incomplete: bool | None = None) -> bool:
+    """True, wenn der Review dieses Unterauftrags über den Elternauftrag läuft (kein eigenes Benutzerfeedback).
+
+    Unvollständige Abschlüsse (Agent hat complete_task vergessen) bleiben beim Benutzer: das ist ein
+    Qualitätssignal, das die Zusammenfassung des Managers nicht überdecken soll.
+    """
+    if incomplete is None:
+        incomplete = bool(task.get("completion_incomplete"))
+    return task.get("parent_task_id") is not None and not incomplete and task.get("parent_status") in _COVERING_PARENT_STATUSES
+
+
 def _task_dict(row: sqlite3.Row | None) -> dict | None:
     if row is None:
         return None
@@ -75,6 +92,7 @@ def _task_dict(row: sqlite3.Row | None) -> dict | None:
     task["completion_incomplete"] = bool(task["completion_incomplete"])
     task["orphan_suspected"] = bool(task["orphan_suspected"])
     task["agent_can_delegate"] = bool(task["agent_can_delegate"])
+    task["review_covered"] = task["status"] == "REVIEW_REQUIRED" and _covered_by_parent(task)
     return task
 
 
@@ -192,7 +210,12 @@ class TaskService:
         )
         op.changed = True
         if to in ("REVIEW_REQUIRED", "BLOCKED", "FAILED"):
-            op.notifications.append(self._notification(task, to, message, values))
+            # Ein Unterauftrag, dessen Review über den Elternauftrag läuft, soll den Benutzer nicht anpingen.
+            quiet = to == "REVIEW_REQUIRED" and _covered_by_parent(
+                dict(task), incomplete=bool(values.get("completion_incomplete", task["completion_incomplete"]))
+            )
+            if not quiet:
+                op.notifications.append(self._notification(task, to, message, values))
         return True
 
     @staticmethod
@@ -243,7 +266,10 @@ class TaskService:
             for a in agents:
                 active = self._active_row(conn, a["id"])
                 reviews = conn.execute(
-                    "SELECT COUNT(*) AS n FROM task WHERE agent_id = ? AND status = 'REVIEW_REQUIRED'", (a["id"],)
+                    "SELECT COUNT(*) AS n FROM task t LEFT JOIN task p ON p.id = t.parent_task_id "
+                    "WHERE t.agent_id = ? AND t.status = 'REVIEW_REQUIRED' "
+                    f"AND NOT (t.parent_task_id IS NOT NULL AND t.completion_incomplete = 0 AND COALESCE(p.status, '') IN {_COVERING_SQL})",
+                    (a["id"],),
                 ).fetchone()["n"]
                 current = _task_dict(active)
                 result.append(
@@ -649,9 +675,27 @@ class TaskService:
             if action == "unblock":
                 fields.update(last_activity_at=self._ts(), orphan_suspected=0)
             ok = self._transition(conn, op, task, target, "user", message=note, fields=fields)
+            if ok and action == "done":
+                self._accept_children(conn, op, task_id)
             return _task_dict(self._task_row(conn, task_id)) if ok else None
 
         return self._write(run)
+
+    def _accept_children(self, conn: sqlite3.Connection, op: _Op, parent_id: int) -> None:
+        """Mit dem Elternauftrag sind auch dessen abgelieferte Unteraufträge abgenommen (ein Feedback für alles).
+
+        Unvollständige Abschlüsse bleiben außen vor: sie waren nie über den Elternauftrag abgedeckt und
+        warten weiter einzeln auf den Benutzer.
+        """
+        children = conn.execute(
+            _TASK_SELECT + " WHERE t.parent_task_id = ? AND t.status = 'REVIEW_REQUIRED' AND t.completion_incomplete = 0 ORDER BY t.id",
+            (parent_id,),
+        ).fetchall()
+        accepted = [c["id"] for c in children if self._transition(conn, op, c, "DONE", "user", message=f"Mit Auftrag #{parent_id} abgenommen")]
+        if accepted:
+            self._event(conn, parent_id, "CHILDREN_ACCEPTED", "Unteraufträge mit abgenommen: " + ", ".join(f"#{i}" for i in accepted), "user")
+        for child_id in accepted:
+            self._accept_children(conn, op, child_id)
 
     # ------------------------------------------------------------------ Watchdog
 
@@ -723,7 +767,11 @@ class TaskService:
                 if parent else None
             )
             task["children"] = [
-                {"id": c["id"], "title": c["title"], "status": c["status"], "agent_display_name": c["agent_display_name"]}
+                {
+                    "id": c["id"], "title": c["title"], "status": c["status"], "agent_display_name": c["agent_display_name"],
+                    "summary": c["summary"], "result_reference": c["result_reference"],
+                    "completion_incomplete": bool(c["completion_incomplete"]),
+                }
                 for c in conn.execute(_TASK_SELECT + " WHERE t.parent_task_id = ? ORDER BY t.id", (task_id,))
             ]
             rows = conn.execute(
@@ -755,7 +803,8 @@ class TaskService:
             "agents": self.list_agents(),
             "tasks": tasks,
             "attention": {
-                "review": count("REVIEW_REQUIRED"),
+                # Nur Reviews, die beim Benutzer liegen. Abgelieferte Unteraufträge laufen über ihren Elternauftrag.
+                "review": sum(1 for t in tasks if t["status"] == "REVIEW_REQUIRED" and not t["review_covered"]),
                 "blocked": count("BLOCKED"),
                 "orphans": sum(1 for t in tasks if t["orphan_suspected"] and t["status"] in ACTIVE_STATUSES),
             },

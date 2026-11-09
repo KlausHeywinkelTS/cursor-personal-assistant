@@ -105,7 +105,7 @@ Ist Karla beschäftigt, sagt dir die Hauptsession, woran sie arbeitet. Sie soll 
 - **Aufträge:** Filter Alle, In Arbeit, Review erforderlich, Blockiert, Abgeschlossen, Fehlgeschlagen (inklusive Abgebrochen)
 - **Detail:** Zusammenfassung, Ergebnisverweis, vollständiges Ereignisprotokoll. Direktlink: `http://127.0.0.1:8765/#task-12`
 
-Aktionen: *Als erledigt markieren* (nur bei `REVIEW_REQUIRED`), *Fehlgeschlagen*, *Blocker gelöst*, *Abbrechen*. Der Wechsel auf `DONE` ist ausschließlich hier möglich.
+Aktionen: *Als erledigt markieren* (nur bei `REVIEW_REQUIRED`), *Fehlgeschlagen*, *Blocker gelöst*, *Abbrechen*. Der Wechsel auf `DONE` ist ausschließlich hier möglich. Reviews von Unteraufträgen, die Klaus delegiert hat, werden mit Klaus' Auftrag abgenommen (siehe [Klaus, der Manager](#klaus-der-manager)).
 
 Das Cockpit aktualisiert sich selbst (Server-Sent Events, alle 10 s zusätzlich Polling).
 
@@ -155,7 +155,17 @@ Regeln, die der Dienst durchsetzt:
 
 - Delegieren darf nur, wer im Profil `can_delegate: true` hat. Ein anderer Team-Agent, der es versucht, wird abgelehnt (`FORBIDDEN`, protokolliert als `DELEGATION_REJECTED`). Fremde Subagenten (Explore, general-purpose) verhalten sich wie bisher.
 - Klaus darf sich nicht selbst beauftragen.
-- `complete_task` von Klaus wird abgelehnt (`INVALID_TRANSITION`), solange Unteraufträge `REGISTERED`, `IN_PROGRESS` oder `BLOCKED` sind. Review und Abschluss der Unteraufträge bleiben bei dir.
+- `complete_task` von Klaus wird abgelehnt (`INVALID_TRANSITION`), solange Unteraufträge `REGISTERED`, `IN_PROGRESS` oder `BLOCKED` sind.
+
+**Feedback gibt es einmal pro Klaus-Auftrag.** Ein abgelieferter Unterauftrag bleibt `REVIEW_REQUIRED` (kein Agent bestätigt sich selbst), gilt aber als „über den Elternauftrag abgedeckt“:
+
+- Er taucht nicht unter „Wartet auf dich“ auf, zählt nicht im Chip „Review offen“ und löst keine Desktop-Benachrichtigung aus. Im Cockpit steht er als „Abgeliefert, Review über #N“.
+- *Als erledigt markieren* auf Klaus' Auftrag setzt auch die abgelieferten Unteraufträge auf `DONE` (Ereignis `CHILDREN_ACCEPTED`). Die Detailansicht von Klaus' Auftrag zeigt dafür die Ergebnisse der Unteraufträge mit an.
+- **Ausnahme unvollständig:** Hat ein Unterauftrag die Abschlussmeldung vergessen („Ergebnis unvollständig“), bleibt er sichtbar bei dir und wird von der Kaskade nicht mit abgenommen.
+- **Ausnahme Blocker und Fehlschlag:** Sie erreichen dich weiterhin direkt, denn dort ist eine Entscheidung nötig und kein Abnicken.
+- **Klaus' Auftrag scheitert** (`FAILED` oder `CANCELLED`): Die Abdeckung entfällt, die abgelieferten Unteraufträge warten dann einzeln auf dein Feedback.
+
+Direkt beauftragte Agenten (`@agent-karla ...`) laufen unverändert: Feedback bei jedem Auftrag.
 
 Das Cockpit zeigt in der Detailansicht „Beauftragt von“ und „Unteraufträge“, in der Auftragsliste den Hinweis „Unterauftrag von #N“.
 
