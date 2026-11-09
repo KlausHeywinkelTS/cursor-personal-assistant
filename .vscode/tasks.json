@@ -19,6 +19,35 @@
       "runOptions": {
         "runOn": "folderOpen"
       }
+    },
+    {
+      "label": "Team-Manager: Dienst starten",
+      "type": "process",
+      "command": "${workspaceFolder}/team-manager/.venv/Scripts/python.exe",
+      "args": [
+        "-m",
+        "team_manager",
+        "--skip-if-running",
+        "--open-browser"
+      ],
+      "osx": {
+        "command": "${workspaceFolder}/team-manager/.venv/bin/python"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/team-manager"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
     }
   ]
 }

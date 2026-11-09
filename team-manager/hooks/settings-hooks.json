@@ -1,0 +1,60 @@
+{
+  "_comment": "Vorlage für den hooks-Block in ~/.claude/settings.json. scripts/install.py ersetzt {{PYTHON}}, {{PORT}} und {{TOKEN}} und mischt die Einträge ein, ohne fremde Hooks anzufassen.",
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "PreToolUse": [
+    {
+      "matcher": "Agent",
+      "hooks": [
+        { "type": "command", "command": "{{PYTHON}}", "args": ["-m", "team_manager.agent_gate"], "timeout": 8 }
+      ]
+    },
+    {
+      "matcher": "mcp__team__.*|SubagentHandback",
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "PostToolUseFailure": [
+    {
+      "matcher": "Agent",
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "SubagentStart": [
+    {
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "SubagentStop": [
+    {
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 5, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ],
+  "SessionEnd": [
+    {
+      "hooks": [
+        { "type": "http", "url": "http://127.0.0.1:{{PORT}}/hooks", "timeout": 3, "headers": { "Authorization": "Bearer {{TOKEN}}" } }
+      ]
+    }
+  ]
+}

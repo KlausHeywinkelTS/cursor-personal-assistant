@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team-Cockpit</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Team-Cockpit</h1>
+    <div class="chips" id="attention" aria-live="polite"></div>
+    <span class="conn" id="conn" title="Verbindung zum Service">verbinde …</span>
+  </header>
+
+  <main>
+    <section aria-labelledby="h-agents">
+      <h2 id="h-agents">Agenten</h2>
+      <div class="agents" id="agents"></div>
+    </section>
+
+    <section id="attention-section" hidden aria-labelledby="h-attn">
+      <h2 id="h-attn">Wartet auf dich</h2>
+      <div class="cards" id="attention-list"></div>
+    </section>
+
+    <section aria-labelledby="h-tasks">
+      <h2 id="h-tasks">Aufträge</h2>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Filter"></nav>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Agent</th><th>Auftrag</th><th>Projekt</th><th>Status</th><th>Aktualisiert</th></tr>
+          </thead>
+          <tbody id="tasks"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="tasks-empty" hidden>Keine Aufträge in dieser Ansicht.</p>
+    </section>
+  </main>
+
+  <dialog id="detail" aria-labelledby="d-title">
+    <article>
+      <header>
+        <h3 id="d-title"></h3>
+        <button type="button" class="ghost" id="d-close" aria-label="Schließen">Schließen</button>
+      </header>
+      <div id="d-body"></div>
+      <p class="error" id="d-error" role="alert" hidden></p>
+      <div class="actions" id="d-actions"></div>
+    </article>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

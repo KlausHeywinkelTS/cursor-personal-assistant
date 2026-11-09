@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+spike/hook_log.jsonl
+spike/mcp_log.jsonl
+spike/control.json

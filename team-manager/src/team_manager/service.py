@@ -1,0 +1,697 @@
+"""Anwendungsfälle des Team-Managers. Einzige Stelle, die Aufträge schreibt.
+
+Alle Zustandswechsel laufen durch _transition(): Übergang prüfen, Ereignis protokollieren,
+Zeitstempel pflegen. Ein unzulässiger Übergang wird abgelehnt und als TRANSITION_REJECTED
+protokolliert (die Ablehnung wird committed, erst danach wird die Ausnahme geworfen).
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+import sqlite3
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+from .config import Settings
+from .db import Database
+from .errors import (
+    AgentBusy,
+    AgentUnknown,
+    InvalidTransition,
+    NotTaskOwner,
+    ServiceError,
+    TaskNotFound,
+)
+from .events_bus import EventBus
+from .lifecycle import ACTIVE_STATUSES, check_transition
+from .notify import Notifier, NullNotifier
+from .profiles import AgentProfile
+
+log = logging.getLogger("team_manager.service")
+
+_TASK_SELECT = (
+    "SELECT t.*, a.name AS agent_name, a.display_name AS agent_display_name "
+    "FROM task t JOIN agent a ON a.id = t.agent_id"
+)
+_ACTIVE_SQL = "(" + ", ".join(f"'{s}'" for s in ACTIVE_STATUSES) + ")"
+
+FILTERS: dict[str, tuple[str, ...] | None] = {
+    "all": None,
+    "active": ("REGISTERED", "IN_PROGRESS"),
+    "review": ("REVIEW_REQUIRED",),
+    "blocked": ("BLOCKED",),
+    "done": ("DONE",),
+    "failed": ("FAILED", "CANCELLED"),
+}
+USER_ACTIONS = {"done": "DONE", "cancel": "CANCELLED", "fail": "FAILED", "unblock": "IN_PROGRESS"}
+_MAX_TITLE, _MAX_TEXT = 200, 20_000
+
+
+class _Op:
+    """Sammelt, was nach dem Commit passieren soll (Fehler werfen, Bus, Benachrichtigung)."""
+
+    def __init__(self) -> None:
+        self.error: ServiceError | None = None
+        self.changed = False
+        self.notifications: list[tuple[str, str]] = []
+
+
+def _norm_path(path: str | None) -> str | None:
+    return os.path.normcase(os.path.normpath(path)) if path else None
+
+
+def _clip(text: str | None, limit: int) -> str:
+    return (text or "").strip()[:limit]
+
+
+def _task_dict(row: sqlite3.Row | None) -> dict | None:
+    if row is None:
+        return None
+    task = dict(row)
+    task["completion_incomplete"] = bool(task["completion_incomplete"])
+    task["orphan_suspected"] = bool(task["orphan_suspected"])
+    return task
+
+
+class TaskService:
+    def __init__(
+        self,
+        db: Database,
+        settings: Settings,
+        *,
+        notifier: Notifier | None = None,
+        bus: EventBus | None = None,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
+        self.db = db
+        self.settings = settings
+        self.notifier = notifier or NullNotifier()
+        self.bus = bus or EventBus()
+        self._clock = clock or (lambda: datetime.now(UTC))
+
+    # ------------------------------------------------------------------ Hilfen
+
+    def _ts(self) -> str:
+        return self._clock().isoformat(timespec="milliseconds")
+
+    def _write(self, fn: Callable[[sqlite3.Connection, _Op], Any]) -> Any:
+        op = _Op()
+        with self.db.write() as conn:
+            result = fn(conn, op)
+        if op.changed:
+            self.bus.publish({"type": "changed"})
+        for title, message in op.notifications:
+            try:
+                self.notifier.notify(title, message)
+            except Exception:
+                log.exception("notifier_failed")
+        if op.error is not None:
+            raise op.error
+        return result
+
+    def _event(self, conn: sqlite3.Connection, task_id: int, event_type: str, message: str = "", actor: str | None = None) -> None:
+        conn.execute(
+            "INSERT INTO task_event (task_id, event_type, message, actor, timestamp) VALUES (?, ?, ?, ?, ?)",
+            (task_id, event_type, message, actor, self._ts()),
+        )
+
+    def _agent_row(self, conn: sqlite3.Connection, name: str) -> sqlite3.Row:
+        row = conn.execute("SELECT * FROM agent WHERE name = ?", ((name or "").strip().lower(),)).fetchone()
+        if row is None or not row["enabled"]:
+            raise AgentUnknown(f"Agent '{name}' ist nicht bekannt oder deaktiviert.")
+        return row
+
+    def _task_row(self, conn: sqlite3.Connection, task_id: int) -> sqlite3.Row:
+        row = conn.execute(_TASK_SELECT + " WHERE t.id = ?", (task_id,)).fetchone()
+        if row is None:
+            raise TaskNotFound(f"Auftrag {task_id} existiert nicht.")
+        return row
+
+    def _active_row(self, conn: sqlite3.Connection, agent_id: int) -> sqlite3.Row | None:
+        return conn.execute(
+            _TASK_SELECT + f" WHERE t.agent_id = ? AND t.status IN {_ACTIVE_SQL}", (agent_id,)
+        ).fetchone()
+
+    def _busy_error(self, active: sqlite3.Row) -> AgentBusy:
+        return AgentBusy(
+            f"{active['agent_display_name']} ist beschäftigt mit Auftrag #{active['id']} "
+            f"„{active['title']}“ ({active['status']}).",
+            details={
+                "task_id": active["id"],
+                "title": active["title"],
+                "status": active["status"],
+                "since": active["started_at"] or active["created_at"],
+                "orphan_suspected": bool(active["orphan_suspected"]),
+                "project_path": active["project_path"],
+            },
+        )
+
+    def _transition(
+        self,
+        conn: sqlite3.Connection,
+        op: _Op,
+        task: sqlite3.Row,
+        to: str,
+        actor: str,
+        *,
+        message: str = "",
+        fields: dict[str, Any] | None = None,
+    ) -> bool:
+        """Führt einen validierten Statuswechsel aus. False, wenn abgelehnt (dann steht op.error)."""
+        try:
+            check_transition(task["status"], to, actor)
+        except InvalidTransition as exc:
+            self._event(
+                conn, task["id"], "TRANSITION_REJECTED",
+                f"{task['status']} -> {to} durch {actor} abgelehnt", actor,
+            )
+            log.warning(
+                "transition_rejected",
+                extra={"task_id": task["id"], "from": task["status"], "to": to, "actor": actor},
+            )
+            op.error = exc
+            op.changed = True
+            return False
+        now = self._ts()
+        values: dict[str, Any] = {"status": to, "updated_at": now, **(fields or {})}
+        if to in ("REVIEW_REQUIRED", "DONE", "FAILED", "CANCELLED") and not task["completed_at"]:
+            values["completed_at"] = now
+        if to == "IN_PROGRESS" and not task["started_at"]:
+            values["started_at"] = now
+        sets = ", ".join(f"{col} = ?" for col in values)
+        conn.execute(f"UPDATE task SET {sets} WHERE id = ?", (*values.values(), task["id"]))
+        self._event(conn, task["id"], f"STATUS_{to}", message, actor)
+        log.info(
+            "transition",
+            extra={"task_id": task["id"], "agent": task["agent_name"], "from": task["status"], "to": to, "actor": actor},
+        )
+        op.changed = True
+        if to in ("REVIEW_REQUIRED", "BLOCKED", "FAILED"):
+            op.notifications.append(self._notification(task, to, message, values))
+        return True
+
+    @staticmethod
+    def _notification(task: sqlite3.Row, to: str, message: str, values: dict) -> tuple[str, str]:
+        who = task["agent_display_name"]
+        title = task["title"]
+        if to == "REVIEW_REQUIRED":
+            return f"{who}: Review erforderlich", title
+        if to == "BLOCKED":
+            return f"{who} ist blockiert", f"{title}: {message}".strip(": ")
+        reason = values.get("failure_reason") or message
+        return f"{who}: Auftrag fehlgeschlagen", f"{title}. {reason}".strip()
+
+    # ------------------------------------------------------------------ Agenten
+
+    def sync_agents(self, profiles: list[AgentProfile]) -> None:
+        """Gleicht die Tabelle agent mit den Profilen ab. Nicht mehr vorhandene Agenten werden deaktiviert."""
+
+        def run(conn: sqlite3.Connection, op: _Op) -> None:
+            names = []
+            for p in profiles:
+                names.append(p.name)
+                conn.execute(
+                    "INSERT INTO agent (name, display_name, description, competencies, profile_path, enabled, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, 1, ?) "
+                    "ON CONFLICT(name) DO UPDATE SET display_name=excluded.display_name, "
+                    "description=excluded.description, competencies=excluded.competencies, "
+                    "profile_path=excluded.profile_path, enabled=1",
+                    (p.name, p.display_name, p.description, json.dumps(p.competencies, ensure_ascii=False), p.path, self._ts()),
+                )
+            marks = ",".join("?" for _ in names) or "''"
+            conn.execute(f"UPDATE agent SET enabled = 0 WHERE name NOT IN ({marks})", names)
+            op.changed = True
+
+        self._write(run)
+
+    def team_agent_names(self) -> list[str]:
+        with self.db.read() as conn:
+            return [r["name"] for r in conn.execute("SELECT name FROM agent WHERE enabled = 1 ORDER BY name")]
+
+    def list_agents(self) -> list[dict]:
+        with self.db.read() as conn:
+            agents = conn.execute("SELECT * FROM agent WHERE enabled = 1 ORDER BY name").fetchall()
+            result = []
+            for a in agents:
+                active = self._active_row(conn, a["id"])
+                reviews = conn.execute(
+                    "SELECT COUNT(*) AS n FROM task WHERE agent_id = ? AND status = 'REVIEW_REQUIRED'", (a["id"],)
+                ).fetchone()["n"]
+                current = _task_dict(active)
+                result.append(
+                    {
+                        "name": a["name"],
+                        "display_name": a["display_name"],
+                        "description": a["description"],
+                        "competencies": json.loads(a["competencies"]),
+                        "availability": "busy" if active else "available",
+                        "current_task": current,
+                        "open_reviews": reviews,
+                    }
+                )
+            return result
+
+    # ------------------------------------------------------------------ Aufträge anlegen
+
+    def _validate_text(self, title: str, description: str) -> tuple[str, str]:
+        title = _clip(title, _MAX_TITLE)
+        if not title:
+            raise ServiceError("Der Titel darf nicht leer sein.")
+        return title, _clip(description, _MAX_TEXT)
+
+    def _insert_task(
+        self, conn: sqlite3.Connection, agent: sqlite3.Row, *, title: str, description: str, project_path: str | None,
+        status: str, session_id: str | None = None, tool_use_id: str | None = None, claude_agent_id: str | None = None,
+    ) -> int:
+        now = self._ts()
+        try:
+            cur = conn.execute(
+                "INSERT INTO task (agent_id, title, description, project_path, status, created_at, started_at, updated_at, "
+                "session_id, tool_use_id, claude_agent_id, last_activity_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    agent["id"], title, description, project_path, status, now,
+                    now if status == "IN_PROGRESS" else None, now, session_id, tool_use_id, claude_agent_id, now,
+                ),
+            )
+        except sqlite3.IntegrityError:
+            # Letzte Verteidigungslinie: der partielle Unique-Index hat zugeschlagen.
+            active = self._active_row(conn, agent["id"])
+            if active is None:
+                raise
+            raise self._busy_error(active) from None
+        return int(cur.lastrowid)
+
+    def _reject_busy(self, conn: sqlite3.Connection, op: _Op, active: sqlite3.Row, actor: str, what: str) -> None:
+        self._event(conn, active["id"], "START_REJECTED", f"{what} abgelehnt: Agent beschäftigt", actor)
+        op.changed = True
+        op.error = self._busy_error(active)
+
+    def start_task(self, agent: str, title: str, description: str = "", project_path: str | None = None) -> dict:
+        """MCP team.start_task: reserviert den Agenten und legt einen REGISTERED-Auftrag an."""
+        title, description = self._validate_text(title, description)
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            agent_row = self._agent_row(conn, agent)
+            active = self._active_row(conn, agent_row["id"])
+            if active:
+                self._reject_busy(conn, op, active, "agent", f"Auftrag „{title}“")
+                return None
+            task_id = self._insert_task(
+                conn, agent_row, title=title, description=description, project_path=project_path, status="REGISTERED"
+            )
+            self._event(conn, task_id, "TASK_REGISTERED", "Über start_task registriert", "agent")
+            op.changed = True
+            return _task_dict(self._task_row(conn, task_id))
+
+        return self._write(run)
+
+    def reserve_for_delegation(
+        self, agent: str, title: str, description: str, project_path: str | None, session_id: str | None, tool_use_id: str | None
+    ) -> dict:
+        """PreToolUse(Agent): reserviert atomar. Übernimmt einen per start_task vorregistrierten Auftrag."""
+        title, description = self._validate_text(title or f"Auftrag an {agent}", description)
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            if tool_use_id:
+                existing = conn.execute(_TASK_SELECT + " WHERE t.tool_use_id = ?", (tool_use_id,)).fetchone()
+                if existing:  # Hook-Wiederholung
+                    return _task_dict(existing)
+            agent_row = self._agent_row(conn, agent)
+            active = self._active_row(conn, agent_row["id"])
+            if active:
+                adoptable = (
+                    active["status"] == "REGISTERED"
+                    and active["tool_use_id"] is None
+                    and (active["project_path"] is None or _norm_path(active["project_path"]) == _norm_path(project_path))
+                )
+                if not adoptable:
+                    self._reject_busy(conn, op, active, "hook", f"Delegation „{title}“")
+                    return None
+                conn.execute(
+                    "UPDATE task SET tool_use_id = ?, session_id = ?, project_path = COALESCE(project_path, ?), "
+                    "description = CASE WHEN description = '' THEN ? ELSE description END, "
+                    "last_activity_at = ?, updated_at = ? WHERE id = ?",
+                    (tool_use_id, session_id, project_path, description, self._ts(), self._ts(), active["id"]),
+                )
+                self._event(conn, active["id"], "TASK_ADOPTED", "Vorregistrierter Auftrag der Delegation zugeordnet", "hook")
+                op.changed = True
+                return _task_dict(self._task_row(conn, active["id"]))
+            task_id = self._insert_task(
+                conn, agent_row, title=title, description=description, project_path=project_path,
+                status="REGISTERED", session_id=session_id, tool_use_id=tool_use_id,
+            )
+            self._event(conn, task_id, "TASK_REGISTERED", "Durch Delegation reserviert, Start noch unbestätigt", "hook")
+            op.changed = True
+            return _task_dict(self._task_row(conn, task_id))
+
+        return self._write(run)
+
+    # ------------------------------------------------------------------ Hook-Ereignisse
+
+    def confirm_start(self, session_id: str | None, agent_type: str, claude_agent_id: str) -> dict:
+        """SubagentStart: erst jetzt gilt der Start als bestätigt. Liefert {'task': ..} oder {'untracked': Grund}."""
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict:
+            known = conn.execute(_TASK_SELECT + " WHERE t.claude_agent_id = ?", (claude_agent_id,)).fetchone()
+            if known:  # Hook-Wiederholung
+                return {"task": _task_dict(known)}
+            agent_row = conn.execute("SELECT * FROM agent WHERE name = ? AND enabled = 1", (agent_type.lower(),)).fetchone()
+            if agent_row is None:
+                return {}
+            registered = conn.execute(
+                _TASK_SELECT + " WHERE t.agent_id = ? AND t.status = 'REGISTERED' AND t.claude_agent_id IS NULL "
+                "ORDER BY t.id DESC LIMIT 1",
+                (agent_row["id"],),
+            ).fetchone()
+            if registered and registered["session_id"] and session_id and registered["session_id"] != session_id:
+                registered = None  # Reservierung einer anderen Session
+            if registered:
+                ok = self._transition(
+                    conn, op, registered, "IN_PROGRESS", "hook",
+                    message="Start bestätigt (SubagentStart)",
+                    fields={"claude_agent_id": claude_agent_id, "last_activity_at": self._ts(),
+                            "session_id": registered["session_id"] or session_id},
+                )
+                return {"task": _task_dict(self._task_row(conn, registered["id"]))} if ok else {}
+            active = self._active_row(conn, agent_row["id"])
+            if active:
+                self._event(conn, active["id"], "UNTRACKED_START",
+                            f"Subagent {claude_agent_id} ohne Reservierung gestartet, Agent beschäftigt", "hook")
+                op.changed = True
+                return {"untracked": self._busy_error(active).message}
+            task_id = self._insert_task(
+                conn, agent_row, title=f"Ohne Reservierung gestartet ({agent_row['display_name']})", description="",
+                project_path=None, status="IN_PROGRESS", session_id=session_id, claude_agent_id=claude_agent_id,
+            )
+            self._event(conn, task_id, "UNRESERVED_START", "SubagentStart ohne vorherige Reservierung", "hook")
+            op.changed = True
+            return {"task": _task_dict(self._task_row(conn, task_id))}
+
+        return self._write(run)
+
+    def touch_activity(self, claude_agent_id: str) -> None:
+        """Aktivitätsnachweis eines Subagenten. Hebt einen Verwaist-Verdacht wieder auf."""
+        with self.db.write() as conn:
+            conn.execute(
+                f"UPDATE task SET last_activity_at = ?, orphan_suspected = 0 "
+                f"WHERE claude_agent_id = ? AND status IN {_ACTIVE_SQL}",
+                (self._ts(), claude_agent_id),
+            )
+
+    def record_handback(self, claude_agent_id: str, message: str) -> None:
+        """SubagentHandback: die letzte Antwort des Subagenten, Grundlage der Zusammenfassung bei fehlender Abschlussmeldung."""
+        with self.db.write() as conn:
+            row = conn.execute("SELECT id FROM task WHERE claude_agent_id = ?", (claude_agent_id,)).fetchone()
+            if row:
+                self._event(conn, row["id"], "HANDBACK", _clip(message, _MAX_TEXT), "hook")
+
+    def subagent_stopped(self, claude_agent_id: str, transcript_path: str | None) -> dict | None:
+        """SubagentStop: Abschluss erkannt. Ohne Abschlussmeldung des Agenten -> REVIEW_REQUIRED, aber unvollständig."""
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            task = conn.execute(_TASK_SELECT + " WHERE t.claude_agent_id = ?", (claude_agent_id,)).fetchone()
+            if task is None:
+                return None
+            conn.execute("UPDATE task SET agent_stopped_at = ? WHERE id = ?", (self._ts(), task["id"]))
+            handback = conn.execute(
+                "SELECT message FROM task_event WHERE task_id = ? AND event_type = 'HANDBACK' ORDER BY id DESC LIMIT 1",
+                (task["id"],),
+            ).fetchone()
+            if task["status"] == "IN_PROGRESS":
+                summary = handback["message"] if handback else "(Der Agent hat keine Abschlussmeldung abgegeben.)"
+                self._transition(
+                    conn, op, task, "REVIEW_REQUIRED", "hook",
+                    message="Abschluss erkannt, Ergebnis unvollständig (keine complete_task-Meldung)",
+                    fields={"completion_incomplete": 1, "summary": summary, "result_reference": transcript_path},
+                )
+            else:
+                self._event(conn, task["id"], "SUBAGENT_STOPPED", f"Status bei Stop: {task['status']}", "hook")
+                if task["status"] == "REVIEW_REQUIRED" and transcript_path:
+                    conn.execute(
+                        "UPDATE task SET result_reference = COALESCE(result_reference, ?) WHERE id = ?",
+                        (transcript_path, task["id"]),
+                    )
+                op.changed = True
+            return _task_dict(self._task_row(conn, task["id"]))
+
+        return self._write(run)
+
+    def start_failed(self, tool_use_id: str, error: str) -> None:
+        """PostToolUseFailure(Agent): der Start ist nicht zustande gekommen."""
+
+        def run(conn: sqlite3.Connection, op: _Op) -> None:
+            task = conn.execute(_TASK_SELECT + " WHERE t.tool_use_id = ?", (tool_use_id,)).fetchone()
+            if task and task["status"] == "REGISTERED":
+                reason = f"Start fehlgeschlagen: {_clip(error, 300)}"
+                self._transition(conn, op, task, "FAILED", "hook", message=reason, fields={"failure_reason": reason})
+
+        self._write(run)
+
+    def session_ended(self, session_id: str) -> int:
+        """SessionEnd: aktive Aufträge der Session werden als möglicherweise verwaist gekennzeichnet (nie als erfolgreich)."""
+
+        def run(conn: sqlite3.Connection, op: _Op) -> int:
+            rows = conn.execute(
+                f"SELECT id FROM task WHERE session_id = ? AND status IN {_ACTIVE_SQL} AND session_ended_at IS NULL",
+                (session_id,),
+            ).fetchall()
+            for row in rows:
+                conn.execute(
+                    "UPDATE task SET session_ended_at = ?, orphan_suspected = 1, updated_at = ? WHERE id = ?",
+                    (self._ts(), self._ts(), row["id"]),
+                )
+                self._event(conn, row["id"], "SESSION_ENDED", "Claude-Code-Session beendet, Auftrag möglicherweise verwaist", "hook")
+            op.changed = bool(rows)
+            return len(rows)
+
+        return self._write(run)
+
+    # ------------------------------------------------------------------ Agenten-Werkzeuge (MCP)
+
+    def _owned_task(self, conn: sqlite3.Connection, op: _Op, task_id: int, caller_agent_id: str | None) -> sqlite3.Row | None:
+        task = self._task_row(conn, task_id)
+        if not caller_agent_id or task["claude_agent_id"] != caller_agent_id:
+            self._event(conn, task_id, "OWNERSHIP_REJECTED", "Zugriff einer fremden oder unbekannten Session abgelehnt", "agent")
+            op.changed = True
+            op.error = NotTaskOwner(
+                f"Auftrag {task_id} gehört nicht zu dieser Agentensitzung.", details={"task_id": task_id}
+            )
+            return None
+        return task
+
+    def agent_update(self, caller_agent_id: str | None, task_id: int, status: str | None, message: str) -> dict | None:
+        status = (status or "").strip().upper() or None
+        message = _clip(message, _MAX_TEXT)
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            task = self._owned_task(conn, op, task_id, caller_agent_id)
+            if task is None:
+                return None
+            if status and status not in (task["status"], "IN_PROGRESS"):
+                check_transition_ok = self._transition_probe(conn, op, task, status)
+                if not check_transition_ok:
+                    return None
+                op.error = ServiceError(
+                    "Verwende report_blocker für Blocker und complete_task für den Abschluss.", code=None
+                )
+                return None
+            if status == "IN_PROGRESS" and task["status"] == "BLOCKED":
+                if not self._transition(conn, op, task, "IN_PROGRESS", "agent", message=message or "Blocker aufgelöst",
+                                        fields={"last_activity_at": self._ts(), "orphan_suspected": 0}):
+                    return None
+            elif task["status"] not in ACTIVE_STATUSES:
+                self._reject(conn, op, task, "update_task bei beendetem Auftrag")
+                return None
+            else:
+                conn.execute(
+                    "UPDATE task SET last_activity_at = ?, updated_at = ?, orphan_suspected = 0 WHERE id = ?",
+                    (self._ts(), self._ts(), task_id),
+                )
+                self._event(conn, task_id, "PROGRESS", message, "agent")
+                op.changed = True
+            return _task_dict(self._task_row(conn, task_id))
+
+        return self._write(run)
+
+    def _transition_probe(self, conn: sqlite3.Connection, op: _Op, task: sqlite3.Row, to: str) -> bool:
+        """Prüft einen gewünschten Agentenübergang nur auf Zulässigkeit; bei Ablehnung wird protokolliert."""
+        try:
+            check_transition(task["status"], to, "agent")
+        except InvalidTransition as exc:
+            self._event(conn, task["id"], "TRANSITION_REJECTED", f"{task['status']} -> {to} durch agent abgelehnt", "agent")
+            op.error, op.changed = exc, True
+            return False
+        return True
+
+    def _reject(self, conn: sqlite3.Connection, op: _Op, task: sqlite3.Row, what: str) -> None:
+        self._event(conn, task["id"], "TRANSITION_REJECTED", f"{what}: Status {task['status']}", "agent")
+        op.changed = True
+        op.error = InvalidTransition(
+            f"Auftrag {task['id']} ist {task['status']}; {what} ist nicht mehr möglich.",
+            details={"status": task["status"]},
+        )
+
+    def agent_complete(self, caller_agent_id: str | None, task_id: int, summary: str, result_reference: str | None) -> dict | None:
+        summary = _clip(summary, _MAX_TEXT)
+        if not summary:
+            raise ServiceError("Die Zusammenfassung (summary) darf nicht leer sein.")
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            task = self._owned_task(conn, op, task_id, caller_agent_id)
+            if task is None:
+                return None
+            ok = self._transition(
+                conn, op, task, "REVIEW_REQUIRED", "agent", message=summary,
+                fields={"summary": summary, "result_reference": _clip(result_reference, 2000) or None,
+                        "completion_incomplete": 0, "orphan_suspected": 0},
+            )
+            return _task_dict(self._task_row(conn, task_id)) if ok else None
+
+        return self._write(run)
+
+    def agent_blocker(self, caller_agent_id: str | None, task_id: int, reason: str) -> dict | None:
+        reason = _clip(reason, _MAX_TEXT)
+        if not reason:
+            raise ServiceError("Der Blocker-Grund (reason) darf nicht leer sein.")
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            task = self._owned_task(conn, op, task_id, caller_agent_id)
+            if task is None:
+                return None
+            if task["status"] == "BLOCKED":  # idempotent: Grund aktualisieren
+                self._event(conn, task_id, "BLOCKER_UPDATED", reason, "agent")
+                op.changed = True
+            elif not self._transition(conn, op, task, "BLOCKED", "agent", message=reason):
+                return None
+            return _task_dict(self._task_row(conn, task_id))
+
+        return self._write(run)
+
+    # ------------------------------------------------------------------ Benutzeraktionen
+
+    def user_action(self, task_id: int, action: str, note: str = "") -> dict:
+        target = USER_ACTIONS.get(action)
+        if target is None:
+            raise ServiceError(f"Unbekannte Aktion '{action}'.")
+        note = _clip(note, 1000)
+
+        def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
+            task = self._task_row(conn, task_id)
+            if action == "unblock" and task["agent_stopped_at"]:
+                self._event(conn, task_id, "TRANSITION_REJECTED", "Blocker lösen nicht möglich: Agent läuft nicht mehr", "user")
+                op.changed = True
+                op.error = InvalidTransition(
+                    "Der Agent läuft nicht mehr. Bitte den Auftrag abbrechen und neu beauftragen.", details={"task_id": task_id}
+                )
+                return None
+            fields: dict[str, Any] = {}
+            if action == "fail":
+                fields["failure_reason"] = note or "Vom Benutzer als fehlgeschlagen markiert"
+            if action == "cancel" and task["status"] in ACTIVE_STATUSES:
+                fields["failure_reason"] = note or "Vom Benutzer abgebrochen"
+            if action == "unblock":
+                fields.update(last_activity_at=self._ts(), orphan_suspected=0)
+            ok = self._transition(conn, op, task, target, "user", message=note, fields=fields)
+            return _task_dict(self._task_row(conn, task_id)) if ok else None
+
+        return self._write(run)
+
+    # ------------------------------------------------------------------ Watchdog
+
+    def run_watchdog(self) -> list[int]:
+        """Prüft Zeitbedingungen. Gibt die IDs der veränderten Aufträge zurück."""
+        now = self._clock()
+        s = self.settings
+
+        def parse(value: str | None) -> datetime | None:
+            return datetime.fromisoformat(value) if value else None
+
+        def run(conn: sqlite3.Connection, op: _Op) -> list[int]:
+            changed: list[int] = []
+            rows = conn.execute(_TASK_SELECT + f" WHERE t.status IN {_ACTIVE_SQL}").fetchall()
+            for t in rows:
+                last = parse(t["last_activity_at"]) or parse(t["started_at"]) or parse(t["created_at"])
+                if t["status"] == "REGISTERED" and t["claude_agent_id"] is None:
+                    if now - last > timedelta(seconds=s.registered_timeout_s):
+                        reason = "Start nicht bestätigt (kein SubagentStart innerhalb der Frist)"
+                        if self._transition(conn, op, t, "FAILED", "watchdog", message=reason, fields={"failure_reason": reason}):
+                            changed.append(t["id"])
+                    continue
+                if t["status"] != "IN_PROGRESS":
+                    continue  # BLOCKED wartet bewusst auf den Benutzer
+                ended = parse(t["session_ended_at"])
+                if ended and last <= ended and now - ended > timedelta(seconds=s.session_end_grace_s):
+                    reason = "Session beendet (Fenster geschlossen?), keine Aktivität mehr"
+                    if self._transition(conn, op, t, "FAILED", "watchdog", message=reason, fields={"failure_reason": reason}):
+                        changed.append(t["id"])
+                    continue
+                if not t["orphan_suspected"] and now - last > timedelta(seconds=s.orphan_timeout_s):
+                    conn.execute("UPDATE task SET orphan_suspected = 1, updated_at = ? WHERE id = ?", (self._ts(), t["id"]))
+                    self._event(conn, t["id"], "ORPHAN_SUSPECTED",
+                                f"Keine Aktivität seit {int((now - last).total_seconds() // 60)} Minuten", "watchdog")
+                    op.changed = True
+                    changed.append(t["id"])
+            return changed
+
+        return self._write(run)
+
+    # ------------------------------------------------------------------ Lesen
+
+    @staticmethod
+    def _attach_blocker_reasons(conn: sqlite3.Connection, tasks: list[dict]) -> None:
+        """Hängt an blockierte Aufträge den zuletzt gemeldeten Grund (steht im Ereignisprotokoll)."""
+        blocked = [t["id"] for t in tasks if t["status"] == "BLOCKED"]
+        reasons: dict[int, str] = {}
+        if blocked:
+            marks = ",".join("?" for _ in blocked)
+            rows = conn.execute(
+                "SELECT task_id, message FROM task_event WHERE id IN ("
+                "SELECT MAX(id) FROM task_event WHERE event_type IN ('STATUS_BLOCKED', 'BLOCKER_UPDATED') "
+                f"AND task_id IN ({marks}) GROUP BY task_id)",
+                blocked,
+            ).fetchall()
+            reasons = {r["task_id"]: r["message"] for r in rows}
+        for t in tasks:
+            t["blocker_reason"] = reasons.get(t["id"])
+
+    def get_task(self, task_id: int, *, events: int = 50) -> dict:
+        with self.db.read() as conn:
+            task = _task_dict(self._task_row(conn, task_id))
+            self._attach_blocker_reasons(conn, [task])
+            rows = conn.execute(
+                "SELECT id, event_type, message, actor, timestamp FROM task_event WHERE task_id = ? ORDER BY id DESC LIMIT ?",
+                (task_id, events),
+            ).fetchall()
+            task["events"] = [dict(r) for r in reversed(rows)]
+            return task
+
+    def list_tasks(self, filter_name: str = "all", limit: int = 500) -> list[dict]:
+        if filter_name not in FILTERS:
+            raise ServiceError(f"Unbekannter Filter '{filter_name}'.")
+        statuses = FILTERS[filter_name]
+        with self.db.read() as conn:
+            where, params = "", []
+            if statuses:
+                where = " WHERE t.status IN (" + ",".join("?" for _ in statuses) + ")"
+                params = list(statuses)
+            rows = conn.execute(_TASK_SELECT + where + " ORDER BY t.id DESC LIMIT ?", (*params, limit)).fetchall()
+            tasks = [_task_dict(r) for r in rows]
+            self._attach_blocker_reasons(conn, tasks)
+            return tasks
+
+    def snapshot(self) -> dict:
+        tasks = self.list_tasks("all")
+        count = lambda *st: sum(1 for t in tasks if t["status"] in st)  # noqa: E731
+        return {
+            "server_time": self._ts(),
+            "agents": self.list_agents(),
+            "tasks": tasks,
+            "attention": {
+                "review": count("REVIEW_REQUIRED"),
+                "blocked": count("BLOCKED"),
+                "orphans": sum(1 for t in tasks if t["orphan_suspected"] and t["status"] in ACTIVE_STATUSES),
+            },
+        }
