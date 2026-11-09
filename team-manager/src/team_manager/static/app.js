@@ -9,6 +9,15 @@ const TABS = [
   ["blocked", "Blockiert", ["BLOCKED"]], ["done", "Abgeschlossen", ["DONE"]], ["failed", "Fehlgeschlagen", ["FAILED", "CANCELLED"]],
 ];
 const ACTIVE = ["REGISTERED", "IN_PROGRESS", "BLOCKED"];
+// Symbole sind reine Dekoration (aria-hidden): der Status steckt weiterhin im Text.
+const STATUS_SYMBOL = {
+  REGISTERED: "○", IN_PROGRESS: "▸", REVIEW_REQUIRED: "◐", BLOCKED: "■", DONE: "✓", FAILED: "✕", CANCELLED: "⊘",
+  busy: "▸", available: "○", idle: "○",
+};
+// Agentenfarbe nach agent.name (nicht display_name); Farben stehen in style.css (.ag-*)
+const AGENT_CLASS = { klaus: "ag-klaus", karla: "ag-karla", yasmin: "ag-yasmin", lotta: "ag-lotta" };
+const agentClass = (name) => AGENT_CLASS[name] || "ag-other";
+const PULSE_MS = 2400; // = Dauer von @keyframes orb-pulse
 
 let state = null, filter = "all", openTaskId = null, csrf = null, refreshTimer = null;
 
@@ -36,7 +45,10 @@ function ago(iso) {
 const abs = (iso) => (iso ? new Date(iso).toLocaleString("de-DE") : "");
 const time = (iso) => h("span", { title: abs(iso) }, ago(iso));
 const base = (p) => (p ? p.replace(/[\\/]+$/, "").split(/[\\/]/).pop() : "–");
-const pill = (cls, text) => h("span", { class: `pill ${cls}` }, text);
+const pill = (cls, text) => h("span", { class: `pill ${cls}` }, h("span", { class: "sym", "aria-hidden": "true" }, STATUS_SYMBOL[cls] || "•"), text);
+// Kugel-Avatar. Die Pulsphase kommt aus der Uhrzeit, damit ein Neuaufbau durch render() den Puls nicht von vorn startet.
+const orb = (busy) => h("span", { class: `orb ${busy ? "busy" : "idle"}`, "aria-hidden": "true", style: busy ? `--pulse-delay: -${Date.now() % PULSE_MS}ms` : null });
+const agentName = (name, display, busy) => h("span", { class: `who ${agentClass(name)}` }, orb(busy), h("span", { class: "ag-name" }, display));
 function flags(t) {
   const out = [];
   if (t.completion_incomplete) out.push(h("div", { class: "flag" }, "Abschluss erkannt, Ergebnis unvollständig"));
@@ -92,19 +104,24 @@ function actionButtons(t) {
 function render() {
   if (!state) return;
   const a = state.attention;
-  $("attention").replaceChildren(...[
-    a.review ? h("span", { class: "chip review" }, `${a.review} Review offen`) : null,
-    a.blocked ? h("span", { class: "chip blocked" }, `${a.blocked} blockiert`) : null,
-    a.orphans ? h("span", { class: "chip orphan" }, `${a.orphans} möglicherweise verwaist`) : null,
-    !a.review && !a.blocked && !a.orphans ? h("span", { class: "chip calm" }, "Nichts offen") : null,
-  ].filter(Boolean));
+  // Chips nur bei Änderung neu bauen, sonst verliert ein fokussierter Sprunglink alle 10 s den Fokus.
+  const chipKey = `${a.review}|${a.blocked}|${a.orphans}`;
+  if ($("attention").dataset.key !== chipKey) {
+    $("attention").dataset.key = chipKey;
+    $("attention").replaceChildren(...[
+      a.review ? h("a", { class: "chip review", href: "#attention-section" }, `${a.review} Review offen`) : null,
+      a.blocked ? h("a", { class: "chip blocked", href: "#attention-section" }, `${a.blocked} blockiert`) : null,
+      a.orphans ? h("span", { class: "chip orphan" }, `${a.orphans} möglicherweise verwaist`) : null,
+      !a.review && !a.blocked && !a.orphans ? h("span", { class: "chip calm" }, "Nichts offen") : null,
+    ].filter(Boolean));
+  }
   document.title = (a.review + a.blocked ? `(${a.review + a.blocked}) ` : "") + "Team-Cockpit";
 
   $("agents").replaceChildren(...state.agents.map(agentCard));
   if (!state.agents.length) $("agents").replaceChildren(h("p", { class: "empty" }, "Keine Agenten konfiguriert (Profile mit team_member: true fehlen)."));
 
   const attn = state.tasks.filter((t) => t.status === "REVIEW_REQUIRED" || t.status === "BLOCKED").reverse();
-  $("attention-section").hidden = attn.length === 0;
+  $("attention-empty").hidden = attn.length > 0;
   $("attention-list").replaceChildren(...attn.map(attentionCard));
 
   $("tabs").replaceChildren(...TABS.map(([key, label, statuses]) => {
@@ -120,8 +137,8 @@ function render() {
 function agentCard(a) {
   const t = a.current_task;
   const label = a.availability === "busy" ? "Beschäftigt" : "Frei";
-  return h("div", { class: "card" },
-    h("h3", null, a.display_name, pill(a.availability, label)),
+  return h("div", { class: `card ${agentClass(a.name)}` },
+    h("h3", null, agentName(a.name, a.display_name, a.availability === "busy"), pill(a.availability, label)),
     t ? [
       h("div", { class: "task-title" }, `#${t.id} ${t.title}`),
       h("div", { class: "meta" }, pill(t.status, STATUS_LABEL[t.status])),
@@ -134,8 +151,8 @@ function agentCard(a) {
   );
 }
 function attentionCard(t) {
-  return h("div", { class: `card ${t.status === "BLOCKED" ? "attn-blocked" : "attn-review"}`, onclick: () => showDetail(t.id), tabindex: "0", role: "button", onkeydown: (e) => { if (e.key === "Enter") showDetail(t.id); } },
-    h("h3", null, `${t.agent_display_name}`, pill(t.status, STATUS_LABEL[t.status])),
+  return h("div", { class: `card ${agentClass(t.agent_name)} ${t.status === "BLOCKED" ? "attn-blocked" : "attn-review"}`, onclick: () => showDetail(t.id), tabindex: "0", role: "button", onkeydown: (e) => { if (e.key === "Enter") showDetail(t.id); } },
+    h("h3", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status)), pill(t.status, STATUS_LABEL[t.status])),
     h("div", { class: "task-title" }, `#${t.id} ${t.title}`),
     h("div", { class: "meta" }, t.status === "BLOCKED" ? "Blocker: " : "Ergebnis: ", (t.status === "BLOCKED" ? lastBlocker(t) : t.summary) || "–"),
     flags(t),
@@ -145,7 +162,7 @@ function attentionCard(t) {
 const lastBlocker = (t) => t.blocker_reason || "siehe Details";
 function taskRow(t) {
   return h("tr", { tabindex: "0", onclick: () => showDetail(t.id), onkeydown: (e) => { if (e.key === "Enter") showDetail(t.id); } },
-    h("td", null, t.id), h("td", null, t.agent_display_name),
+    h("td", null, t.id), h("td", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status))),
     h("td", { class: "title" }, t.title, t.parent_task_id ? h("span", { class: "meta" }, ` (Unterauftrag von #${t.parent_task_id})`) : null, flags(t)),
     h("td", { title: t.project_path || "" }, base(t.project_path)),
     h("td", null, pill(t.status, STATUS_LABEL[t.status])),
@@ -158,7 +175,7 @@ async function showDetail(id, silent) {
   openTaskId = id;
   try {
     const t = await api(`/api/tasks/${id}`);
-    $("d-title").textContent = `#${t.id} ${t.title}`;
+    $("d-title").replaceChildren(h("span", { class: agentClass(t.agent_name) }, orb(ACTIVE.includes(t.status))), `#${t.id} ${t.title}`);
     const ref = t.result_reference || "";
     const refEl = /^https?:\/\//.test(ref) ? h("a", { href: ref, target: "_blank", rel: "noopener noreferrer" }, ref) : ref || "–";
     const blocker = [...t.events].reverse().find((e) => e.event_type === "STATUS_BLOCKED" || e.event_type === "BLOCKER_UPDATED");
@@ -166,7 +183,7 @@ async function showDetail(id, silent) {
       h("div", null, pill(t.status, STATUS_LABEL[t.status])),
       flags(t).map((f) => h("div", { class: "banner" }, f.textContent)),
       h("dl", null,
-        h("dt", null, "Agent"), h("dd", null, t.agent_display_name),
+        h("dt", null, "Agent"), h("dd", null, agentName(t.agent_name, t.agent_display_name, ACTIVE.includes(t.status))),
         t.parent ? [h("dt", null, "Beauftragt von"), h("dd", null, taskLink(t.parent.id, `${t.parent.agent_display_name}: ${t.parent.title}`))] : null,
         t.children && t.children.length ? [h("dt", null, "Unteraufträge"), h("dd", null, h("ul", { class: "events" },
           t.children.map((c) => h("li", null, taskLink(c.id, `${c.agent_display_name}: ${c.title}`), " ", pill(c.status, STATUS_LABEL[c.status])))))] : null,

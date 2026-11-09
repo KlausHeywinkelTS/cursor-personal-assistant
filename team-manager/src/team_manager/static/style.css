@@ -1,14 +1,21 @@
 :root {
   color-scheme: light dark;
-  --bg: #f6f7f9; --panel: #ffffff; --text: #1c2330; --muted: #637083; --line: #e1e5ec;
-  --accent: #2f6fed; --ok: #1f8a4c; --warn: #b7791f; --bad: #c0392b; --review: #7a3fd1;
-  --ok-bg: #e3f4ea; --warn-bg: #fbf0d9; --bad-bg: #fbe4e1; --review-bg: #efe6fb; --info-bg: #e6edfd; --idle-bg: #edf0f4;
+  --bg: #f6f7f9; --panel: #ffffff; --text: #1c2330; --muted: #566377; --line: #e1e5ec;
+  --accent: #2f6fed; --info: #1f55c9; --ok: #17703d; --warn: #8a5a0c; --bad: #b4123a; --review: #0b6580;
+  --ok-bg: #e3f4ea; --warn-bg: #fbf0d9; --bad-bg: #fbe1e7; --review-bg: #dff3f8; --info-bg: #e6edfd; --idle-bg: #edf0f4;
+  /* Agentenidentitaet: -c = Streifen/Kugel (>= 3:1), -t = Text (>= 4,5:1), jeweils auf --panel */
+  --klaus-c: #b88400; --klaus-t: #7a5200; --karla-c: #e0533a; --karla-t: #b0361d;
+  --yasmin-c: #0f9c70; --yasmin-t: #0a7352; --lotta-c: #8057f0; --lotta-t: #6a3fd0;
+  --other-c: #8592a5; --other-t: #556070;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #12161d; --panel: #1b212b; --text: #e6eaf0; --muted: #98a3b5; --line: #2b3442;
-    --accent: #6c9bff; --ok: #5fcf8b; --warn: #f0b955; --bad: #ff8d80; --review: #b996f2;
-    --ok-bg: #16352a; --warn-bg: #3a2f14; --bad-bg: #3d1f1c; --review-bg: #2c2147; --info-bg: #1b2b4d; --idle-bg: #262e3b;
+    --accent: #6c9bff; --info: #6c9bff; --ok: #5fcf8b; --warn: #f0b955; --bad: #ff8aa3; --review: #5cc8e8;
+    --ok-bg: #16352a; --warn-bg: #3a2f14; --bad-bg: #3d1f28; --review-bg: #14323d; --info-bg: #1b2b4d; --idle-bg: #262e3b;
+    --klaus-c: #ffcc4d; --klaus-t: #ffd466; --karla-c: #ff7a5c; --karla-t: #ff8f75;
+    --yasmin-c: #33d4a0; --yasmin-t: #4fdcb0; --lotta-c: #9b6bff; --lotta-t: #b99aff;
+    --other-c: #7d8aa0; --other-t: #a3aebf;
   }
 }
 * { box-sizing: border-box; }
@@ -22,13 +29,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 sys
 .chip.blocked { background: var(--bad-bg); color: var(--bad); }
 .chip.orphan { background: var(--warn-bg); color: var(--warn); }
 .chip.calm { background: var(--ok-bg); color: var(--ok); }
+a.chip { text-decoration: none; } a.chip:hover { text-decoration: underline; }
 .conn { font-size: .8rem; color: var(--muted); }
 .conn.ok::before, .conn.bad::before { content: "●"; margin-right: .35rem; }
 .conn.ok::before { color: var(--ok); } .conn.bad::before { color: var(--bad); }
 main { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
 h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 1.5rem 0 .6rem; }
 .agents, .cards { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .85rem 1rem; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .85rem 1rem; box-shadow: inset 0 4px 0 var(--ag-c, transparent); }
 .card.attn-review { border-left: 4px solid var(--review); }
 .card.attn-blocked { border-left: 4px solid var(--bad); }
 .card h3 { margin: 0 0 .3rem; font-size: 1.05rem; display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
@@ -37,11 +45,27 @@ h2 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: 
 .meta + .meta { margin-top: .1rem; }
 .pill { display: inline-block; padding: .1rem .55rem; border-radius: 99px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
 .pill.idle, .pill.CANCELLED { background: var(--idle-bg); color: var(--muted); }
-.pill.REGISTERED, .pill.IN_PROGRESS, .pill.busy { background: var(--info-bg); color: var(--accent); }
+.pill.REGISTERED, .pill.IN_PROGRESS, .pill.busy { background: var(--info-bg); color: var(--info); }
 .pill.BLOCKED, .pill.FAILED { background: var(--bad-bg); color: var(--bad); }
 .pill.REVIEW_REQUIRED { background: var(--review-bg); color: var(--review); }
 .pill.DONE, .pill.available { background: var(--ok-bg); color: var(--ok); }
+.pill .sym { margin-right: .3rem; }
 .flag { color: var(--warn); font-size: .82rem; font-weight: 600; margin-top: .3rem; }
+.ag-klaus { --ag-c: var(--klaus-c); --ag-t: var(--klaus-t); }
+.ag-karla { --ag-c: var(--karla-c); --ag-t: var(--karla-t); }
+.ag-yasmin { --ag-c: var(--yasmin-c); --ag-t: var(--yasmin-t); }
+.ag-lotta { --ag-c: var(--lotta-c); --ag-t: var(--lotta-t); }
+.ag-other { --ag-c: var(--other-c); --ag-t: var(--other-t); }
+.ag-name { color: var(--ag-t, var(--text)); font-weight: 600; }
+.orb { position: relative; display: inline-block; flex: none; width: .95em; height: .95em; border-radius: 50%; vertical-align: -.1em; margin-right: .4em;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .95) 0 11%, transparent 24%),
+    radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--ag-c) 30%, #fff), var(--ag-c) 42%, color-mix(in srgb, var(--ag-c) 55%, #000) 100%); }
+.who { display: inline-flex; align-items: center; gap: .45rem; }
+.who .orb { margin-right: 0; }
+.orb.idle { filter: saturate(.5); opacity: .8; }
+.orb.busy { box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--ag-c); }
+.quiet { color: var(--muted); margin: 0; }
+#attention-section { scroll-margin-top: 5rem; }
 .tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .6rem; }
 .tabs button { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: .3rem .8rem; border-radius: 99px; cursor: pointer; font: inherit; font-size: .88rem; }
 .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -59,7 +83,7 @@ button.primary { background: var(--accent); color: #fff; }
 button.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
 button.ghost { background: transparent; color: var(--text); border-color: var(--line); }
 button:disabled { opacity: .5; cursor: progress; }
-button:focus-visible, .tabs button:focus-visible, tbody tr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, .tabs button:focus-visible, tbody tr:focus-visible, a.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card .actions, #d-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .65rem; }
 dialog { width: min(720px, 94vw); max-height: 88vh; border: 1px solid var(--line); border-radius: 12px; padding: 0; background: var(--panel); color: var(--text); }
 dialog::backdrop { background: rgba(0, 0, 0, .45); }
@@ -74,4 +98,11 @@ dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; white-space
 .error { color: var(--bad); font-weight: 600; }
 .banner { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: .5rem .75rem; margin: .5rem 0; font-weight: 600; }
 @media (max-width: 600px) { .top, main { padding-inline: 1rem; } th:nth-child(4), td:nth-child(4) { display: none; } }
-@media (prefers-reduced-motion: no-preference) { .card, .pill { transition: background-color .2s; } }
+@media (prefers-reduced-motion: no-preference) {
+  .card, .pill { transition: background-color .2s; }
+  html { scroll-behavior: smooth; }
+  /* Phase kommt per negativem animation-delay aus der Uhrzeit (app.js), damit render() den Puls nicht neu startet */
+  .orb.busy::after { content: ""; position: absolute; inset: -3.5px; border-radius: 50%; border: 2px solid var(--ag-c); opacity: 0;
+    animation: orb-pulse 2.4s ease-out infinite; animation-delay: var(--pulse-delay, 0s); pointer-events: none; }
+  @keyframes orb-pulse { 0% { transform: scale(1); opacity: .65; } 100% { transform: scale(1.9); opacity: 0; } }
+}

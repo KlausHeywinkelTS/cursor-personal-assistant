@@ -48,6 +48,12 @@ def test_index_is_served(client):
     assert client.get("/static/app.js").status_code == 200
 
 
+def test_index_contains_stable_section_ids(client):
+    html = client.get("/").text
+    for needle in ("Team-Cockpit", 'id="agents"', 'id="attention-section"', 'id="tasks"'):
+        assert needle in html
+
+
 def test_team_cache_for_gate_hook_is_written(client, app_settings):
     assert json.loads(app_settings.team_agents_cache.read_text())["names"] == ["karla", "lotta", "yasmin"]
 
