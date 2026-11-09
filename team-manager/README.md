@@ -1,6 +1,6 @@
 # Team-Manager für Claude-Code-Agenten
 
-Lokaler Dienst, der ein kleines, festes Team von KI-Agenten (Karla, Yasmin, Lotta) verwaltet, die als Claude-Code-Subagenten in VS Code arbeiten. Er beantwortet jederzeit:
+Lokaler Dienst, der ein kleines, festes Team von KI-Agenten (Karla, Yasmin, Lotta und Klaus als Manager) verwaltet, die als Claude-Code-Subagenten in VS Code arbeiten. Er beantwortet jederzeit:
 
 - Wer ist beschäftigt, wer ist frei?
 - Woran arbeitet wer, und seit wann?
@@ -137,7 +137,31 @@ In Claude Code heißen sie `mcp__team__<name>` (Punkte wie in `team.list_agents`
 | `complete_task(task_id, summary, result_reference)` | Meldet das Ergebnis, der Auftrag geht auf `REVIEW_REQUIRED` |
 | `report_blocker(task_id, reason)` | Meldet einen Blocker |
 
-Es gibt kein Werkzeug, um andere Agenten zu beauftragen. Aufrufe von `start_task` aus einem Subagenten blockiert der Hook zusätzlich.
+Es gibt kein MCP-Werkzeug, um andere Agenten zu beauftragen. Aufrufe von `start_task` aus einem Subagenten blockiert der Hook zusätzlich. Delegation läuft über das Agent-Tool, siehe nächster Abschnitt.
+
+## Klaus, der Manager
+
+Klaus ist ein Teammitglied wie die anderen (`@agent-klaus ...`), darf aber über das `Agent`-Tool Karla, Yasmin oder Lotta beauftragen. Er erledigt die Facharbeit nicht selbst.
+
+```text
+@agent-klaus  -->  Auftrag #1 Klaus (In Arbeit)
+                     |-- Agent(karla)   -->  Auftrag #2 Karla,  Unterauftrag von #1
+                     '-- Agent(lotta)   -->  Auftrag #3 Lotta,  Unterauftrag von #1
+```
+
+Der Team-Manager bekommt jede Delegation mit, weil sie durch dieselben Hooks läuft wie dein eigener Aufruf. Der `PreToolUse`-Hook auf `Agent` trägt die `agent_id` des Aufrufers, der Dienst ordnet sie Klaus' Auftrag zu und legt den neuen Auftrag als Unterauftrag an. Klaus' Delegation läuft also auch durch die Reservierung: Ist Karla beschäftigt, wird sie abgelehnt, und Klaus soll einen Blocker melden statt selbst zu arbeiten.
+
+Regeln, die der Dienst durchsetzt:
+
+- Delegieren darf nur, wer im Profil `can_delegate: true` hat. Ein anderer Team-Agent, der es versucht, wird abgelehnt (`FORBIDDEN`, protokolliert als `DELEGATION_REJECTED`). Fremde Subagenten (Explore, general-purpose) verhalten sich wie bisher.
+- Klaus darf sich nicht selbst beauftragen.
+- `complete_task` von Klaus wird abgelehnt (`INVALID_TRANSITION`), solange Unteraufträge `REGISTERED`, `IN_PROGRESS` oder `BLOCKED` sind. Review und Abschluss der Unteraufträge bleiben bei dir.
+
+Das Cockpit zeigt in der Detailansicht „Beauftragt von“ und „Unteraufträge“, in der Auftragsliste den Hinweis „Unterauftrag von #N“.
+
+Voraussetzung ist, dass Claude Code verschachtelte Subagenten erlaubt (Standard, bis drei Ebenen). Nicht belegt ist, ob Klaus auf Hintergrund-Subagenten wartet. Siehe [docs/limitations.md](docs/limitations.md) und Abnahmetest 8.
+
+Nach dem Hinzufügen: `py team-manager/scripts/install.py` ausführen (kopiert `klaus.md`), Dienst neu starten, VS-Code-Fenster neu laden.
 
 ## Agentenprofile konfigurieren
 
@@ -154,6 +178,7 @@ competencies:
 tools: Read, Glob, Grep, mcp__team__update_task, mcp__team__complete_task, mcp__team__report_blocker
 disallowedTools: Agent, mcp__team__start_task
 model: sonnet
+can_delegate: false   # optional; true erlaubt, andere Teammitglieder zu beauftragen (nur Klaus)
 ---
 ```
 

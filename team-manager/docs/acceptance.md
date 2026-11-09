@@ -74,6 +74,19 @@ Automatisch: nicht möglich (braucht echte Projekte). Im Spike bereits mit `sw-c
 
 Ergebnis: ☐ bestanden ☐ nicht bestanden. Notiz:
 
+## Test 8: Klaus delegiert (nur manuell prüfbar)
+
+Voraussetzung: `install.py` erneut ausgeführt (kopiert `klaus.md`), Dienst neu gestartet, VS-Code-Fenster neu geladen.
+
+1. `@agent-klaus Lass Karla die README auf Lücken prüfen und Lotta daraus eine Checkliste bauen.` ausführen.
+2. Erwartet im Cockpit: Auftrag von Klaus (In Arbeit) und zwei Unteraufträge für Karla und Lotta mit „Unterauftrag von #N“. In der Detailansicht von Klaus stehen die Unteraufträge, in deren Detail steht „Beauftragt von“.
+3. Karla vorher per `@agent-karla` beschäftigen und Test wiederholen. Erwartet: Klaus wird die Delegation verweigert, er meldet einen Blocker oder weicht aus, er arbeitet nicht selbst.
+4. Prüfen, ob Klaus mit `complete_task` auf die Unteraufträge wartet. Offen (nicht belegt): Subagenten laufen standardmäßig im Hintergrund, ob Klaus nach deren Ende wieder aufgeweckt wird oder vorher endet, ist ungemessen. Endet Klaus vorher, steht sein Auftrag auf *Review erforderlich* (unvollständig), die Unteraufträge laufen eigenständig weiter.
+
+Automatisch: Hook- und Service-Logik in `tests/test_delegation.py`. Das Verhalten von Claude Code (verschachtelte Subagenten) ist nicht automatisch prüfbar.
+
+Ergebnis: ☐ bestanden ☐ nicht bestanden. Notiz:
+
 ## Zusätzlich prüfen
 
 - Dienst stoppen, `@agent-karla ...` ausführen. Erwartet: Start wird abgelehnt mit dem Hinweis, den Team-Manager zu starten. Ein `Explore`-Subagent läuft weiterhin normal. (Automatisch: `test_e2e.py::test_gate_fails_closed_for_team_agent_when_service_is_down`)

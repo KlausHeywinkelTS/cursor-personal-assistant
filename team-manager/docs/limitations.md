@@ -18,7 +18,9 @@
 ### Bedingt durch das MVP
 
 - **Genau ein aktiver Auftrag pro Agent.** Fortgesetzte Agentenläufe (Nachfragen an dieselbe Instanz) bekommen keinen eigenen Auftrag, V9 aus dem Spike ist ungeprüft.
-- **Keine Agent-zu-Agent-Kommunikation, keine automatische Delegation**, bewusst (Szenario A).
+- **Delegation nur von oben nach unten und nur durch Klaus.** Wer delegieren darf, steht im Profil (`can_delegate: true`). Es gibt keine Kommunikation zwischen gleichrangigen Agenten und keine Rückfragen von Karla an Klaus. Die Verschachtelung ist auf eine Ebene unter dem Manager ausgelegt. Claude Code erlaubt standardmäßig drei Ebenen (`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), der Team-Manager verbietet das Delegieren für alle anderen Team-Agenten.
+- **Ob Klaus auf seine Unteraufträge wartet, ist ungemessen** (Abnahmetest 8). Der Team-Manager lehnt `complete_task` ab, solange Unteraufträge laufen. Endet Klaus trotzdem früher, wird sein Auftrag unvollständig auf *Review erforderlich* gesetzt, die Unteraufträge laufen weiter.
+- **Delegation durch Klaus ist wie jede andere Delegation Modellverhalten.** Der Dienst sieht nur, was über das Agent-Tool läuft. Erledigt Klaus Arbeit selbst, entsteht kein Unterauftrag.
 - **Ein Nutzer, eine Maschine.** Keine Benutzerverwaltung, keine Fernzugriffe.
 - **`result_reference` ist ein Text** (Pfad oder URL), das Cockpit öffnet lokale Dateien nicht.
 - **Profiländerungen** wirken erst nach Neustart des Dienstes.
@@ -36,5 +38,5 @@
 - **Auswertung:** Durchlaufzeiten, Anteil unvollständiger Abschlüsse, Review-Dauer.
 - **Projektfilter** im Cockpit und Zuordnung zu Jira-Issues.
 - **Profile im Cockpit bearbeiten** und ohne Neustart neu laden.
-- **Agent-zu-Agent-Zusammenarbeit** (Szenario B) mit expliziter Delegationskette. Dafür wäre ein Auftragsbaum im Datenmodell nötig.
+- **Weitergehende Zusammenarbeit** zwischen Agenten (Rückfragen, mehrstufige Delegationsketten). Der Auftragsbaum (`parent_task_id`) ist seit Klaus im Datenmodell vorhanden.
 - **Mehr Messungen:** V6 mit mehr Stichproben (Fenster schließen, Absturz, Ruhezustand) und V8/V9 aus dem Spike.

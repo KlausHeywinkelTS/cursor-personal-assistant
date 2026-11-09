@@ -22,6 +22,7 @@ class AgentProfile:
     description: str
     competencies: list[str] = field(default_factory=list)
     path: str = ""
+    can_delegate: bool = False  # darf andere Teammitglieder über das Agent-Tool beauftragen (Manager)
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -61,6 +62,7 @@ def load_profiles(agents_dir: Path) -> list[AgentProfile]:
                 description=str(meta.get("description", "")).strip(),
                 competencies=[str(c) for c in competencies],
                 path=str(file),
+                can_delegate=meta.get("can_delegate") is True,
             )
         )
     return profiles

@@ -146,13 +146,14 @@ const lastBlocker = (t) => t.blocker_reason || "siehe Details";
 function taskRow(t) {
   return h("tr", { tabindex: "0", onclick: () => showDetail(t.id), onkeydown: (e) => { if (e.key === "Enter") showDetail(t.id); } },
     h("td", null, t.id), h("td", null, t.agent_display_name),
-    h("td", { class: "title" }, t.title, flags(t)),
+    h("td", { class: "title" }, t.title, t.parent_task_id ? h("span", { class: "meta" }, ` (Unterauftrag von #${t.parent_task_id})`) : null, flags(t)),
     h("td", { title: t.project_path || "" }, base(t.project_path)),
     h("td", null, pill(t.status, STATUS_LABEL[t.status])),
     h("td", null, time(t.updated_at)));
 }
 
 /* ---------- Detail ---------- */
+const taskLink = (id, label) => h("a", { href: `#task-${id}`, onclick: (e) => { e.preventDefault(); showDetail(id); } }, `#${id} ${label}`);
 async function showDetail(id, silent) {
   openTaskId = id;
   try {
@@ -166,6 +167,9 @@ async function showDetail(id, silent) {
       flags(t).map((f) => h("div", { class: "banner" }, f.textContent)),
       h("dl", null,
         h("dt", null, "Agent"), h("dd", null, t.agent_display_name),
+        t.parent ? [h("dt", null, "Beauftragt von"), h("dd", null, taskLink(t.parent.id, `${t.parent.agent_display_name}: ${t.parent.title}`))] : null,
+        t.children && t.children.length ? [h("dt", null, "Unteraufträge"), h("dd", null, h("ul", { class: "events" },
+          t.children.map((c) => h("li", null, taskLink(c.id, `${c.agent_display_name}: ${c.title}`), " ", pill(c.status, STATUS_LABEL[c.status])))))] : null,
         h("dt", null, "Projekt"), h("dd", null, t.project_path || "–"),
         h("dt", null, "Beschreibung"), h("dd", null, t.description || "–"),
         t.status === "BLOCKED" && blocker ? [h("dt", null, "Blocker"), h("dd", null, blocker.message)] : null,

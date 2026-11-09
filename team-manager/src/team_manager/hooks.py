@@ -9,7 +9,7 @@ import logging
 import re
 
 from .bridge import ToolUseBridge
-from .errors import AgentBusy, AgentUnknown, ServiceError
+from .errors import AgentBusy, AgentUnknown, Forbidden, ServiceError
 from .service import TaskService
 
 log = logging.getLogger("team_manager.hooks")
@@ -115,6 +115,7 @@ class HookHandler:
         subagent = str(tool_input.get("subagent_type") or "").strip().lower()
         if subagent not in self.service.team_agent_names():
             return {}  # fremder Subagent, nicht unsere Sache
+        delegator = payload.get("agent_id")  # gesetzt, wenn ein Subagent (z. B. Klaus) delegiert
         try:
             self.service.reserve_for_delegation(
                 subagent,
@@ -123,15 +124,24 @@ class HookHandler:
                 payload.get("cwd"),
                 payload.get("session_id"),
                 payload.get("tool_use_id"),
+                delegator,
             )
         except AgentBusy as exc:
             hint = ""
             if exc.details.get("orphan_suspected"):
                 hint = " Der Auftrag ist möglicherweise verwaist und kann im Cockpit abgebrochen werden."
+            if delegator:
+                return _deny(
+                    f"{exc.message}{hint} Erledige den Auftrag NICHT selbst und versuche es nicht in einer Schleife: "
+                    f"melde per report_blocker, dass {subagent.capitalize()} beschäftigt ist, oder wähle ein anderes "
+                    "Teammitglied, wenn die Kompetenz passt."
+                )
             return _deny(
                 f"{exc.message}{hint} Erledige den Auftrag NICHT selbst: sage dem Benutzer, dass "
                 f"{subagent.capitalize()} beschäftigt ist (Cockpit: {self.cockpit_url})."
             )
+        except Forbidden as exc:
+            return _deny(f"{exc.message} Erledige den Auftrag nicht selbst, sondern berichte dem Benutzer.")
         except AgentUnknown as exc:
             return _deny(f"{exc.message} Erledige den Auftrag nicht selbst, sondern informiere den Benutzer.")
         except Exception:
@@ -162,12 +172,18 @@ class HookHandler:
         result = self.service.confirm_start(payload.get("session_id"), agent_type, agent_id)
         task = result.get("task")
         if task:
+            if task["agent_can_delegate"]:
+                team_rule = (
+                    "Du darfst Teammitglieder beauftragen, aber nur über das Agent-Tool mit deren subagent_type "
+                    "(nur so erfährt der Team-Manager davon). Gib in deiner Zusammenfassung die Nummern der Unteraufträge an."
+                )
+            else:
+                team_rule = "Beauftrage keine anderen Agenten."
             return _context(
                 "SubagentStart",
                 f"[Team-Manager] Du bearbeitest Auftrag #{task['id']} „{task['title']}“. Verwende immer task_id={task['id']}. "
                 "Melde Fortschritt mit mcp__team__update_task, Blocker mit mcp__team__report_blocker und "
-                "dein Ergebnis zum Schluss mit mcp__team__complete_task (summary, result_reference). "
-                "Beauftrage keine anderen Agenten.",
+                f"dein Ergebnis zum Schluss mit mcp__team__complete_task (summary, result_reference). {team_rule}",
             )
         if result.get("untracked"):
             return _context(

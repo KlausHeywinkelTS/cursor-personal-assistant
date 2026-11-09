@@ -20,6 +20,7 @@ from .db import Database
 from .errors import (
     AgentBusy,
     AgentUnknown,
+    Forbidden,
     InvalidTransition,
     NotTaskOwner,
     ServiceError,
@@ -33,7 +34,7 @@ from .profiles import AgentProfile
 log = logging.getLogger("team_manager.service")
 
 _TASK_SELECT = (
-    "SELECT t.*, a.name AS agent_name, a.display_name AS agent_display_name "
+    "SELECT t.*, a.name AS agent_name, a.display_name AS agent_display_name, a.can_delegate AS agent_can_delegate "
     "FROM task t JOIN agent a ON a.id = t.agent_id"
 )
 _ACTIVE_SQL = "(" + ", ".join(f"'{s}'" for s in ACTIVE_STATUSES) + ")"
@@ -73,6 +74,7 @@ def _task_dict(row: sqlite3.Row | None) -> dict | None:
     task = dict(row)
     task["completion_incomplete"] = bool(task["completion_incomplete"])
     task["orphan_suspected"] = bool(task["orphan_suspected"])
+    task["agent_can_delegate"] = bool(task["agent_can_delegate"])
     return task
 
 
@@ -214,12 +216,15 @@ class TaskService:
             for p in profiles:
                 names.append(p.name)
                 conn.execute(
-                    "INSERT INTO agent (name, display_name, description, competencies, profile_path, enabled, created_at) "
-                    "VALUES (?, ?, ?, ?, ?, 1, ?) "
+                    "INSERT INTO agent (name, display_name, description, competencies, profile_path, can_delegate, enabled, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 1, ?) "
                     "ON CONFLICT(name) DO UPDATE SET display_name=excluded.display_name, "
                     "description=excluded.description, competencies=excluded.competencies, "
-                    "profile_path=excluded.profile_path, enabled=1",
-                    (p.name, p.display_name, p.description, json.dumps(p.competencies, ensure_ascii=False), p.path, self._ts()),
+                    "profile_path=excluded.profile_path, can_delegate=excluded.can_delegate, enabled=1",
+                    (
+                        p.name, p.display_name, p.description, json.dumps(p.competencies, ensure_ascii=False), p.path,
+                        int(p.can_delegate), self._ts(),
+                    ),
                 )
             marks = ",".join("?" for _ in names) or "''"
             conn.execute(f"UPDATE agent SET enabled = 0 WHERE name NOT IN ({marks})", names)
@@ -247,6 +252,7 @@ class TaskService:
                         "display_name": a["display_name"],
                         "description": a["description"],
                         "competencies": json.loads(a["competencies"]),
+                        "can_delegate": bool(a["can_delegate"]),
                         "availability": "busy" if active else "available",
                         "current_task": current,
                         "open_reviews": reviews,
@@ -265,15 +271,17 @@ class TaskService:
     def _insert_task(
         self, conn: sqlite3.Connection, agent: sqlite3.Row, *, title: str, description: str, project_path: str | None,
         status: str, session_id: str | None = None, tool_use_id: str | None = None, claude_agent_id: str | None = None,
+        parent_task_id: int | None = None,
     ) -> int:
         now = self._ts()
         try:
             cur = conn.execute(
                 "INSERT INTO task (agent_id, title, description, project_path, status, created_at, started_at, updated_at, "
-                "session_id, tool_use_id, claude_agent_id, last_activity_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                "session_id, tool_use_id, claude_agent_id, last_activity_at, parent_task_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     agent["id"], title, description, project_path, status, now,
                     now if status == "IN_PROGRESS" else None, now, session_id, tool_use_id, claude_agent_id, now,
+                    parent_task_id,
                 ),
             )
         except sqlite3.IntegrityError:
@@ -309,9 +317,15 @@ class TaskService:
         return self._write(run)
 
     def reserve_for_delegation(
-        self, agent: str, title: str, description: str, project_path: str | None, session_id: str | None, tool_use_id: str | None
+        self, agent: str, title: str, description: str, project_path: str | None, session_id: str | None, tool_use_id: str | None,
+        delegator_agent_id: str | None = None,
     ) -> dict:
-        """PreToolUse(Agent): reserviert atomar. Übernimmt einen per start_task vorregistrierten Auftrag."""
+        """PreToolUse(Agent): reserviert atomar. Übernimmt einen per start_task vorregistrierten Auftrag.
+
+        delegator_agent_id ist die agent_id des Subagenten, der das Agent-Tool aufruft (None: Hauptsession).
+        Ist der Aufrufer ein Teammitglied, muss sein Profil `can_delegate` setzen. Der neue Auftrag wird
+        dann als Unterauftrag an dessen Auftrag gehängt.
+        """
         title, description = self._validate_text(title or f"Auftrag an {agent}", description)
 
         def run(conn: sqlite3.Connection, op: _Op) -> dict | None:
@@ -320,6 +334,29 @@ class TaskService:
                 if existing:  # Hook-Wiederholung
                     return _task_dict(existing)
             agent_row = self._agent_row(conn, agent)
+            parent = None
+            if delegator_agent_id:  # fremde, nicht registrierte Subagenten bleiben wie bisher ohne Elternauftrag
+                parent = conn.execute(_TASK_SELECT + " WHERE t.claude_agent_id = ?", (delegator_agent_id,)).fetchone()
+            if parent is not None:
+                denial = None
+                if not parent["agent_can_delegate"]:
+                    denial = f"{parent['agent_display_name']} darf keine anderen Agenten beauftragen."
+                elif parent["agent_name"] == agent_row["name"]:
+                    denial = "Ein Agent darf sich nicht selbst beauftragen."
+                if denial:
+                    self._event(conn, parent["id"], "DELEGATION_REJECTED", f"Delegation an {agent_row['display_name']} abgelehnt: {denial}", "hook")
+                    op.changed = True
+                    op.error = Forbidden(denial, details={"task_id": parent["id"]})
+                    return None
+            parent_id = parent["id"] if parent is not None else None
+
+            def note_delegation(child_id: int) -> None:
+                if parent_id is not None:
+                    self._event(
+                        conn, parent_id, "DELEGATED",
+                        f"An {agent_row['display_name']} delegiert: Auftrag #{child_id} „{title}“", "hook",
+                    )
+
             active = self._active_row(conn, agent_row["id"])
             if active:
                 adoptable = (
@@ -333,17 +370,20 @@ class TaskService:
                 conn.execute(
                     "UPDATE task SET tool_use_id = ?, session_id = ?, project_path = COALESCE(project_path, ?), "
                     "description = CASE WHEN description = '' THEN ? ELSE description END, "
-                    "last_activity_at = ?, updated_at = ? WHERE id = ?",
-                    (tool_use_id, session_id, project_path, description, self._ts(), self._ts(), active["id"]),
+                    "parent_task_id = COALESCE(parent_task_id, ?), last_activity_at = ?, updated_at = ? WHERE id = ?",
+                    (tool_use_id, session_id, project_path, description, parent_id, self._ts(), self._ts(), active["id"]),
                 )
                 self._event(conn, active["id"], "TASK_ADOPTED", "Vorregistrierter Auftrag der Delegation zugeordnet", "hook")
+                note_delegation(active["id"])
                 op.changed = True
                 return _task_dict(self._task_row(conn, active["id"]))
             task_id = self._insert_task(
                 conn, agent_row, title=title, description=description, project_path=project_path,
-                status="REGISTERED", session_id=session_id, tool_use_id=tool_use_id,
+                status="REGISTERED", session_id=session_id, tool_use_id=tool_use_id, parent_task_id=parent_id,
             )
-            self._event(conn, task_id, "TASK_REGISTERED", "Durch Delegation reserviert, Start noch unbestätigt", "hook")
+            origin = f"Delegation von {parent['agent_display_name']} (Auftrag #{parent_id})" if parent_id else "Delegation"
+            self._event(conn, task_id, "TASK_REGISTERED", f"Durch {origin} reserviert, Start noch unbestätigt", "hook")
+            note_delegation(task_id)
             op.changed = True
             return _task_dict(self._task_row(conn, task_id))
 
@@ -543,6 +583,20 @@ class TaskService:
             task = self._owned_task(conn, op, task_id, caller_agent_id)
             if task is None:
                 return None
+            open_children = conn.execute(
+                f"SELECT t.id, a.display_name FROM task t JOIN agent a ON a.id = t.agent_id "
+                f"WHERE t.parent_task_id = ? AND t.status IN {_ACTIVE_SQL} ORDER BY t.id",
+                (task_id,),
+            ).fetchall()
+            if open_children:
+                listing = ", ".join(f"#{c['id']} ({c['display_name']})" for c in open_children)
+                self._event(conn, task_id, "TRANSITION_REJECTED", f"complete_task abgelehnt: Unteraufträge laufen noch: {listing}", "agent")
+                op.changed = True
+                op.error = InvalidTransition(
+                    f"Unteraufträge laufen noch: {listing}. Warte auf deren Ergebnis (get_task) oder melde einen Blocker.",
+                    details={"open_children": [c["id"] for c in open_children]},
+                )
+                return None
             ok = self._transition(
                 conn, op, task, "REVIEW_REQUIRED", "agent", message=summary,
                 fields={"summary": summary, "result_reference": _clip(result_reference, 2000) or None,
@@ -661,6 +715,17 @@ class TaskService:
         with self.db.read() as conn:
             task = _task_dict(self._task_row(conn, task_id))
             self._attach_blocker_reasons(conn, [task])
+            parent = task["parent_task_id"] and conn.execute(
+                _TASK_SELECT + " WHERE t.id = ?", (task["parent_task_id"],)
+            ).fetchone()
+            task["parent"] = (
+                {"id": parent["id"], "title": parent["title"], "agent_display_name": parent["agent_display_name"]}
+                if parent else None
+            )
+            task["children"] = [
+                {"id": c["id"], "title": c["title"], "status": c["status"], "agent_display_name": c["agent_display_name"]}
+                for c in conn.execute(_TASK_SELECT + " WHERE t.parent_task_id = ? ORDER BY t.id", (task_id,))
+            ]
             rows = conn.execute(
                 "SELECT id, event_type, message, actor, timestamp FROM task_event WHERE task_id = ? ORDER BY id DESC LIMIT ?",
                 (task_id, events),
