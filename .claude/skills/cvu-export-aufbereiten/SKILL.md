@@ -126,11 +126,22 @@ Entweder `false`, wenn keine Produktreaktion erkennbar ist. Oder ein Objekt:
 
 Das Feld `product-response` pro Posting setzen, andere Felder nicht anfassen. Danach Schritt 3 erneut laufen lassen, damit die Struktur geprüft wird.
 
-Die Postings mit Produktreaktion und ihre Zusammenfassungen kurz ausgeben. Jeder Eintrag bekommt den Teams-Link aus `teams_link`.
+Die Ausgabe an den Nutzer ist eine Markdown-Tabelle, die er in eine Teams-Nachricht kopieren kann. Sie enthält **alle Postings mit Text aus dem Zeitraum**, auch die ohne Produktreaktion. Die Reihenfolge ist nach `created_at` aufsteigend (ältestes zuerst).
+
+| Titel des Posts | Votes | Produktreaktion (sales_summary) | Link |
+|---|---|---|---|
+| Kurzer Titel | 1 | `sales_summary`, sonst leer | [Link to message](teams_link) |
+
+- **Titel des Posts:** Postings haben keinen Titel. Der Agent leitet einen kurzen deutschen Titel aus dem Inhalt ab, höchstens etwa 8 Wörter. Er beschreibt das Thema, z. B. „Control Centre: nicht mehr genutzte Shops ausblenden“, und nennt keine Personen.
+- **Votes:** Wert aus `votes`.
+- **Produktreaktion:** `sales_summary`, wenn `product-response` ein Objekt ist. Bei `false` bleibt die Zelle leer.
+- **Link:** Linktext immer „Link to message“, URL aus `teams_link`.
+
+Unsichere Fälle stehen nicht in der Tabelle, sondern werden getrennt im Abschluss gelistet.
 
 ## Abschluss
 
-- Dem Nutzer melden: aufgelöster Zeitraum mit Datumsangabe (z. B. „letzte zwei Wochen = 26.10.–08.11.2026“), Anzahl Loops, Anzahl Hauptpostings und Replies im Zeitraum, wie viele Null-Posts entfernt wurden, wie viele Links gesetzt wurden, wie viele Postings eine Produktreaktion haben.
+- Dem Nutzer melden: aufgelöster Zeitraum mit Datumsangabe (z. B. „letzte zwei Wochen = 26.10.–08.11.2026“), Anzahl Loops, Anzahl Hauptpostings und Replies im Zeitraum, wie viele Null-Posts entfernt wurden, wie viele Links gesetzt wurden, wie viele Postings eine Produktreaktion haben. Die Tabelle aus Schritt 4 mit allen Postings mit Text ausgeben.
 - Unsichere Fälle separat auflisten, mit Begründung, warum sie nicht aufgenommen wurden.
 - Die Rohdatei im OneDrive-Ordner liegen lassen. Sie ist die Quelle für die Links.
 - Keine Dateien außerhalb von `reports/` verändern.
