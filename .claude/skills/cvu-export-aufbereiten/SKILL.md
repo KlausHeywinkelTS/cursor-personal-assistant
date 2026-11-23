@@ -28,6 +28,11 @@ Eingabe: ein **Zeitraum**. Erkannte Formen:
 
 IDs (Team, Kanal, Tenant) stehen auch als Konstanten in den Scripts unter `src/`. Ändert sich der Kanal, dort und hier anpassen.
 
+## Sprache
+
+- Die **Ausgabe für Sales ist Englisch**: Tabellenkopf und -inhalte, `reason` und `sales_summary` im Report. Die Titel kommen als `subject` aus dem Export und sind ohnehin Englisch.
+- Die Meldungen an den Nutzer im Chat (Zeitraum, Zählwerte, unsichere Fälle, Hinweise) bleiben Deutsch.
+
 ## Ablauf
 
 Alle Befehle aus dem Projektroot. Pfade mit Leerzeichen immer in Anführungszeichen.
@@ -113,14 +118,14 @@ Entweder `false`, wenn keine Produktreaktion erkennbar ist. Oder ein Objekt:
 ```json
 "product-response": {
   "replies": [3, 11],
-  "reason": "Erklärung in einem Satz oder zwei, ohne R-Nummern",
-  "sales_summary": "Ein Satz, der für Sales ohne Vorwissen verständlich ist."
+  "reason": "Explanation in one or two sentences, without R numbers",
+  "sales_summary": "One sentence that someone in Sales without prior context understands."
 }
 ```
 
 - `replies`: Reply-Nummern, 1-basiert, in der Reihenfolge der Replies im Report. Nur die Replies, auf die sich die Aussage stützt.
-- `reason`: Begründung für den Nutzer, keine R-Nummern wie „R3:“ oder „R5“ im Text.
-- `sales_summary`: genau ein Satz, Deutsch, ohne interne Fachbegriffe, wenn möglich mit der Konsequenz für den Kunden. Zusagen nur schreiben, wenn der Text eine Zusage enthält. Heißt es „kein Zeitplan“ oder „nicht geplant“, genau das sagen.
+- `reason`: Englisch. Begründung für den Nutzer, keine R-Nummern wie „R3:“ oder „R5“ im Text.
+- `sales_summary`: Englisch, genau ein Satz, ohne interne Fachbegriffe, wenn möglich mit der Konsequenz für den Kunden. Zusagen nur schreiben, wenn der Text eine Zusage enthält. Heißt es sinngemäß „no timeline“ oder „not planned“, genau das sagen.
 
 #### Schreiben
 
@@ -128,13 +133,13 @@ Das Feld `product-response` pro Posting setzen, andere Felder nicht anfassen. Da
 
 Die Ausgabe an den Nutzer ist eine Markdown-Tabelle, die er in eine Teams-Nachricht kopieren kann. Sie enthält **alle Postings mit Text aus dem Zeitraum**, auch die ohne Produktreaktion. Die Reihenfolge ist nach `created_at` aufsteigend (ältestes zuerst).
 
-| Titel des Posts | Votes | Produktreaktion (sales_summary) | Link |
+| Title | Votes | Product response (sales_summary) | Link |
 |---|---|---|---|
-| Kurzer Titel | 1 | `sales_summary`, sonst leer | [Link to message](teams_link) |
+| `subject` aus der Rohdatei | 1 | `sales_summary`, sonst leer | [Link to message](teams_link) |
 
-- **Titel des Posts:** Postings haben keinen Titel. Der Agent leitet einen kurzen deutschen Titel aus dem Inhalt ab, höchstens etwa 8 Wörter. Er beschreibt das Thema, z. B. „Control Centre: nicht mehr genutzte Shops ausblenden“, und nennt keine Personen.
+- **Title:** Das `subject` des Postings aus der Rohdatei, wörtlich übernommen (nicht übersetzen, nicht kürzen, nicht umformulieren). Zuordnung über die Message-ID: Sie steht in `teams_link` nach `/l/message/<Kanal>/` und ist die Erstellzeit des Postings in Millisekunden UTC. In der Rohdatei entspricht dem das Feld `created-at` (ISO, UTC, z. B. `2026-11-10T15:06:51.877Z`). Fehlt `subject` oder findet sich keine eindeutige Zuordnung, den Titel nicht erfinden, sondern dem Nutzer melden.
 - **Votes:** Wert aus `votes`.
-- **Produktreaktion:** `sales_summary`, wenn `product-response` ein Objekt ist. Bei `false` bleibt die Zelle leer.
+- **Product response:** `sales_summary`, wenn `product-response` ein Objekt ist. Bei `false` bleibt die Zelle leer.
 - **Link:** Linktext immer „Link to message“, URL aus `teams_link`.
 
 Unsichere Fälle stehen nicht in der Tabelle, sondern werden getrennt im Abschluss gelistet.
@@ -143,5 +148,5 @@ Unsichere Fälle stehen nicht in der Tabelle, sondern werden getrennt im Abschlu
 
 - Dem Nutzer melden: aufgelöster Zeitraum mit Datumsangabe (z. B. „letzte zwei Wochen = 26.10.–08.11.2026“), Anzahl Loops, Anzahl Hauptpostings und Replies im Zeitraum, wie viele Null-Posts entfernt wurden, wie viele Links gesetzt wurden, wie viele Postings eine Produktreaktion haben. Die Tabelle aus Schritt 4 mit allen Postings mit Text ausgeben.
 - Unsichere Fälle separat auflisten, mit Begründung, warum sie nicht aufgenommen wurden.
-- Die Rohdatei im OneDrive-Ordner liegen lassen. Sie ist die Quelle für die Links.
+- Die Rohdatei im OneDrive-Ordner liegen lassen. Sie ist die Quelle für die Links und die Titel (`subject`).
 - Keine Dateien außerhalb von `reports/` verändern.
